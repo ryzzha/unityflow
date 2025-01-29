@@ -1,1 +1,1 @@
-export type IconKey = "main" | "create" | "dao" | "statistics";
+export type IconKey = "funds" | "create" | "dao" | "statistics";

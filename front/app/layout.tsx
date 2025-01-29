@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/navigation";
-import Image from "next/image";
+import { MainContextProvider } from "@/context/main-context";
+import BaseLayout from "@/shared/base-layout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,18 +27,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="w-full h-screen flex font-[family-name:var(--font-geist-sans)]">
-          <div className="w-1/6 h-screen hidden md:block sticky inset-y-0 min-w-[10%]">
-            <Navigation />
-          </div>
-          <div className="w-full h-auto p-5 my-1 md:p-10 overflow-x-auto overflow-y-hidden z-10">
-            {children}
-          </div>
-        </div>
-      </body>
+      <MainContextProvider>
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <BaseLayout>{children}</BaseLayout>
+        </body>
+      </MainContextProvider>
     </html>
   );
 }

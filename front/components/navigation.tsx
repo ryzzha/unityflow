@@ -6,28 +6,25 @@ import { IconKey } from "@/shared/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { JSX, useState } from "react";
-import { MainIcon, CreateIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
+import { FundIcon, CreateIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
 import { unityFlowLogo } from "@/assets";
+import { useMainContext } from "@/context/main-context";
 
 const iconComponents: Record<IconKey, () => JSX.Element> = {
-    main: MainIcon,
+    funds: FundIcon,
     create: CreateIcon,
     dao: DaoIcon,
     statistics: StatisticsIcon,
 };
 
 export default function Navigation() {
-const [isOpen, setIsOpen] = useState(true);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
+  const { isMenuOpen, toggleMenu } = useMainContext();
 
   const router = useRouter();
   const pathname = usePathname();
 
   return (
-    <header className={`h-screen ${isOpen ? "w-full" : "w-1/2"} px-8 py-5 flex flex-col items-start justify-between gap-16 bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
+    <header className={`h-screen ${isMenuOpen ? "w-full" : "w-1/2"} px-8 py-5 flex flex-col items-start justify-between gap-16 bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
       <div
         className="w-full flex justify-center items-center gap-1 md:gap-3 cursor-pointer"
         onClick={() => router.replace("/")}
@@ -37,9 +34,9 @@ const [isOpen, setIsOpen] = useState(true);
           alt="logo"
           width={100}
           height={100}
-          className={`rounded-xl ${isOpen ? "size-7" : "size-10"} md:size-12`}
+          className={`rounded-xl ${isMenuOpen ? "size-7" : "size-10"} md:size-12`}
         />
-        {isOpen && <h1 className="text-2xl font-bold">UnityFund</h1>}
+        {isMenuOpen && <h1 className="text-2xl font-bold">UnityFlow</h1>}
       </div>
 
       <nav className="flex w-full h-full flex-col items-start justify-start gap-2 rounded-xl">
@@ -55,7 +52,7 @@ const [isOpen, setIsOpen] = useState(true);
               } w-full flex justify-start items-center gap-3 hover:bg-gray-100 hover:scale-[1.02] rounded-xl px-4 py-2`}
             >
               <Icon />
-              {isOpen && <p className="text-base font-bold">{menuItem.name}</p>}
+              {isMenuOpen && <p className="text-base font-bold">{menuItem.name}</p>}
             </Link>
           );
         })}
@@ -66,13 +63,13 @@ const [isOpen, setIsOpen] = useState(true);
           className="mb-5 px-4 py-2 text-white bg-gray-800 hover:bg-gray-500 rounded-xl"
           onClick={() => console.log("Connect Wallet")}
         >
-          {isOpen ? "Connect Wallet" : <ConnectIcon />}
+          {isMenuOpen ? "Connect Wallet" : <ConnectIcon />}
         </button>
         <button
           className="text-gray-600 hover:text-gray-800"
           onClick={toggleMenu}
         >
-          {isOpen ? <ChevronLeftIcon /> : <ChevronRigthIcon />}
+          {isMenuOpen ? <ChevronLeftIcon /> : <ChevronRigthIcon />}
         </button>
       </div>
     </header>
