@@ -7,7 +7,7 @@ import { unityFlowUser } from '@/assets';
 import Image from 'next/image';
 
 const FundraisingCampaign = ({ campaign }: { campaign: IFundraisingCampaign }) => {
-  const { organizer, title, description, category, goalAmount, collectedAmount, deadline, image } = campaign;
+  const { organizer, title, description, category, goalAmount, collected, deadline, image } = campaign;
   const remainingDays = daysLeft(deadline);
 
   return (
@@ -41,7 +41,7 @@ const FundraisingCampaign = ({ campaign }: { campaign: IFundraisingCampaign }) =
         <div className="flex justify-between flex-wrap mt-[15px] gap-2">
           <div className="flex flex-col">
             <h4 className="font-epilogue font-semibold text-[14px] text-[#374151] leading-[22px]">
-              {collectedAmount}
+              {collected}
             </h4>
             <p className="mt-[2px] font-epilogue font-normal text-[12px] text-[#6b7280] leading-[18px] truncate">
               Raised of {goalAmount}

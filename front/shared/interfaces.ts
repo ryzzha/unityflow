@@ -10,12 +10,13 @@ interface IFundraisingCampaign {
     organizer: string;      
     title: string;     
     description: string;     
+    image: string;
     category: FundCategory;
     goalAmount: number;      
-    collectedAmount: number; 
-    donors: Donor[];         
+    collected: number;      
     deadline: Date;         
-    image: string;
+    claimed: boolean;
+    donators: Donor[];    
 }
 
 export type { IFundraisingCampaign };

@@ -23,6 +23,8 @@ export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
 
+  console.log(pathname)
+
   return (
     <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} py-5 flex flex-col items-start justify-between gap-16 inset-y-0 sticky bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
       <div
@@ -48,7 +50,7 @@ export default function Navigation() {
               href={menuItem.link}
               key={menuItem.name}
               className={`
-                ${isActive && "bg-main-blue-light bg-opacity-10"}
+                ${isActive && "bg-gray-50 bg-opacity-50"}
                 ${isMenuOpen ? "justify-start" : "justify-center"}
                   w-full flex items-center gap-3 hover:bg-gray-50 hover:scale-[1.02] rounded-xl px-3 py-2
               `}
