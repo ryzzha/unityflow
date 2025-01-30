@@ -24,7 +24,7 @@ export default function Navigation() {
   const pathname = usePathname();
 
   return (
-    <header className={`h-screen ${isMenuOpen ? "w-full" : "w-1/2"} px-8 py-5 flex flex-col items-start justify-between gap-16 bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
+    <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} py-5 flex flex-col items-start justify-between gap-16 bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
       <div
         className="w-full flex justify-center items-center gap-1 md:gap-3 cursor-pointer"
         onClick={() => router.replace("/")}
@@ -47,9 +47,11 @@ export default function Navigation() {
             <Link
               href={menuItem.link}
               key={menuItem.name}
-              className={`${
-                isActive && "bg-main-blue-light bg-opacity-10"
-              } w-full flex justify-start items-center gap-3 hover:bg-gray-100 hover:scale-[1.02] rounded-xl px-4 py-2`}
+              className={`
+                ${isActive && "bg-main-blue-light bg-opacity-10"}
+                ${isMenuOpen ? "justify-start" : "justify-center"}
+                  w-full flex items-center gap-3 hover:bg-gray-50 hover:scale-[1.02] rounded-xl px-3 py-2
+              `}
             >
               <Icon />
               {isMenuOpen && <p className="text-base font-bold">{menuItem.name}</p>}
@@ -60,7 +62,7 @@ export default function Navigation() {
 
       <div className="w-full flex flex-col items-center">
         <button
-          className="mb-5 px-4 py-2 text-white bg-gray-800 hover:bg-gray-500 rounded-xl"
+          className="mb-5 px-4 py-2 text-white  bg-gray-800 hover:bg-gray-500 rounded-xl"
           onClick={() => console.log("Connect Wallet")}
         >
           {isMenuOpen ? "Connect Wallet" : <ConnectIcon />}
