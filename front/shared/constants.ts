@@ -7,4 +7,17 @@ const menuItems: { name: string; link: string; icon: IconKey }[] = [
     { name: "Statistics", link: "/statistics", icon: "statistics" },
 ];
 
-export { menuItems };
+const categories = [
+    "All",
+    "Startups",
+    "Art",
+    "Fun",
+    "Education",
+    "Health",
+    "Environment",
+    "Social",
+    "Animals",
+    "Personal",
+  ];
+
+export { menuItems, categories };

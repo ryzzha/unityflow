@@ -65,7 +65,7 @@ export const testCampaigns: IFundraisingCampaign[] = [
     ],
     deadline: new Date("2025-06-10"),
     image: "https://loremflickr.com/400/250?random=4",
-    category: "Fun",
+    category: "Environment",
   },
   {
     campaignId: 1005,
@@ -99,7 +99,7 @@ export const testCampaigns: IFundraisingCampaign[] = [
     ],
     deadline: new Date("2025-09-01"),
     image: "https://loremflickr.com/400/250?random=6",
-    category: "Fun",
+    category: "Education",
   },
   {
     campaignId: 1007,
@@ -116,7 +116,7 @@ export const testCampaigns: IFundraisingCampaign[] = [
     ],
     deadline: new Date("2025-11-30"),
     image: "https://loremflickr.com/400/250?random=7",
-    category: "Fun",
+    category: "Social",
   },
   {
     campaignId: 1008,
@@ -133,7 +133,7 @@ export const testCampaigns: IFundraisingCampaign[] = [
     ],
     deadline: new Date("2026-01-15"),
     image: "https://loremflickr.com/400/250?random=8",
-    category: "Fun",
+    category: "Social",
   },
   {
     campaignId: 1009,
@@ -150,7 +150,7 @@ export const testCampaigns: IFundraisingCampaign[] = [
     ],
     deadline: new Date("2025-03-10"),
     image: "https://loremflickr.com/400/250?random=9",
-    category: "Fun",
+    category: "Social",
   },
   {
     campaignId: 1010,
@@ -167,7 +167,7 @@ export const testCampaigns: IFundraisingCampaign[] = [
     ],
     deadline: new Date("2025-12-01"),
     image: "https://loremflickr.com/400/250?random=10",
-    category: "Fun",
+    category: "Health",
   },
   {
     campaignId: 1011,
@@ -184,6 +184,6 @@ export const testCampaigns: IFundraisingCampaign[] = [
     ],
     deadline: new Date("2025-08-15"),
     image: "https://loremflickr.com/400/250?random=11",
-    category: "Fun",
+    category: "Education",
   },
 ];

@@ -3,8 +3,8 @@ interface Donor {
     donatedAmount: number;   
 }
 
-export type FundCategory = "Education" | "Health" | "Environment" | "Social" | "Animal" | "Fun";
-  
+export type FundCategory = "All" | "Startups" | "Art" |"Fun" | "Education" | "Health" | "Environment" | "Social" | "Animals" |  "Personal";
+
 interface IFundraisingCampaign {
     campaignId: number;      
     organizer: string;      
