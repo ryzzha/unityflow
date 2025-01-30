@@ -9,6 +9,7 @@ import { JSX, useState } from "react";
 import { FundIcon, CreateIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
 import { unityFlowLogo } from "@/assets";
 import { useMainContext } from "@/context/main-context";
+import { useContractsContext } from "@/context/contracts-context";
 
 const iconComponents: Record<IconKey, () => JSX.Element> = {
     funds: FundIcon,
@@ -19,11 +20,12 @@ const iconComponents: Record<IconKey, () => JSX.Element> = {
 
 export default function Navigation() {
   const { isMenuOpen, toggleMenu } = useMainContext();
+  const { loadingWallet, connectWallet } = useContractsContext();
 
   const router = useRouter();
   const pathname = usePathname();
 
-  console.log(pathname)
+  // console.log(pathname)
 
   return (
     <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} py-5 flex flex-col items-start justify-between gap-16 inset-y-0 sticky bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
@@ -65,7 +67,7 @@ export default function Navigation() {
       <div className="w-full flex flex-col items-center">
         <button
           className="mb-5 px-4 py-2 text-white  bg-gray-800 hover:bg-gray-500 rounded-xl"
-          onClick={() => console.log("Connect Wallet")}
+          onClick={async () => await connectWallet()}
         >
           {isMenuOpen ? "Connect Wallet" : <ConnectIcon />}
         </button>
