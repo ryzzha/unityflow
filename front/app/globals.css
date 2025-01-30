@@ -16,11 +16,30 @@
 
 body {
   color: var(--foreground);
-  background: rgba(245, 245, 245, 0.361);
+  background: #FAFAF8;
   z-index: 1;
   font-family: Arial, Helvetica, sans-serif;
   box-sizing: border-box;
   margin: 0;
 }
+
+::-webkit-scrollbar {
+  width: 15px;                
+  border-radius: 100%;
+}
+::-webkit-scrollbar-track {
+  width: 18px;  
+  background-color: #ffffff; 
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #e3e3e3; 
+  border-radius: 4px;      
+  border: 2px solid #f5f7fa; 
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #e2e2e2; 
+}
+
 
 

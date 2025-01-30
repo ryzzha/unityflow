@@ -24,7 +24,7 @@ export default function Navigation() {
   const pathname = usePathname();
 
   return (
-    <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} py-5 flex flex-col items-start justify-between gap-16 bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
+    <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} py-5 flex flex-col items-start justify-between gap-16 inset-y-0 sticky bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
       <div
         className="w-full flex justify-center items-center gap-1 md:gap-3 cursor-pointer"
         onClick={() => router.replace("/")}

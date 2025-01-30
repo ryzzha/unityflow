@@ -7,7 +7,7 @@ interface BaseLayoutProps {
 
 export default function BaseLayout({ children }: BaseLayoutProps) {
   return (
-    <div className="w-full h-screen flex font-[family-name:var(--font-geist-sans)]">
+    <div className="w-full h-screen absolute overflow-hidden flex font-[family-name:var(--font-geist-sans)]">
       <Navigation />
       
       <div className="w-full h-screen px-32 py-3 border-2 border-orange-600">
