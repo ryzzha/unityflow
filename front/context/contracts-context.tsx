@@ -34,25 +34,32 @@ interface ContractsState {
   }
 
 export const ContractsProvider = ({ children }: { children: React.ReactNode  }) => {
-  const [contracts, setContracts] = useState<ContractsState>({ token: null, dao: null, crowdfunding: null });
-  const [provider, setProvider] = useState<ethers.Provider | null>(null);
-  const [browserProvider, setBrowserProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [loadingWallet, setLoadingWallet] = useState<boolean>(false);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [state, setState] = useState({
+    provider: null as ethers.Provider | null,
+    browserProvider: null as ethers.BrowserProvider | null,
+    crowdfunding: null as Crowdfunding | null,
+    token: null as TokenUF | null,
+    dao: null as GovernanceUF | null,
+    loadingWallet: false,
+    signer: null as ethers.Signer | null,
+  });
+  
+
+  console.log("ContractsProvider render")
 
   useEffect(() => {
     const initContracts = async () => {
       try {
         const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545"); 
 
-        setProvider(provider);
+        setState(prev => ({ ...prev, provider: provider }));
         // setBrowserProvider(provider);
         
         const crowdfunding = Crowdfunding__factory.connect(CROWDFUNDING_ADDRESS, provider);
         const token = TokenUF__factory.connect(TOKEN_ADDRESS, provider);
         const dao = GovernanceUF__factory.connect(DAO_ADDRESS, provider);
 
-        setContracts((prev) => ({
+        setState((prev) => ({
           ...prev,
           token,
           dao,
@@ -78,7 +85,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     }
   
     try {
-      setLoadingWallet(true);
+      setState(prev => ({ ...prev, loadingWallet: true }));
       
       const browserProvider = new ethers.BrowserProvider(window.ethereum);
   
@@ -89,20 +96,24 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
 
       console.log("Гаманець підключено:", await signer.getAddress());
   
-      setBrowserProvider(browserProvider);
-      setSigner(signer);
+      setState(prev => ({
+        ...prev,
+        browserProvider,
+        signer,
+        loadingWallet: false,
+      }));
 
       // const accounts = await window.ethereum.request({
       //   method: "eth_requestAccounts",
       // });
     } catch (error) {
       console.error("Error connecting wallet:", error);
-    } finally {
-      setLoadingWallet(false);
-    }
+    } 
   };
 
-  return <ContractsContext.Provider value={ { provider, browserProvider, ...contracts, loadingWallet, connectWallet, signer} }>{children}</ContractsContext.Provider>;
+  return (
+    <ContractsContext.Provider value={{ ...state, connectWallet }} >{children}</ContractsContext.Provider>
+  )
 };
 
 export const useContractsContext = () => {

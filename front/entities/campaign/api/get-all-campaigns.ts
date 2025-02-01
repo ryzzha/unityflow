@@ -1,4 +1,4 @@
-
+"use client"
 import { ethers } from "ethers";
 import { FundCategory, IFundraisingCampaign } from "@/shared/interfaces";
 import { Crowdfunding, Campaign, Campaign__factory } from "@/typechain";
@@ -30,6 +30,9 @@ export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provid
 
             campaigns.push(campaing)
         });
+
+        console.log("campaigns in getAllCampaigns");
+        console.log(campaigns);
 
         return campaigns;
     } catch(error) {

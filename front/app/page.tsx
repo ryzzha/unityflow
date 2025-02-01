@@ -21,10 +21,9 @@ export default function Home() {
   console.log(crowdfunding);
 
   const fetchCampaigns = async () => {
-    if (!provider || !crowdfunding) return;
-
     setIsLoading(true);
     try {
+      if (!provider || !crowdfunding) return;
       const data = await getAllCampaigns(crowdfunding, provider);
       setCampaigns(data); 
     } catch (error) {
@@ -34,20 +33,31 @@ export default function Home() {
   }
 
   useEffect(() => {
-    fetchCampaigns();
+    if (provider && crowdfunding) {
+      fetchCampaigns();
+    }
   }, [provider, crowdfunding]);
 
   const filteredCampaigns = campaigns.filter((campaign) => {
+    const campaignTitle = campaign.title?.toLowerCase() || "";
+    const campaignDescription = campaign.description?.toLowerCase() || "";
+    const campaignCategory = campaign.category?.toLowerCase() || "";
+  
     const matchesSearch =
-      campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      campaign.description.toLowerCase().includes(searchQuery.toLowerCase());
-
+      campaignTitle.includes(searchQuery.toLowerCase()) ||
+      campaignDescription.includes(searchQuery.toLowerCase());
+  
     const matchesCategory =
-      category === "All" ||
-      campaign.category.toLowerCase() === category.toLowerCase();
-
+      category === "All" || campaignCategory === category.toLowerCase();
+  
     return matchesSearch && matchesCategory;
   });
+
+  console.log("📊 фільтп Кампанії:", filteredCampaigns);
+
+  if (!provider || !crowdfunding) {
+    return <div>Loading blockchain data...</div>;
+  }
 
   return (
     <div className="w-full h-screen flex flex-col gap-5">
