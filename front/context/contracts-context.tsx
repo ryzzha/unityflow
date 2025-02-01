@@ -3,11 +3,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { CROWDFUNDING_ADDRESS, TOKEN_ADDRESS, DAO_ADDRESS } from "@/config";
-import { TokenUF, TokenUF__factory, Governance, Governance__factory, Crowdfunding, Crowdfunding__factory } from "@/typechain";
+import { TokenUF, TokenUF__factory, GovernanceUF, GovernanceUF__factory, Crowdfunding, Crowdfunding__factory } from "@/typechain";
 
 interface ContractsContextProps {
+    provider: ethers.Provider | null;
+    browserProvider: ethers.BrowserProvider | null;
     token: TokenUF | null;
-    dao: Governance | null;
+    dao: GovernanceUF | null;
     crowdfunding: Crowdfunding | null;
     loadingWallet: boolean;
     connectWallet: () => Promise<void>; 
@@ -15,6 +17,8 @@ interface ContractsContextProps {
   }
 
 const ContractsContext = createContext<ContractsContextProps>({
+    provider: null,
+    browserProvider: null,
     token: null,
     dao: null,
     crowdfunding: null,
@@ -26,11 +30,12 @@ const ContractsContext = createContext<ContractsContextProps>({
 interface ContractsState {
     crowdfunding: Crowdfunding | null;
     token: TokenUF | null;
-    dao: Governance | null;
+    dao: GovernanceUF | null;
   }
 
 export const ContractsProvider = ({ children }: { children: React.ReactNode  }) => {
   const [contracts, setContracts] = useState<ContractsState>({ token: null, dao: null, crowdfunding: null });
+  const [provider, setProvider] = useState<ethers.Provider | null>(null);
   const [browserProvider, setBrowserProvider] = useState<ethers.BrowserProvider | null>(null);
   const [loadingWallet, setLoadingWallet] = useState<boolean>(false);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
@@ -39,10 +44,13 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     const initContracts = async () => {
       try {
         const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545"); 
+
+        setProvider(provider);
+        // setBrowserProvider(provider);
         
         const crowdfunding = Crowdfunding__factory.connect(CROWDFUNDING_ADDRESS, provider);
         const token = TokenUF__factory.connect(TOKEN_ADDRESS, provider);
-        const dao = Governance__factory.connect(DAO_ADDRESS, provider);
+        const dao = GovernanceUF__factory.connect(DAO_ADDRESS, provider);
 
         setContracts((prev) => ({
           ...prev,
@@ -62,29 +70,31 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
   }, []);
 
   const connectWallet = async () => {
-    console.log("connectWallet work")
+    console.log("connectWallet work");
+  
+    if (typeof window === "undefined" || !window.ethereum) {
+      alert("Please install MetaMask!");
+      return;
+    }
+  
     try {
       setLoadingWallet(true);
-      if (window.ethereum) {
-        const browserProvider = new ethers.BrowserProvider( window.ethereum);
-        console.log("connectWallet work 2")
-        const accounts = await browserProvider.send("eth_requestAccounts", []);
-    if (accounts.length === 0) throw new Error("Користувач не підключив гаманець");
-        const signer = await browserProvider.getSigner();
+      
+      const browserProvider = new ethers.BrowserProvider(window.ethereum);
+  
+      const accounts = await browserProvider.send("eth_requestAccounts", []);
+      if (accounts.length === 0) throw new Error("Користувач не підключив гаманець");
+      
+      const signer = await browserProvider.getSigner();
 
-        setBrowserProvider(browserProvider);
-        setSigner(signer);
+      console.log("Гаманець підключено:", await signer.getAddress());
+  
+      setBrowserProvider(browserProvider);
+      setSigner(signer);
 
-        // // Уникаємо дублювання слухачів
-        // if (!window.ethereum.on.listeners("accountsChanged").length) {
-        //   window.ethereum.on("accountsChanged", (accounts: string[]) => {
-        //     setAccount(accounts[0] || null);
-        //     setSigner(null);
-        //   });
-        // }
-      } else {
-        alert("Please install MetaMask!");
-      }
+      // const accounts = await window.ethereum.request({
+      //   method: "eth_requestAccounts",
+      // });
     } catch (error) {
       console.error("Error connecting wallet:", error);
     } finally {
@@ -92,7 +102,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     }
   };
 
-  return <ContractsContext.Provider value={ {...contracts, loadingWallet, connectWallet, signer} }>{children}</ContractsContext.Provider>;
+  return <ContractsContext.Provider value={ { provider, browserProvider, ...contracts, loadingWallet, connectWallet, signer} }>{children}</ContractsContext.Provider>;
 };
 
 export const useContractsContext = () => {

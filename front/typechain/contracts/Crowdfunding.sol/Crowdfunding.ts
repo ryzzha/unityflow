@@ -26,14 +26,34 @@ import type {
 export interface CrowdfundingInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "MAX_DURATION"
+      | "MAX_GOAL"
+      | "MIN_GOAL"
+      | "campaigns"
       | "createCampaign"
       | "dao"
       | "getAllCampaigns"
       | "numberOfCampaigns"
+      | "owner"
+      | "renounceOwnership"
+      | "token"
+      | "transferOwnership"
   ): FunctionFragment;
 
-  getEvent(nameOrSignatureOrTopic: "CompaignStarted"): EventFragment;
+  getEvent(
+    nameOrSignatureOrTopic: "CampaignStarted" | "OwnershipTransferred"
+  ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "MAX_DURATION",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "MAX_GOAL", values?: undefined): string;
+  encodeFunctionData(functionFragment: "MIN_GOAL", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "campaigns",
+    values: [BigNumberish]
+  ): string;
   encodeFunctionData(
     functionFragment: "createCampaign",
     values: [string, string, string, BigNumberish, BigNumberish, string]
@@ -47,7 +67,24 @@ export interface CrowdfundingInterface extends Interface {
     functionFragment: "numberOfCampaigns",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "token", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
 
+  decodeFunctionResult(
+    functionFragment: "MAX_DURATION",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "MAX_GOAL", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "MIN_GOAL", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "campaigns", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "createCampaign",
     data: BytesLike
@@ -61,29 +98,52 @@ export interface CrowdfundingInterface extends Interface {
     functionFragment: "numberOfCampaigns",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
 }
 
-export namespace CompaignStartedEvent {
+export namespace CampaignStartedEvent {
   export type InputTuple = [
     id: BigNumberish,
     campaign: AddressLike,
-    orginazer: AddressLike,
+    organizer: AddressLike,
     goal: BigNumberish,
     deadline: BigNumberish
   ];
   export type OutputTuple = [
     id: bigint,
     campaign: string,
-    orginazer: string,
+    organizer: string,
     goal: bigint,
     deadline: bigint
   ];
   export interface OutputObject {
     id: bigint;
     campaign: string;
-    orginazer: string;
+    organizer: string;
     goal: bigint;
     deadline: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [previousOwner: string, newOwner: string];
+  export interface OutputObject {
+    previousOwner: string;
+    newOwner: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -134,6 +194,18 @@ export interface Crowdfunding extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  MAX_DURATION: TypedContractMethod<[], [bigint], "view">;
+
+  MAX_GOAL: TypedContractMethod<[], [bigint], "view">;
+
+  MIN_GOAL: TypedContractMethod<[], [bigint], "view">;
+
+  campaigns: TypedContractMethod<
+    [arg0: BigNumberish],
+    [[string, boolean] & { campaignAddress: string; claimed: boolean }],
+    "view"
+  >;
+
   createCampaign: TypedContractMethod<
     [
       title: string,
@@ -153,10 +225,38 @@ export interface Crowdfunding extends BaseContract {
 
   numberOfCampaigns: TypedContractMethod<[], [bigint], "view">;
 
+  owner: TypedContractMethod<[], [string], "view">;
+
+  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  token: TypedContractMethod<[], [string], "view">;
+
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "MAX_DURATION"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MAX_GOAL"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "MIN_GOAL"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "campaigns"
+  ): TypedContractMethod<
+    [arg0: BigNumberish],
+    [[string, boolean] & { campaignAddress: string; claimed: boolean }],
+    "view"
+  >;
   getFunction(
     nameOrSignature: "createCampaign"
   ): TypedContractMethod<
@@ -180,25 +280,55 @@ export interface Crowdfunding extends BaseContract {
   getFunction(
     nameOrSignature: "numberOfCampaigns"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "renounceOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "token"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
 
   getEvent(
-    key: "CompaignStarted"
+    key: "CampaignStarted"
   ): TypedContractEvent<
-    CompaignStartedEvent.InputTuple,
-    CompaignStartedEvent.OutputTuple,
-    CompaignStartedEvent.OutputObject
+    CampaignStartedEvent.InputTuple,
+    CampaignStartedEvent.OutputTuple,
+    CampaignStartedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
   >;
 
   filters: {
-    "CompaignStarted(uint256,address,address,uint256,uint256)": TypedContractEvent<
-      CompaignStartedEvent.InputTuple,
-      CompaignStartedEvent.OutputTuple,
-      CompaignStartedEvent.OutputObject
+    "CampaignStarted(uint256,address,address,uint256,uint256)": TypedContractEvent<
+      CampaignStartedEvent.InputTuple,
+      CampaignStartedEvent.OutputTuple,
+      CampaignStartedEvent.OutputObject
     >;
-    CompaignStarted: TypedContractEvent<
-      CompaignStartedEvent.InputTuple,
-      CompaignStartedEvent.OutputTuple,
-      CompaignStartedEvent.OutputObject
+    CampaignStarted: TypedContractEvent<
+      CampaignStartedEvent.InputTuple,
+      CampaignStartedEvent.OutputTuple,
+      CampaignStartedEvent.OutputObject
+    >;
+
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >;
   };
 }

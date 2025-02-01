@@ -5,7 +5,7 @@ import { menuItems } from "@/shared/constants";
 import { IconKey } from "@/shared/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { JSX, useState } from "react";
+import { JSX, useEffect, useState } from "react";
 import { FundIcon, CreateIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
 import { unityFlowLogo } from "@/assets";
 import { useMainContext } from "@/context/main-context";
@@ -20,12 +20,23 @@ const iconComponents: Record<IconKey, () => JSX.Element> = {
 
 export default function Navigation() {
   const { isMenuOpen, toggleMenu } = useMainContext();
-  const { loadingWallet, connectWallet } = useContractsContext();
+  const { loadingWallet, connectWallet, signer } = useContractsContext();
+  const [account, setAccount] = useState<string | null>(null);
 
   const router = useRouter();
   const pathname = usePathname();
 
   // console.log(pathname)
+
+  useEffect(() => {
+    const fetchAddress = async () => {
+      if (signer) {
+        const address = await signer.getAddress();
+        setAccount(address);
+      }
+    };
+    fetchAddress();
+  }, [signer]);
 
   return (
     <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} py-5 flex flex-col items-start justify-between gap-16 inset-y-0 sticky bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
@@ -66,10 +77,17 @@ export default function Navigation() {
 
       <div className="w-full flex flex-col items-center">
         <button
-          className="mb-5 px-4 py-2 text-white  bg-gray-800 hover:bg-gray-500 rounded-xl"
-          onClick={async () => await connectWallet()}
+          className="mb-5 px-4 py-2 text-white bg-gray-800 hover:bg-gray-500 rounded-xl flex items-center gap-2"
+          onClick={connectWallet}
+          disabled={loadingWallet} 
         >
-          {isMenuOpen ? "Connect Wallet" : <ConnectIcon />}
+          {loadingWallet ? (
+            <span className="animate-pulse">Connecting...</span> 
+          ) : account ? (
+            <span>{account.slice(0, 6)}...{account.slice(-4)}</span> 
+          ) : (
+            <span>{isMenuOpen ? "Connect Wallet" : <ConnectIcon />}</span> 
+          )}
         </button>
         <button
           className="text-gray-600 hover:text-gray-800"

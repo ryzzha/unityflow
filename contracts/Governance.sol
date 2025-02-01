@@ -1,97 +1,68 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.20;
 
-import "./IProposals.sol";
-import "./ITimelock.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Governance {
-    IProposals public proposalsContract;
-    ITimelock public timelockContract;
+contract GovernanceUF is Ownable {
+    struct Proposal {
+        string description;
+        uint256 votesFor;
+        uint256 votesAgainst;
+        uint256 deadline;
+        bool executed;
+    }
+
     IERC20 public token;
-    address public admin;
+    uint private _proposalIds;
+    mapping(uint256 => Proposal) public proposals;
+    mapping(uint256 => mapping(address => bool)) public hasVoted;
 
-    event ProposalRejected(bytes32 indexed proposalId);
-    event ProposalApproved(bytes32 indexed proposalId);
+    event ProposalCreated(uint256 id, string description);
+    event Voted(uint256 id, address voter, bool support);
+    event ProposalExecuted(uint256 id);
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Not authorized");
-        _;
+    constructor(address tokenAddress) Ownable(address(this)) {
+        token = IERC20(tokenAddress);
     }
 
-    modifier enougthTokens() {
-        require(token.balanceOf(msg.sender) > 0, "not enough tokens");
-        _;
+    function createProposal(string memory description) external {
+        _proposalIds++;
+
+        proposals[_proposalIds] = Proposal({
+            description: description,
+            votesFor: 0,
+            votesAgainst: 0,
+            deadline: block.timestamp + 3 days,
+            executed: false
+        });
+
+        emit ProposalCreated(_proposalIds, description);
     }
 
-    // constructor(address _proposalsContract, address _timelockContract, IERC20 _token) {
-    //     proposalsContract = IProposals(_proposalsContract);
-    //     timelockContract = ITimelock(_timelockContract);
-    //     token = _token;
-    //     admin = msg.sender;
-    // }
+    function vote(uint256 proposalId, bool support) external {
+        require(block.timestamp < proposals[proposalId].deadline, "Voting ended");
+        require(!hasVoted[proposalId][msg.sender], "Already voted");
 
-      constructor() {
-        admin = msg.sender;
-    }
+        uint256 voterBalance = token.balanceOf(msg.sender);
+        require(voterBalance > 0, "No tokens to vote");
 
-    function propose(
-        address _to,
-        uint _value,
-        string calldata _func,
-        bytes calldata _data,
-        string calldata _description,
-        uint delay
-    ) external enougthTokens returns (bytes32) {
-        bytes32 proposalId = generateProposalId(_to, _value, _func,_data,_description);
-        proposalsContract.createProposal(_description, _value);
-        bytes memory data;
-        if (bytes(_func).length > 0) {
-            data = abi.encodePacked(
-                bytes4(keccak256(bytes(_func))), _data
-            );
+        if (support) {
+            proposals[proposalId].votesFor += voterBalance;
         } else {
-            data = _data;
+            proposals[proposalId].votesAgainst += voterBalance;
         }
-        // timelockContract.queueProposal(proposalId, _to, _value, data, delay);
-        return proposalId;
+
+        hasVoted[proposalId][msg.sender] = true;
+        emit Voted(proposalId, msg.sender, support);
     }
 
-    function vote(bytes32 proposalId, uint8 voteType) external enougthTokens {
-        // require(timelockContract.isVotingOpen(proposalId), "votting is closed");
-        require(voteType == 1 || voteType == 2 || voteType == 3, "Invalid vote type");
-        uint votingPower = token.balanceOf(msg.sender);
-        // proposalsContract.vote(proposalId, voteType, msg.sender, votingPower);
-    }
+    function executeProposal(uint256 proposalId) external onlyOwner {
+        Proposal storage proposal = proposals[proposalId];
+        require(block.timestamp >= proposal.deadline, "Voting still ongoing");
+        require(!proposal.executed, "Already executed");
 
-    function rejectProposal(bytes32 proposalId) external onlyAdmin {
-        // proposalsContract.markAsRejected(proposalId);
-        emit ProposalRejected(proposalId);
-    }
-
-    function isProposalApproved(bytes32 proposalId) external view returns (bool) {
-        // return proposalsContract.isProposalApproved(proposalId);
-    }
-
-    function executeProposal(bytes32 proposalId) external onlyAdmin {
-        // require(proposalsContract.isProposalApproved(proposalId), "Proposal not approved");
-        // timelockContract.executeProposal(proposalId);
-    }
-
-    // function hasChanceToPass(bytes32 proposalId) external returns(bool) {
-    //     // bool chance = proposalsContract.hasChanceToPass(proposalId);
-    //     return chance;
-    // }
-
-    function generateProposalId(
-        address _to,
-        uint _value,
-        string calldata _func,
-        bytes calldata _data,
-        string calldata _description
-    ) internal pure returns(bytes32) {
-        return keccak256(abi.encode(
-            _to, _value, _func, _data, _description
-        ));
+        proposal.executed = true;
+        emit ProposalExecuted(proposalId);
     }
 }

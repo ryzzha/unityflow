@@ -7,11 +7,11 @@ const config: HardhatUserConfig = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      chainId: 31337, // Chain ID для локальної мережі Hardhat
+      chainId: 1337, // Chain ID для локальної мережі Hardhat
     },
     localhost: {
       url: "http://127.0.0.1:8545", // RPC-адреса для `npx hardhat node`
-      chainId: 31337, // Такий самий, як у hardhat
+      chainId: 1337, // Такий самий, як у hardhat
     },
   },
   typechain: {

@@ -1,8 +1,8 @@
 import React from 'react';
-
+import { ethers, formatEther } from "ethers";
 import { IFundraisingCampaign } from '@/shared/interfaces';
 import { daysLeft } from '@/utils';
-import CategoryIcon from './icons/category-icon';
+import CategoryIcon from '../../../components/icons/category-icon';
 import { unityFlowUser } from '@/assets';
 import Image from 'next/image';
 
@@ -41,10 +41,10 @@ const FundraisingCampaign = ({ campaign }: { campaign: IFundraisingCampaign }) =
         <div className="flex justify-between flex-wrap mt-[15px] gap-2">
           <div className="flex flex-col">
             <h4 className="font-epilogue font-semibold text-[14px] text-[#374151] leading-[22px]">
-              {collected}
+              {formatEther(collected.toString())}
             </h4>
             <p className="mt-[2px] font-epilogue font-normal text-[12px] text-[#6b7280] leading-[18px] truncate">
-              Raised of {goalAmount}
+              Raised of {formatEther(goalAmount.toString())}
             </p>
           </div>
           <div className="flex flex-col">
