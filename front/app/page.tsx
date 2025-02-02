@@ -17,10 +17,11 @@ export default function Home() {
 
   console.log("🔄 Ререндер Home");
   console.log("📊 Кампанії:", campaigns);
-  console.log(provider);
-  console.log(crowdfunding);
+  console.log("Провайдер:",provider);
+  console.log("Кровфандинг:",crowdfunding);
 
   const fetchCampaigns = async () => {
+    console.log("fetchCampaigns func");
     setIsLoading(true);
     try {
       if (!provider || !crowdfunding) return;
@@ -33,12 +34,14 @@ export default function Home() {
   }
 
   useEffect(() => {
+    console.log("useEffect home");
     if (provider && crowdfunding) {
       fetchCampaigns();
     }
   }, [provider, crowdfunding]);
 
   const filteredCampaigns = campaigns.filter((campaign) => {
+    console.log("filteredCampaigns calculate");
     const campaignTitle = campaign.title?.toLowerCase() || "";
     const campaignDescription = campaign.description?.toLowerCase() || "";
     const campaignCategory = campaign.category?.toLowerCase() || "";

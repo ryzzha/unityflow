@@ -73,6 +73,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
       }
     };
 
+    console.log("ContractsProvider useEffect")
     initContracts();
   }, []);
 
