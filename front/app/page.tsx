@@ -7,6 +7,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useContractsContext } from "@/context/contracts-context";
 import { getAllCampaigns } from "@/entities/campaign";
 import FundraisingCampaign from "@/entities/campaign/ui/fundraising-campaign";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const { provider, crowdfunding } = useContractsContext();
@@ -15,13 +16,9 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [campaigns, setCampaigns] = useState<IFundraisingCampaign[]>([]);
 
-  console.log("🔄 Ререндер Home");
-  console.log("📊 Кампанії:", campaigns);
-  console.log("Провайдер:",provider);
-  console.log("Кровфандинг:",crowdfunding);
+  const router = useRouter();
 
   const fetchCampaigns = async () => {
-    console.log("fetchCampaigns func");
     setIsLoading(true);
     try {
       if (!provider || !crowdfunding) return;
@@ -34,14 +31,10 @@ export default function Home() {
   }
 
   useEffect(() => {
-    console.log("useEffect home");
-    if (provider && crowdfunding) {
       fetchCampaigns();
-    }
   }, [provider, crowdfunding]);
 
   const filteredCampaigns = campaigns.filter((campaign) => {
-    console.log("filteredCampaigns calculate");
     const campaignTitle = campaign.title?.toLowerCase() || "";
     const campaignDescription = campaign.description?.toLowerCase() || "";
     const campaignCategory = campaign.category?.toLowerCase() || "";
@@ -56,14 +49,8 @@ export default function Home() {
     return matchesSearch && matchesCategory;
   });
 
-  console.log("📊 фільтп Кампанії:", filteredCampaigns);
-
-  if (!provider || !crowdfunding) {
-    return <div>Loading blockchain data...</div>;
-  }
-
   return (
-    <div className="w-full h-screen flex flex-col gap-5">
+    <div className="w-full h-auto flex flex-col gap-5 mb-5 overflow-scroll">
       <div className="w-full h-auto flex justify-between items-center border-2 border-orange-600">
         <Search
           searchQuery={searchQuery}
@@ -71,19 +58,19 @@ export default function Home() {
           category={category}
           setCategory={setCategory}
         />
-        <CustomButton onClick={() => alert("Primary!")} variant="primary">
+        <CustomButton onClick={() => router.push("create")} variant="primary">
           Create campaign
         </CustomButton>
       </div>
 
-      <div className="w-full h-screen flex flex-col">
+      <div className="w-full h-screen flex flex-col ">
         <h3 className="text-lg font-bold mb-3">
           All campaigns ({filteredCampaigns.length})
         </h3>
 
         {isLoading && <span>Loading...</span>}
 
-        <div className="w-full grid grid-cols-4 gap-6 overflow-scroll">
+        <div className="w-full grid grid-cols-4 gap-6">
           {filteredCampaigns.map((campaign) => (
             <FundraisingCampaign key={campaign.campaignId} campaign={campaign} />
           ))}

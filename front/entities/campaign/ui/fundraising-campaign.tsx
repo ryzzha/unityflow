@@ -68,7 +68,7 @@ const FundraisingCampaign = ({ campaign }: { campaign: IFundraisingCampaign }) =
             />
           </div>
           <p className="flex-1 font-epilogue font-normal text-[12px] text-[#6b7280] truncate">
-            by <span className="text-[#111827] font-semibold">{organizer}</span>
+            by <span className="text-[#111827] font-semibold">{organizer.slice(0, 10)}...{organizer.slice(-4)}</span>
           </p>
         </div>
       </div>

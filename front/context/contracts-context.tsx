@@ -27,12 +27,6 @@ const ContractsContext = createContext<ContractsContextProps>({
     signer: null
 });
 
-interface ContractsState {
-    crowdfunding: Crowdfunding | null;
-    token: TokenUF | null;
-    dao: GovernanceUF | null;
-  }
-
 export const ContractsProvider = ({ children }: { children: React.ReactNode  }) => {
   const [state, setState] = useState({
     provider: null as ethers.Provider | null,
@@ -44,38 +38,33 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     signer: null as ethers.Signer | null,
   });
   
-
-  console.log("ContractsProvider render")
-
   useEffect(() => {
     const initContracts = async () => {
       try {
-        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545"); 
-
-        setState(prev => ({ ...prev, provider: provider }));
-        // setBrowserProvider(provider);
-        
+        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
         const crowdfunding = Crowdfunding__factory.connect(CROWDFUNDING_ADDRESS, provider);
         const token = TokenUF__factory.connect(TOKEN_ADDRESS, provider);
         const dao = GovernanceUF__factory.connect(DAO_ADDRESS, provider);
-
-        setState((prev) => ({
-          ...prev,
+  
+        setState({
+          provider,
+          browserProvider: null,
+          crowdfunding,
           token,
           dao,
-          crowdfunding
-        }));
-
+          loadingWallet: false,
+          signer: null,
+        });
+  
         console.log("Контракти ініціалізовано:", { crowdfunding, token, dao });
-
       } catch (error) {
         console.error("Помилка ініціалізації контрактів:", error);
       }
     };
 
-    console.log("ContractsProvider useEffect")
     initContracts();
   }, []);
+  
 
   const connectWallet = async () => {
     console.log("connectWallet work");

@@ -4,14 +4,9 @@ import { FundCategory, IFundraisingCampaign } from "@/shared/interfaces";
 import { Crowdfunding, Campaign, Campaign__factory } from "@/typechain";
 
 export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provider: ethers.Provider): Promise<IFundraisingCampaign[]> => {
-    console.log("getAllCampaigns")
-    console.log("crowdfundingContract")
-    console.log(crowdfundingContract)
-    console.log("provider")
-    console.log(provider)
     try {
         const campaignsAdrrs =  await crowdfundingContract.getAllCampaigns();
-        
+
         const campaigns: IFundraisingCampaign[] = await Promise.all(
             campaignsAdrrs.map(async (campaignAdrr) => {
               const campaignContract = Campaign__factory.connect(campaignAdrr, provider);
@@ -42,10 +37,7 @@ export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provid
                 donators: [],
               };
             })
-          );
-
-        console.log("campaigns in getAllCampaigns");
-        console.log(campaigns);
+        );
 
         return campaigns;
     } catch(error) {
