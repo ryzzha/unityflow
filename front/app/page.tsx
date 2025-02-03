@@ -2,10 +2,9 @@
 
 import CustomButton from "@/components/custom-button";
 import Search from "@/components/search-input";
-import { IFundraisingCampaign } from "@/shared/interfaces";
 import { useEffect, useState, useCallback } from "react";
 import { useContractsContext } from "@/context/contracts-context";
-import { getAllCampaigns } from "@/entities/campaign";
+import { getAllCampaigns, IFundraisingCampaign } from "@/entities/campaign";
 import FundraisingCampaign from "@/entities/campaign/ui/fundraising-campaign";
 import { useRouter } from "next/navigation";
 

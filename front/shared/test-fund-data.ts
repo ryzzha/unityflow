@@ -1,4 +1,5 @@
-import { IFundraisingCampaign } from "./interfaces";
+import { IFundraisingCampaign } from "@/entities/campaign";
+
 
 export const testCampaigns: IFundraisingCampaign[] = [
   {

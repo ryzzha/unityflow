@@ -4,8 +4,8 @@ import CustomButton from "@/components/custom-button";
 import { useState } from "react";
 import { parseEther } from "ethers";
 import { useContractsContext } from "@/context/contracts-context";
-import { IFundraisingCampaign, FundCategory } from "@/shared/interfaces";
 import { useRouter } from "next/navigation";
+import { FundCategory } from "@/entities/campaign/model/types";
 
 export default function CreateCampaign() {
   const { provider, crowdfunding, signer } = useContractsContext();
@@ -65,7 +65,7 @@ export default function CreateCampaign() {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col gap-5 p-5 items-center">
+    <div className="w-full h-screen flex flex-col gap-5 py-5 items-center">
       <h2 className="text-2xl font-bold">Create a New Campaign</h2>
       
       <div className="w-40 h-40 rounded-full flex items-center justify-center bg-gray-200">

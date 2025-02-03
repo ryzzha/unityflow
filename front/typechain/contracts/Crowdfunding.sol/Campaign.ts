@@ -25,39 +25,148 @@ import type {
 
 export interface CampaignInterface extends Interface {
   getFunction(
-    nameOrSignature: "donate" | "getDetails" | "getDonation" | "parent"
+    nameOrSignature:
+      | "addSupportedToken"
+      | "allowOtherTokens"
+      | "donateETH"
+      | "donateUF"
+      | "ethDonators"
+      | "getDetails"
+      | "getDonationETH"
+      | "getDonationUF"
+      | "owner"
+      | "parent"
+      | "renounceOwnership"
+      | "supportedTokens"
+      | "token"
+      | "tokenDonators"
+      | "transferOwnership"
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic: "DonationReceived" | "Withdrawed"
+    nameOrSignatureOrTopic:
+      | "DonationReceived"
+      | "OwnershipTransferred"
+      | "Withdrawed"
   ): EventFragment;
 
-  encodeFunctionData(functionFragment: "donate", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "addSupportedToken",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "allowOtherTokens",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "donateETH", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "donateUF",
+    values: [BigNumberish, BigNumberish, BigNumberish, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "ethDonators",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "getDetails",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getDonation",
+    functionFragment: "getDonationETH",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getDonationUF",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "parent", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "renounceOwnership",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "supportedTokens",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "token", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "tokenDonators",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "transferOwnership",
+    values: [AddressLike]
+  ): string;
 
-  decodeFunctionResult(functionFragment: "donate", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "getDetails", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "getDonation",
+    functionFragment: "addSupportedToken",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "allowOtherTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "donateETH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "donateUF", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "ethDonators",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getDetails", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getDonationETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getDonationUF",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "parent", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "renounceOwnership",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "supportedTokens",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenDonators",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "transferOwnership",
+    data: BytesLike
+  ): Result;
 }
 
 export namespace DonationReceivedEvent {
-  export type InputTuple = [donator: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [donator: string, amount: bigint];
+  export type InputTuple = [
+    donator: AddressLike,
+    amount: BigNumberish,
+    currency: string
+  ];
+  export type OutputTuple = [donator: string, amount: bigint, currency: string];
   export interface OutputObject {
     donator: string;
     amount: bigint;
+    currency: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace OwnershipTransferredEvent {
+  export type InputTuple = [previousOwner: AddressLike, newOwner: AddressLike];
+  export type OutputTuple = [previousOwner: string, newOwner: string];
+  export interface OutputObject {
+    previousOwner: string;
+    newOwner: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -126,7 +235,29 @@ export interface Campaign extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  donate: TypedContractMethod<[], [void], "payable">;
+  addSupportedToken: TypedContractMethod<
+    [_token: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
+  allowOtherTokens: TypedContractMethod<[], [boolean], "view">;
+
+  donateETH: TypedContractMethod<[], [void], "payable">;
+
+  donateUF: TypedContractMethod<
+    [
+      _amount: BigNumberish,
+      _deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike
+    ],
+    [void],
+    "payable"
+  >;
+
+  ethDonators: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   getDetails: TypedContractMethod<
     [],
@@ -141,23 +272,64 @@ export interface Campaign extends BaseContract {
         bigint,
         bigint,
         bigint,
+        bigint,
         boolean
       ]
     ],
     "view"
   >;
 
-  getDonation: TypedContractMethod<[donator: AddressLike], [bigint], "view">;
+  getDonationETH: TypedContractMethod<[donator: AddressLike], [bigint], "view">;
+
+  getDonationUF: TypedContractMethod<[donator: AddressLike], [bigint], "view">;
+
+  owner: TypedContractMethod<[], [string], "view">;
 
   parent: TypedContractMethod<[], [string], "view">;
+
+  renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  supportedTokens: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+
+  token: TypedContractMethod<[], [string], "view">;
+
+  tokenDonators: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  transferOwnership: TypedContractMethod<
+    [newOwner: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
-    nameOrSignature: "donate"
+    nameOrSignature: "addSupportedToken"
+  ): TypedContractMethod<[_token: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "allowOtherTokens"
+  ): TypedContractMethod<[], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "donateETH"
   ): TypedContractMethod<[], [void], "payable">;
+  getFunction(
+    nameOrSignature: "donateUF"
+  ): TypedContractMethod<
+    [
+      _amount: BigNumberish,
+      _deadline: BigNumberish,
+      v: BigNumberish,
+      r: BytesLike,
+      s: BytesLike
+    ],
+    [void],
+    "payable"
+  >;
+  getFunction(
+    nameOrSignature: "ethDonators"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "getDetails"
   ): TypedContractMethod<
@@ -173,17 +345,39 @@ export interface Campaign extends BaseContract {
         bigint,
         bigint,
         bigint,
+        bigint,
         boolean
       ]
     ],
     "view"
   >;
   getFunction(
-    nameOrSignature: "getDonation"
+    nameOrSignature: "getDonationETH"
   ): TypedContractMethod<[donator: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getDonationUF"
+  ): TypedContractMethod<[donator: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "owner"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "parent"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "renounceOwnership"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "supportedTokens"
+  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "token"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "tokenDonators"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "transferOwnership"
+  ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
 
   getEvent(
     key: "DonationReceived"
@@ -191,6 +385,13 @@ export interface Campaign extends BaseContract {
     DonationReceivedEvent.InputTuple,
     DonationReceivedEvent.OutputTuple,
     DonationReceivedEvent.OutputObject
+  >;
+  getEvent(
+    key: "OwnershipTransferred"
+  ): TypedContractEvent<
+    OwnershipTransferredEvent.InputTuple,
+    OwnershipTransferredEvent.OutputTuple,
+    OwnershipTransferredEvent.OutputObject
   >;
   getEvent(
     key: "Withdrawed"
@@ -201,7 +402,7 @@ export interface Campaign extends BaseContract {
   >;
 
   filters: {
-    "DonationReceived(address,uint256)": TypedContractEvent<
+    "DonationReceived(address,uint256,string)": TypedContractEvent<
       DonationReceivedEvent.InputTuple,
       DonationReceivedEvent.OutputTuple,
       DonationReceivedEvent.OutputObject
@@ -210,6 +411,17 @@ export interface Campaign extends BaseContract {
       DonationReceivedEvent.InputTuple,
       DonationReceivedEvent.OutputTuple,
       DonationReceivedEvent.OutputObject
+    >;
+
+    "OwnershipTransferred(address,address)": TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
+    >;
+    OwnershipTransferred: TypedContractEvent<
+      OwnershipTransferredEvent.InputTuple,
+      OwnershipTransferredEvent.OutputTuple,
+      OwnershipTransferredEvent.OutputObject
     >;
 
     "Withdrawed(address,uint256,uint256)": TypedContractEvent<

@@ -1,7 +1,7 @@
 "use client"
 import { ethers } from "ethers";
-import { FundCategory, IFundraisingCampaign } from "@/shared/interfaces";
 import { Crowdfunding, Campaign, Campaign__factory } from "@/typechain";
+import { IFundraisingCampaign, FundCategory } from "../model/types";
 
 export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provider: ethers.Provider): Promise<IFundraisingCampaign[]> => {
     try {
@@ -19,7 +19,8 @@ export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provid
                 category,
                 goal,
                 deadline,
-                collected,
+                collectedETH,
+                collectedUF,
                 claimed,
               ] = await campaignContract.getDetails();
       
@@ -31,7 +32,8 @@ export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provid
                 image,
                 category: category as FundCategory,
                 goalAmount: Number(goal),
-                collected: Number(collected),
+                collectedETH: Number(collectedETH),
+                collectedUF: Number(collectedUF),
                 deadline: new Date(Number(deadline) * 1000),
                 claimed,
                 donators: [],

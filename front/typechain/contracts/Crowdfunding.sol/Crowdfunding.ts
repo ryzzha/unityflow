@@ -33,6 +33,7 @@ export interface CrowdfundingInterface extends Interface {
       | "createCampaign"
       | "dao"
       | "getAllCampaigns"
+      | "getCampaignAddress"
       | "numberOfCampaigns"
       | "owner"
       | "renounceOwnership"
@@ -64,6 +65,10 @@ export interface CrowdfundingInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getCampaignAddress",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "numberOfCampaigns",
     values?: undefined
   ): string;
@@ -92,6 +97,10 @@ export interface CrowdfundingInterface extends Interface {
   decodeFunctionResult(functionFragment: "dao", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getAllCampaigns",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getCampaignAddress",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -223,6 +232,12 @@ export interface Crowdfunding extends BaseContract {
 
   getAllCampaigns: TypedContractMethod<[], [string[]], "view">;
 
+  getCampaignAddress: TypedContractMethod<
+    [campaignId: BigNumberish],
+    [string],
+    "view"
+  >;
+
   numberOfCampaigns: TypedContractMethod<[], [bigint], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
@@ -277,6 +292,9 @@ export interface Crowdfunding extends BaseContract {
   getFunction(
     nameOrSignature: "getAllCampaigns"
   ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "getCampaignAddress"
+  ): TypedContractMethod<[campaignId: BigNumberish], [string], "view">;
   getFunction(
     nameOrSignature: "numberOfCampaigns"
   ): TypedContractMethod<[], [bigint], "view">;

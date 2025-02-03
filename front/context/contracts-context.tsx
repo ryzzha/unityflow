@@ -8,6 +8,7 @@ import { TokenUF, TokenUF__factory, GovernanceUF, GovernanceUF__factory, Crowdfu
 interface ContractsContextProps {
     provider: ethers.Provider | null;
     browserProvider: ethers.BrowserProvider | null;
+    wsProvider: ethers.WebSocketProvider | null;
     token: TokenUF | null;
     dao: GovernanceUF | null;
     crowdfunding: Crowdfunding | null;
@@ -19,6 +20,7 @@ interface ContractsContextProps {
 const ContractsContext = createContext<ContractsContextProps>({
     provider: null,
     browserProvider: null,
+    wsProvider: null,
     token: null,
     dao: null,
     crowdfunding: null,
@@ -31,6 +33,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
   const [state, setState] = useState({
     provider: null as ethers.Provider | null,
     browserProvider: null as ethers.BrowserProvider | null,
+    wsProvider: null as ethers.WebSocketProvider | null,
     crowdfunding: null as Crowdfunding | null,
     token: null as TokenUF | null,
     dao: null as GovernanceUF | null,
@@ -42,6 +45,18 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     const initContracts = async () => {
       try {
         const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+        const ws = new ethers.WebSocketProvider("ws://127.0.0.1:8545");
+
+        console.log("ws create")
+
+        ws.on("block", (blockNumber) => {
+          console.log("New block:", blockNumber);
+        });
+
+        ws.on("error", (error) => {
+          console.error("WebSocket error:", error);
+        });
+
         const crowdfunding = Crowdfunding__factory.connect(CROWDFUNDING_ADDRESS, provider);
         const token = TokenUF__factory.connect(TOKEN_ADDRESS, provider);
         const dao = GovernanceUF__factory.connect(DAO_ADDRESS, provider);
@@ -49,6 +64,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
         setState({
           provider,
           browserProvider: null,
+          wsProvider: ws,
           crowdfunding,
           token,
           dao,
@@ -57,6 +73,11 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
         });
   
         console.log("Контракти ініціалізовано:", { crowdfunding, token, dao });
+
+        return () => {
+          console.log("ws destroy")
+          ws.destroy();
+        };
       } catch (error) {
         console.error("Помилка ініціалізації контрактів:", error);
       }
@@ -64,7 +85,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
 
     initContracts();
   }, []);
-  
+ 
 
   const connectWallet = async () => {
     console.log("connectWallet work");

@@ -1,19 +1,26 @@
 import React from 'react';
 import { ethers, formatEther } from "ethers";
-import { IFundraisingCampaign } from '@/shared/interfaces';
 import { daysLeft } from '@/utils';
 import CategoryIcon from '../../../components/icons/category-icon';
 import { unityFlowUser } from '@/assets';
 import Image from 'next/image';
+import { IFundraisingCampaign } from '../model/types';
+import { useRouter } from 'next/navigation';
 
 const FundraisingCampaign = ({ campaign }: { campaign: IFundraisingCampaign }) => {
-  const { organizer, title, description, category, goalAmount, collected, deadline, image } = campaign;
+  const { campaignId, organizer, title, description, category, goalAmount, collectedETH, collectedUF, deadline, image } = campaign;
   const remainingDays = daysLeft(deadline);
+
+  const router = useRouter();
+
+  const handleClick = (id: number) => {
+    router.push(`fund/${id}`)
+  }
 
   return (
     <div 
       className="sm:max-w-[320px] p-3 w-full rounded-[15px] bg-[#FFFCE7] bg-opacity-25 shadow-md hover:shadow-lg transition-shadow cursor-pointer" 
-      onClick={() => {}}
+      onClick={() => handleClick(campaignId)}
     >
       <img 
         src={image} 
@@ -41,10 +48,10 @@ const FundraisingCampaign = ({ campaign }: { campaign: IFundraisingCampaign }) =
         <div className="flex justify-between flex-wrap mt-[15px] gap-2">
           <div className="flex flex-col">
             <h4 className="font-epilogue font-semibold text-[14px] text-[#374151] leading-[22px]">
-              {formatEther(collected.toString())}
+              {formatEther(BigInt(collectedETH).toString())} 
             </h4>
             <p className="mt-[2px] font-epilogue font-normal text-[12px] text-[#6b7280] leading-[18px] truncate">
-              Raised of {formatEther(goalAmount.toString())}
+              Raised of {formatEther(BigInt(goalAmount).toString())}
             </p>
           </div>
           <div className="flex flex-col">

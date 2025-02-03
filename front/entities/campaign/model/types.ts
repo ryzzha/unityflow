@@ -13,7 +13,8 @@ export interface IFundraisingCampaign {
     image: string;
     category: FundCategory;
     goalAmount: number;      
-    collected: number;      
+    collectedETH: number;      
+    collectedUF: number;      
     deadline: Date;         
     claimed: boolean;
     donators: Donor[];    
