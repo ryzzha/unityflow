@@ -4,7 +4,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log("Деплоїмо TokenUF від імені:", deployer.address);
 
-  const TokenUF = await ethers.getContractFactory("TokenUF");
+  const TokenUF = await ethers.getContractFactory("TokenUF"); 
   const token = await TokenUF.deploy(100000);
 
   await token.waitForDeployment();
@@ -22,8 +22,8 @@ async function main() {
   console.log("Власність токена передана DAO:", governance.target);
 
   const Crowdfunding = await ethers.getContractFactory("Crowdfunding");
-  const crowdfunding = await Crowdfunding.deploy(token.target, governance.target);
-
+  const crowdfunding = await Crowdfunding.deploy(token.target, governance.target, ethers.ZeroAddress, ethers.ZeroAddress);
+ 
   await crowdfunding.waitForDeployment();
   console.log("Crowdfunding контракт деплоєно за адресою:", await crowdfunding.getAddress());
 }

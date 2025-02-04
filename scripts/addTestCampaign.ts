@@ -1,6 +1,6 @@
 import { ethers } from "hardhat";
 
-const CROWDFUNDING_ADDRESS = "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9"; // Замініть на вашу адресу контракту Crowdfunding
+const CROWDFUNDING_ADDRESS = "0xcf7ed3acca5a467e9e704c703e8d87f634fb0fc9"; 
 
 async function main() {
     const [deployer] = await ethers.getSigners();
@@ -19,7 +19,7 @@ async function main() {
     for (const campaign of testCampaigns) {
         const tx = await crowdfunding.createCampaign(
             campaign.title,
-            campaign.description,
+            campaign.description, 
             campaign.category,
             campaign.goal,
             campaign.deadline,
