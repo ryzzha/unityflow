@@ -5,10 +5,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./UnityFlow.sol";
 import "./TokenUF.sol";
 
-contract Company {
+contract Company is Ownable {
     UnityFlow public unityFlow;
     TokenUF public token;
-    Crowdfunding public crowdfunding;
+
+    uint id;
 
     address public founder;
     address[] public cofounders;
@@ -18,6 +19,8 @@ contract Company {
 
     uint256 public totalInvestments;
     mapping(address => uint256) public investorBalances;
+
+    uint public fundraisingCount;
 
     event FundsReceived(uint256 amount, address sender);
     event FundsWithdrawn(uint256 amount, address receiver);
@@ -35,16 +38,15 @@ contract Company {
         _;
     }
 
-    constructor(address _founder, address _unityFlow, address _token, address _crowdfunding) Ownable(_founder) {
+    constructor(uint _id, address _founder, address _unityFlow, address _token) Ownable(_founder) {
         require(_founder != address(0), "Invalid founder address");
         require(_unityFlow != address(0), "Invalid UnityFlow address");
         require(_token != address(0), "Invalid TokenUF address");
-        require(_crowdfunding != address(0), "Invalid Crowdfunding address");
         
+        id = _id;
         founder = _founder;
         unityFlow = UnityFlow(_unityFlow);
         token = TokenUF(_token);
-        crowdfunding = Crowdfunding(_crowdfunding);
     }
 
     function receiveFunds() external payable {
@@ -53,17 +55,17 @@ contract Company {
         emit FundsReceived(msg.value, msg.sender);
     }
 
-    function widthdrawETH(uint _amount) public onlyOwner {
+    function widthdrawETH(uint amount) public onlyOwner {
         require(amount > 0 && amount <= totalFunds, "Invalid withdraw amount");
         totalFunds -= amount;
-        (bool sent, ) = dao.call{value: _amount}("");
+        (bool sent, ) = unityFlow.call{value: amount}("");
         require(sent, "Failed to send funds to DAO.");
         emit FundsWithdrawn(amount, msg.sender);
     }
 
-    function widthdrawUF(uint _amount) public onlyOwner {
-        require(token.balanceOf(address(this)) >= _amount, "not enougth tokens");
-        token.transfer(dao, _amount);
+    function widthdrawUF(uint amount) public onlyOwner {
+        require(token.balanceOf(address(this)) >= amount, "not enougth tokens");
+        token.transfer(unityFlow, amount);
     }
 
     function fullWithdraw() external onlyOwner {
@@ -83,8 +85,9 @@ contract Company {
         uint deadline,
         string memory image
     ) external onlyFounderOrCofounder {
-        address newFundraiser = crowdfunding.createCampaign(
-            title, description, category, goalUSD, deadline, image
+        fundraisingCount++;
+        address newFundraiser = unityFlow.createFundraising(
+            fundraisingCount, title, description, category, goalUSD, deadline, image
         );
         fundraisers.push(newFundraiser);
         emit FundraiserCreated(newFundraiser);
@@ -97,22 +100,32 @@ contract Company {
     function onFundraiserCompleted(address fundraiser, uint totalCollected) external {
         require(_isFundraiser(fundraiser), "Caller is not a fundraiser");
         totalFunds += totalCollected;
+        fundraisingCount--;
         emit FundraiserCompleted(fundraiser, totalCollected);
     }
 
     function invest(uint256 amount) external {
         require(token.balanceOf(msg.sender) >= amount, "Insufficient token balance");
         token.transferFrom(msg.sender, address(this), amount);
+
         investorBalances[msg.sender] += amount;
         totalInvestments += amount;
+
+        unityFlow.updateInvestments(amount, "UF");
+
         emit InvestmentReceived(msg.sender, amount);
     }
 
     function withdrawInvestment(uint256 amount) external {
         require(investorBalances[msg.sender] >= amount, "Insufficient investment balance");
-        token.transfer(msg.sender, amount);
+        
         investorBalances[msg.sender] -= amount;
         totalInvestments -= amount;
+
+        token.transfer(msg.sender, amount);
+
+        unityFlow.updateInvestments(amount * -1, "UF"); // Мінусуємо із загальної статистики!
+
         emit InvestmentWithdrawn(msg.sender, amount);
     }
 

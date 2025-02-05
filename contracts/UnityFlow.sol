@@ -17,23 +17,27 @@ contract UnityFlow {
     }
 
     mapping(uint256 => address) public companies;
-    mapping(uint256 => bool) public isCompanyActive;
+    mapping(address => bool) public isCompanyActive;
     mapping(uint256 => Proposal) public proposals;
 
     uint256 public companyCount;
+
     uint256 public totalDonations;
+    mapping(string => uint256) public donationsByCurrency;
+
     uint256 public totalInvestments;
+    mapping(string => uint256) public investmentsByCurrency;
+
     uint256 public activeCompanies;
     uint256 public closedCompanies;
     uint256 public proposalCount;
     
     uint256 public platformFeePercent = 5;
     uint256 public minTokenBalance = 100 * 10**18;
-    
 
-    event CompanyRegistered(uint256 id, address contractAddress);
-    event CompanyClosed(uint256 id, address contractAddress);
-    event TotalFundsUpdated(uint256 newTotalFunds);
+    event CompanyRegistered(uint256 id, address contractAddress, address founder);
+    event CompanyClosed(uint256 id, address contractAddress, address founder);
+    event TotalFundsUpdated(uint256 newTotalFunds, string currency, string kind);
     event ProposalCreated(uint256 id, string description);
     event ProposalExecuted(uint256 id, bool success);
 
@@ -57,28 +61,39 @@ contract UnityFlow {
         token.transfer(to, _amount);
     }
 
-    // function registerCompany(string memory _name) external hasMinimumTokens(msg.sender) {
-    //     require(bytes(_name).length > 0, "Company name cannot be empty");
+    function registerCompany(string memory _name) external hasMinimumTokens(msg.sender) {
+        require(bytes(_name).length > 0, "Company name cannot be empty");
 
-    //     Company newCompaign = new Company(msg.sender, address(this), address(token), тут шось);
+        Company newCompany = new Company(msg.sender, address(this), address(token));
 
-    //     companyCount++;
-    //     companies[companyCount] = address(newCompaign);
-    //     isCompanyActive[companyCount] = true;
-    //     activeCompanies++;
+        companyCount++;
+        companies[companyCount] = address(newCompany);
+        isCompanyActive[address(newCompany)] = true;
+        activeCompanies++;
 
-    //     emit CompanyRegistered(companyCount, newCompaign);
-    // }
+        emit CompanyRegistered(companyCount, newCompany, msg.sender);
+    }
 
     function closeCompany(uint256 companyId) external {
-        require(companies[companyId] != address(0), "Company does not exist");
-        require(isCompanyActive[companyId], "Company is already closed");
-        
-        isCompanyActive[companyId] = false;
+        address companyAddress = companies[companyId];
+
+        require(companyAddress != address(0), "Company does not exist");
+        require(isCompanyActive[companyAddress], "Company is already closed");
+        require(msg.sender == companyAddress || msg.sender == Company(companyAddress).founder(), "Not authorized");
+
+        isCompanyActive[companyAddress] = false;
         activeCompanies--;
         closedCompanies++;
 
-        emit CompanyClosed(companyId, companies[companyId]);
+        emit CompanyClosed(companyId, companyAddress, msg.sender);
+    }
+
+    function getAllCompanies() external view returns (address[] memory) {
+        address[] memory companyList = new address[](companyCount);
+        for (uint256 i = 1; i <= companyCount; i++) {
+            companyList[i - 1] = companies[i];
+        }
+        return companyList;
     }
 
     function createFundraising(
@@ -87,16 +102,15 @@ contract UnityFlow {
         string memory category,
         uint goalUSD,
         uint deadline,
-        string memory image,
-        address companyAddress
+        string memory image
     ) external {
-        require(isCompanyActive[companyAddress], "Company is not active");
+        require(isCompanyActive[msg.sender], "Only active companies can create fundraisers");
         require(deadline > block.timestamp && deadline < block.timestamp + 30 days, "Invalid deadline");
         require(goalUSD >= 10 && goalUSD <= 1000000, "Goal out of range");
 
         Fundraising newFundraising = new Fundraising(
             companyCount,
-            companyAddress,
+            msg.sender,
             title,
             description,
             image,
@@ -146,14 +160,16 @@ contract UnityFlow {
     }
     function getAllCampaigns() external view returns (address[] memory) {}
 
-    function updateDonations(uint256 amount) external {
+    function updateDonations(uint256 amount, string calldata currency) external {
         totalDonations += amount;
-        emit TotalFundsUpdated(amount);
+        donationsByCurrency[currency] += amount;
+        emit TotalFundsUpdated(amount, currency, "donate");
     }
 
-    function updateInvestments(uint256 amount) external {
+    function updateInvestments(uint256 amount, string calldata currency) external {
         totalInvestments += amount;
-        emit TotalFundsUpdated(amount);
+        investmentsByCurrency[currency] += amount;
+        emit TotalFundsUpdated(amount, currency, "investment");
     }
 }
 

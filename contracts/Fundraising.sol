@@ -2,14 +2,15 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "./UnityFlow.sol";
 import "./TokenUF.sol";
 import "./Company.sol";
 
 contract Fundraising is Ownable {
+    UnityFlow public unityFlow;
     TokenUF public token;
     // AggregatorV3Interface internal ethPriceFeed;
     // AggregatorV3Interface internal tokenPriceFeed;
-    Crowdfunding public crowdfunding;
     Company public company;
     uint id;
     string title;
@@ -36,8 +37,8 @@ contract Fundraising is Ownable {
         uint _deadline,
         TokenUF _tokenAddress,
         uint _fee
-    ) Ownable(_organizer) {
-        crowdfunding = Crowdfunding(msg.sender);
+    ) Ownable(_company) {
+        company = Company(_company);
 
         id = _id;
         company =_company;
@@ -123,11 +124,26 @@ contract Fundraising is Ownable {
 
         claimed = true;
 
-        payable(address(crowdfunding)).transfer(feeETH);
-        payable(company).transfer(amountETHToWithdraw);
+        if (feeETH > 0) {
+            (bool sentETH, ) = address(unityFlow).call{value: feeETH}("");
+            require(sentETH, "Failed to send platform fee in ETH");
+        }
+        if (feeUF > 0) {
+            token.transfer(address(unityFlow), feeUF);
+        }
 
-        token.transfer(address(crowdfunding), feeUF);
-        token.transfer(owner(), amountUFToWithdraw);
+        if (amountETHToWithdraw > 0) {
+            (bool sentCompanyETH, ) = payable(company).call{value: amountETHToWithdraw}("");
+            require(sentCompanyETH, "Failed to send ETH to company");
+        }
+        if (amountUFToWithdraw > 0) {
+            token.transfer(owner(), amountUFToWithdraw);
+        }
+
+        collectedETH = 0;
+        collectedUF = 0;
+
+        unityFlow.updateDonations(amountETHToWithdraw + amountUFToWithdraw);
 
         uint[] memory amounts;
         string[] memory currencies;
@@ -140,7 +156,7 @@ contract Fundraising is Ownable {
 
         emit Withdrawed(msg.sender, amounts, currencies);
 
-        parent.onClaimed(id);
+        unityFlow.onClaimed(id);
     }
 
     function refundETH() external Ends {
