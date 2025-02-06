@@ -120,7 +120,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     } catch (error) {
       console.error("Error connecting wallet:", error);
     } 
-  };
+  }; 
 
   return (
     <ContractsContext.Provider value={{ ...state, connectWallet }} >{children}</ContractsContext.Provider>

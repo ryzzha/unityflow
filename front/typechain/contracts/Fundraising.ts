@@ -21,13 +21,12 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../../common";
+} from "../common";
 
-export interface CampaignInterface extends Interface {
+export interface FundraisingInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "addSupportedToken"
-      | "allowOtherTokens"
+      | "company"
       | "donateETH"
       | "donateUF"
       | "ethDonators"
@@ -35,29 +34,26 @@ export interface CampaignInterface extends Interface {
       | "getDonationETH"
       | "getDonationUF"
       | "owner"
-      | "parent"
+      | "platformFeePercent"
+      | "refundETH"
+      | "refundUF"
       | "renounceOwnership"
-      | "supportedTokens"
       | "token"
-      | "tokenDonators"
       | "transferOwnership"
+      | "ufDonators"
+      | "unityFlow"
+      | "withdrawFunds"
   ): FunctionFragment;
 
   getEvent(
     nameOrSignatureOrTopic:
       | "DonationReceived"
       | "OwnershipTransferred"
+      | "RefundProcessed"
       | "Withdrawed"
   ): EventFragment;
 
-  encodeFunctionData(
-    functionFragment: "addSupportedToken",
-    values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "allowOtherTokens",
-    values?: undefined
-  ): string;
+  encodeFunctionData(functionFragment: "company", values?: undefined): string;
   encodeFunctionData(functionFragment: "donateETH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "donateUF",
@@ -80,33 +76,32 @@ export interface CampaignInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
-  encodeFunctionData(functionFragment: "parent", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "platformFeePercent",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "refundETH", values?: undefined): string;
+  encodeFunctionData(functionFragment: "refundUF", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
-  encodeFunctionData(
-    functionFragment: "supportedTokens",
-    values: [AddressLike]
-  ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
-  encodeFunctionData(
-    functionFragment: "tokenDonators",
-    values: [AddressLike]
-  ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "ufDonators",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "unityFlow", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "withdrawFunds",
+    values?: undefined
+  ): string;
 
-  decodeFunctionResult(
-    functionFragment: "addSupportedToken",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "allowOtherTokens",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "company", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "donateETH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "donateUF", data: BytesLike): Result;
   decodeFunctionResult(
@@ -123,22 +118,25 @@ export interface CampaignInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "parent", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "platformFeePercent",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "refundETH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "refundUF", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "supportedTokens",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "tokenDonators",
+    functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "ufDonators", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "unityFlow", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "transferOwnership",
+    functionFragment: "withdrawFunds",
     data: BytesLike
   ): Result;
 }
@@ -174,17 +172,17 @@ export namespace OwnershipTransferredEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace WithdrawedEvent {
+export namespace RefundProcessedEvent {
   export type InputTuple = [
-    sender: AddressLike,
+    donator: AddressLike,
     amount: BigNumberish,
-    time: BigNumberish
+    currency: string
   ];
-  export type OutputTuple = [sender: string, amount: bigint, time: bigint];
+  export type OutputTuple = [donator: string, amount: bigint, currency: string];
   export interface OutputObject {
-    sender: string;
+    donator: string;
     amount: bigint;
-    time: bigint;
+    currency: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -192,11 +190,33 @@ export namespace WithdrawedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface Campaign extends BaseContract {
-  connect(runner?: ContractRunner | null): Campaign;
+export namespace WithdrawedEvent {
+  export type InputTuple = [
+    sender: AddressLike,
+    amounts: BigNumberish[],
+    currencies: string[]
+  ];
+  export type OutputTuple = [
+    sender: string,
+    amounts: bigint[],
+    currencies: string[]
+  ];
+  export interface OutputObject {
+    sender: string;
+    amounts: bigint[];
+    currencies: string[];
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export interface Fundraising extends BaseContract {
+  connect(runner?: ContractRunner | null): Fundraising;
   waitForDeployment(): Promise<this>;
 
-  interface: CampaignInterface;
+  interface: FundraisingInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -235,13 +255,7 @@ export interface Campaign extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  addSupportedToken: TypedContractMethod<
-    [_token: AddressLike],
-    [void],
-    "nonpayable"
-  >;
-
-  allowOtherTokens: TypedContractMethod<[], [boolean], "view">;
+  company: TypedContractMethod<[], [string], "view">;
 
   donateETH: TypedContractMethod<[], [void], "payable">;
 
@@ -285,15 +299,15 @@ export interface Campaign extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
-  parent: TypedContractMethod<[], [string], "view">;
+  platformFeePercent: TypedContractMethod<[], [bigint], "view">;
+
+  refundETH: TypedContractMethod<[], [void], "nonpayable">;
+
+  refundUF: TypedContractMethod<[], [void], "nonpayable">;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  supportedTokens: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
-
   token: TypedContractMethod<[], [string], "view">;
-
-  tokenDonators: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
@@ -301,16 +315,19 @@ export interface Campaign extends BaseContract {
     "nonpayable"
   >;
 
+  ufDonators: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
+  unityFlow: TypedContractMethod<[], [string], "view">;
+
+  withdrawFunds: TypedContractMethod<[], [void], "nonpayable">;
+
   getFunction<T extends ContractMethod = ContractMethod>(
     key: string | FunctionFragment
   ): T;
 
   getFunction(
-    nameOrSignature: "addSupportedToken"
-  ): TypedContractMethod<[_token: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "allowOtherTokens"
-  ): TypedContractMethod<[], [boolean], "view">;
+    nameOrSignature: "company"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "donateETH"
   ): TypedContractMethod<[], [void], "payable">;
@@ -361,23 +378,32 @@ export interface Campaign extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "parent"
-  ): TypedContractMethod<[], [string], "view">;
+    nameOrSignature: "platformFeePercent"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "refundETH"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "refundUF"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "supportedTokens"
-  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
-  getFunction(
     nameOrSignature: "token"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "tokenDonators"
-  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
-  getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "ufDonators"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "unityFlow"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "withdrawFunds"
+  ): TypedContractMethod<[], [void], "nonpayable">;
 
   getEvent(
     key: "DonationReceived"
@@ -392,6 +418,13 @@ export interface Campaign extends BaseContract {
     OwnershipTransferredEvent.InputTuple,
     OwnershipTransferredEvent.OutputTuple,
     OwnershipTransferredEvent.OutputObject
+  >;
+  getEvent(
+    key: "RefundProcessed"
+  ): TypedContractEvent<
+    RefundProcessedEvent.InputTuple,
+    RefundProcessedEvent.OutputTuple,
+    RefundProcessedEvent.OutputObject
   >;
   getEvent(
     key: "Withdrawed"
@@ -424,7 +457,18 @@ export interface Campaign extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "Withdrawed(address,uint256,uint256)": TypedContractEvent<
+    "RefundProcessed(address,uint256,string)": TypedContractEvent<
+      RefundProcessedEvent.InputTuple,
+      RefundProcessedEvent.OutputTuple,
+      RefundProcessedEvent.OutputObject
+    >;
+    RefundProcessed: TypedContractEvent<
+      RefundProcessedEvent.InputTuple,
+      RefundProcessedEvent.OutputTuple,
+      RefundProcessedEvent.OutputObject
+    >;
+
+    "Withdrawed(address,uint256[],string[])": TypedContractEvent<
       WithdrawedEvent.InputTuple,
       WithdrawedEvent.OutputTuple,
       WithdrawedEvent.OutputObject

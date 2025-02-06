@@ -10,11 +10,13 @@ contract Company is Ownable {
     TokenUF public token;
 
     uint id;
+    string name;
 
     address public founder;
     address[] public cofounders;
 
-    uint256 public totalFunds;
+    uint256 public totalFundsETH;
+    uint256 public totalFundsUF;
     address[] public fundraisers;
 
     uint256 public totalInvestments;
@@ -22,28 +24,29 @@ contract Company is Ownable {
 
     uint public fundraisingCount;
 
-    event FundsReceived(uint256 amount, address sender);
-    event FundsWithdrawn(uint256 amount, address receiver);
-
-    event FundraiserCreated(address fundraiserContract);
-    event FundraiserCompleted(address fundraiserContract, uint totalCollected);
+    event CofounderAdded(address cofounder);
 
     event InvestmentReceived(address investor, uint256 amount);
     event InvestmentWithdrawn(address investor, uint256 amount);
 
-    event CofounderAdded(address cofounder);
+    event FundraiserCreated(address fundraiserContract);
+    event FundraiserCompleted(address fundraiserContract, uint totalCollectedETH, uint totalCollectedUF);
+
+    event FundsReceived(uint256 amount, address sender);
+    event FundsWithdrawn(uint256 amount, address receiver);
 
     modifier onlyFounderOrCofounder() {
-        require(msg.sender == founder || isCofounder(msg.sender), "Not authorized");
+        require(msg.sender == founder || _isCofounder(msg.sender), "Not authorized");
         _;
     }
 
-    constructor(uint _id, address _founder, address _unityFlow, address _token) Ownable(_founder) {
+    constructor(uint _id, string memory _name, address _founder, address _unityFlow, address _token) Ownable(_founder) {
         require(_founder != address(0), "Invalid founder address");
         require(_unityFlow != address(0), "Invalid UnityFlow address");
         require(_token != address(0), "Invalid TokenUF address");
         
         id = _id;
+        name = _name;
         founder = _founder;
         unityFlow = UnityFlow(_unityFlow);
         token = TokenUF(_token);
@@ -51,21 +54,22 @@ contract Company is Ownable {
 
     function receiveFunds() external payable {
         require(msg.value > 0, "Must send some funds");
-        totalFunds += msg.value;
+        totalFundsETH += msg.value;
         emit FundsReceived(msg.value, msg.sender);
     }
 
     function widthdrawETH(uint amount) public onlyOwner {
-        require(amount > 0 && amount <= totalFunds, "Invalid withdraw amount");
-        totalFunds -= amount;
-        (bool sent, ) = unityFlow.call{value: amount}("");
+        require(amount > 0 && amount <= totalFundsETH, "Invalid withdraw amount");
+        totalFundsETH -= amount;
+        (bool sent, ) = address(unityFlow).call{value: amount}("");
         require(sent, "Failed to send funds to DAO.");
         emit FundsWithdrawn(amount, msg.sender);
     }
 
     function widthdrawUF(uint amount) public onlyOwner {
         require(token.balanceOf(address(this)) >= amount, "not enougth tokens");
-        token.transfer(unityFlow, amount);
+        totalFundsUF -= amount;
+        token.transfer(address(unityFlow), amount);
     }
 
     function fullWithdraw() external onlyOwner {
@@ -97,11 +101,12 @@ contract Company is Ownable {
         return fundraisers;
     }
 
-    function onFundraiserCompleted(address fundraiser, uint totalCollected) external {
-        require(_isFundraiser(fundraiser), "Caller is not a fundraiser");
-        totalFunds += totalCollected;
+    function onFundraiserCompleted(uint totalCollectedETH, uint totalCollectedUF) external {
+        require(_isFundraiser(msg.sender), "Caller is not a fundraiser");
+        totalFundsETH += totalCollectedETH;
+        totalFundsUF += totalCollectedUF;
         fundraisingCount--;
-        emit FundraiserCompleted(fundraiser, totalCollected);
+        emit FundraiserCompleted(msg.sender, totalCollectedETH, totalCollectedUF);
     }
 
     function invest(uint256 amount) external {
@@ -111,7 +116,7 @@ contract Company is Ownable {
         investorBalances[msg.sender] += amount;
         totalInvestments += amount;
 
-        unityFlow.updateInvestments(amount, "UF");
+        unityFlow.increaseInvestments(amount, "UF");
 
         emit InvestmentReceived(msg.sender, amount);
     }
@@ -124,7 +129,7 @@ contract Company is Ownable {
 
         token.transfer(msg.sender, amount);
 
-        unityFlow.updateInvestments(amount * -1, "UF"); // Мінусуємо із загальної статистики!
+        unityFlow.decreaseInvestments(amount, "UF"); 
 
         emit InvestmentWithdrawn(msg.sender, amount);
     }
@@ -135,9 +140,18 @@ contract Company is Ownable {
         emit CofounderAdded(cofounder);
     }
 
-    function isCofounder(address user) public view returns (bool) {
+    function _isCofounder(address user) private view returns (bool) {
         for (uint i = 0; i < cofounders.length; i++) {
             if (cofounders[i] == user) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function _isFundraiser(address fundraiser) private view returns (bool) {
+        for (uint i = 0; i < fundraisers.length; i++) {
+            if (fundraisers[i] == fundraiser) {
                 return true;
             }
         }

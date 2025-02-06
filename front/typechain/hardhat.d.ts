@@ -78,21 +78,25 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Strings__factory>;
     getContractFactory(
-      name: "Campaign",
+      name: "Company",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Campaign__factory>;
+    ): Promise<Contracts.Company__factory>;
     getContractFactory(
-      name: "Crowdfunding",
+      name: "Fundraising",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.Crowdfunding__factory>;
+    ): Promise<Contracts.Fundraising__factory>;
     getContractFactory(
-      name: "GovernanceUF",
+      name: "Staking",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.GovernanceUF__factory>;
+    ): Promise<Contracts.Staking__factory>;
     getContractFactory(
       name: "TokenUF",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenUF__factory>;
+    getContractFactory(
+      name: "UnityFlow",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnityFlow__factory>;
 
     getContractAt(
       name: "Ownable",
@@ -175,25 +179,30 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Strings>;
     getContractAt(
-      name: "Campaign",
+      name: "Company",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.Campaign>;
+    ): Promise<Contracts.Company>;
     getContractAt(
-      name: "Crowdfunding",
+      name: "Fundraising",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.Crowdfunding>;
+    ): Promise<Contracts.Fundraising>;
     getContractAt(
-      name: "GovernanceUF",
+      name: "Staking",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
-    ): Promise<Contracts.GovernanceUF>;
+    ): Promise<Contracts.Staking>;
     getContractAt(
       name: "TokenUF",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.TokenUF>;
+    getContractAt(
+      name: "UnityFlow",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnityFlow>;
 
     deployContract(
       name: "Ownable",
@@ -260,21 +269,25 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
     deployContract(
-      name: "Campaign",
+      name: "Company",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Campaign>;
+    ): Promise<Contracts.Company>;
     deployContract(
-      name: "Crowdfunding",
+      name: "Fundraising",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Crowdfunding>;
+    ): Promise<Contracts.Fundraising>;
     deployContract(
-      name: "GovernanceUF",
+      name: "Staking",
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.GovernanceUF>;
+    ): Promise<Contracts.Staking>;
     deployContract(
       name: "TokenUF",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TokenUF>;
+    deployContract(
+      name: "UnityFlow",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.UnityFlow>;
 
     deployContract(
       name: "Ownable",
@@ -357,25 +370,30 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Strings>;
     deployContract(
-      name: "Campaign",
+      name: "Company",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Campaign>;
+    ): Promise<Contracts.Company>;
     deployContract(
-      name: "Crowdfunding",
+      name: "Fundraising",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.Crowdfunding>;
+    ): Promise<Contracts.Fundraising>;
     deployContract(
-      name: "GovernanceUF",
+      name: "Staking",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.GovernanceUF>;
+    ): Promise<Contracts.Staking>;
     deployContract(
       name: "TokenUF",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TokenUF>;
+    deployContract(
+      name: "UnityFlow",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.UnityFlow>;
 
     // default types
     getContractFactory(

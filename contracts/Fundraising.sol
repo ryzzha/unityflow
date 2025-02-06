@@ -28,7 +28,7 @@ contract Fundraising is Ownable {
 
     constructor(
         uint _id,
-        Company _company,
+        address _company,
         string memory _title,
         string memory _description,
         string memory _image,
@@ -38,10 +38,8 @@ contract Fundraising is Ownable {
         TokenUF _tokenAddress,
         uint _fee
     ) Ownable(_company) {
-        company = Company(_company);
-
         id = _id;
-        company =_company;
+        company = Company(_company);
         title = _title;
         description = _description;
         image = _image;
@@ -73,7 +71,7 @@ contract Fundraising is Ownable {
     function getDetails() external view returns (
         uint, address, string memory, string memory, string memory, string memory, uint, uint, uint, uint, bool
     ) {
-        return (id, company, title, description, image, category, goalUSD, deadline, collectedETH, collectedUF, claimed);
+        return (id, address(company), title, description, image, category, goalUSD, deadline, collectedETH, collectedUF, claimed);
     }
  
     function donateETH() external payable notEnds {
@@ -133,8 +131,9 @@ contract Fundraising is Ownable {
         }
 
         if (amountETHToWithdraw > 0) {
-            (bool sentCompanyETH, ) = payable(company).call{value: amountETHToWithdraw}("");
-            require(sentCompanyETH, "Failed to send ETH to company");
+            company.receiveFunds{value: amountETHToWithdraw}();
+            // (bool sentCompanyETH, ) = payable(company).call{value: amountETHToWithdraw}("");
+            // require(sentCompanyETH, "Failed to send ETH to company");
         }
         if (amountUFToWithdraw > 0) {
             token.transfer(owner(), amountUFToWithdraw);
@@ -143,7 +142,9 @@ contract Fundraising is Ownable {
         collectedETH = 0;
         collectedUF = 0;
 
-        unityFlow.updateDonations(amountETHToWithdraw + amountUFToWithdraw);
+        unityFlow.updateDonations(amountETHToWithdraw, "ETH");
+        unityFlow.updateDonations(amountUFToWithdraw, "UF");
+        company.onFundraiserCompleted(collectedETH, collectedUF);
 
         uint[] memory amounts;
         string[] memory currencies;
@@ -155,8 +156,6 @@ contract Fundraising is Ownable {
         currencies[1] = "UF";
 
         emit Withdrawed(msg.sender, amounts, currencies);
-
-        unityFlow.onClaimed(id);
     }
 
     function refundETH() external Ends {

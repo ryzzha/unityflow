@@ -61,17 +61,17 @@ contract UnityFlow {
         token.transfer(to, _amount);
     }
 
-    function registerCompany(string memory _name) external hasMinimumTokens(msg.sender) {
-        require(bytes(_name).length > 0, "Company name cannot be empty");
+    function registerCompany(string memory name) external hasMinimumTokens(msg.sender) {
+        require(bytes(name).length > 0, "Company name cannot be empty");
 
-        Company newCompany = new Company(msg.sender, address(this), address(token));
+        Company newCompany = new Company(companyCount, name, msg.sender, address(this), address(token));
 
         companyCount++;
         companies[companyCount] = address(newCompany);
         isCompanyActive[address(newCompany)] = true;
         activeCompanies++;
 
-        emit CompanyRegistered(companyCount, newCompany, msg.sender);
+        emit CompanyRegistered(companyCount, address(newCompany), msg.sender);
     }
 
     function closeCompany(uint256 companyId) external {
@@ -97,19 +97,20 @@ contract UnityFlow {
     }
 
     function createFundraising(
+        uint id,
         string memory title,
         string memory description,
         string memory category,
         uint goalUSD,
         uint deadline,
         string memory image
-    ) external {
+    ) external returns(address) {
         require(isCompanyActive[msg.sender], "Only active companies can create fundraisers");
         require(deadline > block.timestamp && deadline < block.timestamp + 30 days, "Invalid deadline");
         require(goalUSD >= 10 && goalUSD <= 1000000, "Goal out of range");
 
         Fundraising newFundraising = new Fundraising(
-            companyCount,
+            id,
             msg.sender,
             title,
             description,
@@ -120,6 +121,8 @@ contract UnityFlow {
             token,
             platformFeePercent
         );
+
+        return address(newFundraising);
     }
 
     function createProposal(string memory _description) external {
@@ -166,10 +169,21 @@ contract UnityFlow {
         emit TotalFundsUpdated(amount, currency, "donate");
     }
 
-    function updateInvestments(uint256 amount, string calldata currency) external {
+    function increaseInvestments(uint256 amount, string calldata currency) external {
         totalInvestments += amount;
         investmentsByCurrency[currency] += amount;
-        emit TotalFundsUpdated(amount, currency, "investment");
+        emit TotalFundsUpdated(amount, currency, "investment_added");
     }
+
+    function decreaseInvestments(uint256 amount, string calldata currency) external {
+        require(totalInvestments >= amount, "Not enough total investments");
+        require(investmentsByCurrency[currency] >= amount, "Not enough investments in currency");
+
+        totalInvestments -= amount;
+        investmentsByCurrency[currency] -= amount;
+
+        emit TotalFundsUpdated(amount, currency, "investment_removed");
+    }
+
 }
 
