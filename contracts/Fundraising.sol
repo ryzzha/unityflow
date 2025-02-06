@@ -39,7 +39,7 @@ contract Fundraising is Ownable {
         uint _fee
     ) Ownable(_company) {
         id = _id;
-        company = Company(_company);
+        company = Company(payable(_company));
         title = _title;
         description = _description;
         image = _image;
@@ -131,12 +131,12 @@ contract Fundraising is Ownable {
         }
 
         if (amountETHToWithdraw > 0) {
-            company.receiveFunds{value: amountETHToWithdraw}();
+            company.receiveETH{value: amountETHToWithdraw}();
             // (bool sentCompanyETH, ) = payable(company).call{value: amountETHToWithdraw}("");
             // require(sentCompanyETH, "Failed to send ETH to company");
         }
         if (amountUFToWithdraw > 0) {
-            token.transfer(owner(), amountUFToWithdraw);
+            company.receiveUF(amountUFToWithdraw);
         }
 
         collectedETH = 0;

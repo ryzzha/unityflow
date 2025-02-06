@@ -10,7 +10,7 @@ contract Company is Ownable {
     TokenUF public token;
 
     uint id;
-    string name;
+    string public name;
 
     address public founder;
     address[] public cofounders;
@@ -19,21 +19,24 @@ contract Company is Ownable {
     uint256 public totalFundsUF;
     address[] public fundraisers;
 
-    uint256 public totalInvestments;
-    mapping(address => uint256) public investorBalances;
+    uint256 public totalInvestmentsETH;
+    uint256 public totalInvestmentsUF;
+
+    mapping(address => uint256) public investorETHBalances;
+    mapping(address => uint256) public investorUFBalances;
 
     uint public fundraisingCount;
 
     event CofounderAdded(address cofounder);
 
-    event InvestmentReceived(address investor, uint256 amount);
-    event InvestmentWithdrawn(address investor, uint256 amount);
+    event InvestmentReceived(address investor, uint256 amount, string asset);
+    event InvestmentWithdrawn(address investor, uint256 amount, string asset);
 
     event FundraiserCreated(address fundraiserContract);
     event FundraiserCompleted(address fundraiserContract, uint totalCollectedETH, uint totalCollectedUF);
 
-    event FundsReceived(uint256 amount, address sender);
-    event FundsWithdrawn(uint256 amount, address receiver);
+    event FundsReceived(uint256 amount, address sender, string asset);
+    event FundsWithdrawn(uint256 amount, address receiver, string asset);
 
     modifier onlyFounderOrCofounder() {
         require(msg.sender == founder || _isCofounder(msg.sender), "Not authorized");
@@ -52,32 +55,51 @@ contract Company is Ownable {
         token = TokenUF(_token);
     }
 
-    function receiveFunds() external payable {
+    receive() external payable {
+        receiveETH();
+    }
+
+    function receiveETH() public payable {
         require(msg.value > 0, "Must send some funds");
         totalFundsETH += msg.value;
-        emit FundsReceived(msg.value, msg.sender);
+        unityFlow.updateDonations(msg.value, "ETH");
+        emit FundsReceived(msg.value, msg.sender, "ETH");
     }
 
-    function widthdrawETH(uint amount) public onlyOwner {
+    function receiveUF(uint256 amount) external {
+        require(amount > 0, "Must send some funds");
+        require(token.balanceOf(msg.sender) >= amount, "Insufficient token balance");
+
+        token.transferFrom(msg.sender, address(this), amount);
+        totalFundsUF += amount;
+
+        unityFlow.updateDonations(amount, "UF");
+        
+        emit FundsReceived(amount, msg.sender, "UF");
+    }
+
+    function widthdrawETH(address to, uint amount) public onlyOwner {
         require(amount > 0 && amount <= totalFundsETH, "Invalid withdraw amount");
         totalFundsETH -= amount;
-        (bool sent, ) = address(unityFlow).call{value: amount}("");
-        require(sent, "Failed to send funds to DAO.");
-        emit FundsWithdrawn(amount, msg.sender);
+        (bool sent, ) = to.call{value: amount}("");
+        require(sent, "Failed to send funds.");
+        emit FundsWithdrawn(amount, msg.sender, "ETH");
     }
 
-    function widthdrawUF(uint amount) public onlyOwner {
+    function widthdrawUF(address to, uint amount) public onlyOwner {
+        require(amount > 0 && amount <= totalFundsUF, "Invalid withdraw amount");
         require(token.balanceOf(address(this)) >= amount, "not enougth tokens");
         totalFundsUF -= amount;
-        token.transfer(address(unityFlow), amount);
+        token.transfer(to, amount);
+        emit FundsWithdrawn(amount, msg.sender, "UF");
     }
 
-    function fullWithdraw() external onlyOwner {
+    function fullWithdraw(address to) external onlyOwner {
         if (address(this).balance > 0) {
-            widthdrawETH(address(this).balance);
+            widthdrawETH(to, address(this).balance - 1);
         }
         if (token.balanceOf(address(this)) > 0) {
-            widthdrawUF(token.balanceOf(address(this)));
+            widthdrawUF(to, token.balanceOf(address(this)));
         }
     }
 
@@ -109,29 +131,59 @@ contract Company is Ownable {
         emit FundraiserCompleted(msg.sender, totalCollectedETH, totalCollectedUF);
     }
 
-    function invest(uint256 amount) external {
-        require(token.balanceOf(msg.sender) >= amount, "Insufficient token balance");
-        token.transferFrom(msg.sender, address(this), amount);
+    function investETH() external payable {
+        require(msg.value > 0, "Investment must be greater than 0");
+        
+        investorETHBalances[msg.sender] += msg.value;
+        totalInvestmentsETH += msg.value;
+        totalFundsETH += msg.value;
 
-        investorBalances[msg.sender] += amount;
-        totalInvestments += amount;
-
-        unityFlow.increaseInvestments(amount, "UF");
-
-        emit InvestmentReceived(msg.sender, amount);
+        unityFlow.increaseInvestments(msg.value, "ETH");
+        emit InvestmentReceived(msg.sender, msg.value, "ETH");
     }
 
-    function withdrawInvestment(uint256 amount) external {
-        require(investorBalances[msg.sender] >= amount, "Insufficient investment balance");
-        
-        investorBalances[msg.sender] -= amount;
-        totalInvestments -= amount;
+    function investUF(uint256 amount) external {
+        require(amount > 0, "Investment must be greater than 0");
+        require(token.balanceOf(msg.sender) >= amount, "Insufficient token balance");
+
+        token.transferFrom(msg.sender, address(this), amount);
+        require(token.balanceOf(address(this)) >= totalFundsUF + amount, "Transfer failed");
+
+        investorUFBalances[msg.sender] += amount;
+        totalInvestmentsUF += amount;
+        totalFundsUF += amount;
+
+        unityFlow.increaseInvestments(amount, "UF");
+        emit InvestmentReceived(msg.sender, amount, "UF");
+    }
+
+    function withdrawInvestmentETH(uint256 amount) external {
+        require(amount > 0, "Withdrawal amount must be greater than 0");
+        require(investorETHBalances[msg.sender] >= amount, "Insufficient investment balance");
+
+        investorETHBalances[msg.sender] -= amount;
+        totalInvestmentsETH -= amount;
+        totalFundsETH -= amount;
+
+        (bool sent, ) = payable(msg.sender).call{value: amount}("");
+        require(sent, "Failed to send ETH");
+
+        unityFlow.decreaseInvestments(amount, "ETH");
+        emit InvestmentWithdrawn(msg.sender, amount, "ETH");
+    }
+
+    function withdrawInvestmentUF(uint256 amount) external {
+        require(amount > 0, "Withdrawal amount must be greater than 0");
+        require(investorUFBalances[msg.sender] >= amount, "Insufficient investment balance");
+
+        investorUFBalances[msg.sender] -= amount;
+        totalInvestmentsUF -= amount;
+        totalFundsUF -= amount;
 
         token.transfer(msg.sender, amount);
+        unityFlow.decreaseInvestments(amount, "UF");
 
-        unityFlow.decreaseInvestments(amount, "UF"); 
-
-        emit InvestmentWithdrawn(msg.sender, amount);
+        emit InvestmentWithdrawn(msg.sender, amount, "UF");
     }
 
     function addCofounder(address cofounder) external onlyOwner {

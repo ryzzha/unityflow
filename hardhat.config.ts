@@ -3,7 +3,15 @@ import "@nomicfoundation/hardhat-toolbox";
 import "@typechain/hardhat";
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.28",
+  solidity: {
+    version: "0.8.20",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200,
+      },
+    },
+  },
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {

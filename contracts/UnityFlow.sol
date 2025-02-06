@@ -75,7 +75,7 @@ contract UnityFlow {
     }
 
     function closeCompany(uint256 companyId) external {
-        address companyAddress = companies[companyId];
+        address payable companyAddress = payable(companies[companyId]);
 
         require(companyAddress != address(0), "Company does not exist");
         require(isCompanyActive[companyAddress], "Company is already closed");
@@ -164,7 +164,7 @@ contract UnityFlow {
     function getAllCampaigns() external view returns (address[] memory) {}
 
     function updateDonations(uint256 amount, string calldata currency) external {
-        totalDonations += amount;
+        totalDonations++;
         donationsByCurrency[currency] += amount;
         emit TotalFundsUpdated(amount, currency, "donate");
     }

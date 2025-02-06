@@ -34,21 +34,27 @@ export interface CompanyInterface extends Interface {
       | "fundraisers"
       | "fundraisingCount"
       | "getCompanyFundraisers"
-      | "invest"
-      | "investorBalances"
+      | "investETH"
+      | "investUF"
+      | "investorETHBalances"
+      | "investorUFBalances"
+      | "name"
       | "onFundraiserCompleted"
       | "owner"
-      | "receiveFunds"
+      | "receiveETH"
+      | "receiveUF"
       | "renounceOwnership"
       | "token"
       | "totalFundsETH"
       | "totalFundsUF"
-      | "totalInvestments"
+      | "totalInvestmentsETH"
+      | "totalInvestmentsUF"
       | "transferOwnership"
       | "unityFlow"
       | "widthdrawETH"
       | "widthdrawUF"
-      | "withdrawInvestment"
+      | "withdrawInvestmentETH"
+      | "withdrawInvestmentUF"
   ): FunctionFragment;
 
   getEvent(
@@ -78,7 +84,7 @@ export interface CompanyInterface extends Interface {
   encodeFunctionData(functionFragment: "founder", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fullWithdraw",
-    values?: undefined
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "fundraisers",
@@ -92,22 +98,32 @@ export interface CompanyInterface extends Interface {
     functionFragment: "getCompanyFundraisers",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "investETH", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "invest",
+    functionFragment: "investUF",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "investorBalances",
+    functionFragment: "investorETHBalances",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "investorUFBalances",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onFundraiserCompleted",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "receiveFunds",
+    functionFragment: "receiveETH",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "receiveUF",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -123,7 +139,11 @@ export interface CompanyInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "totalInvestments",
+    functionFragment: "totalInvestmentsETH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "totalInvestmentsUF",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -133,14 +153,18 @@ export interface CompanyInterface extends Interface {
   encodeFunctionData(functionFragment: "unityFlow", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "widthdrawETH",
-    values: [BigNumberish]
+    values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "widthdrawUF",
+    values: [AddressLike, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawInvestmentETH",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdrawInvestment",
+    functionFragment: "withdrawInvestmentUF",
     values: [BigNumberish]
   ): string;
 
@@ -170,20 +194,24 @@ export interface CompanyInterface extends Interface {
     functionFragment: "getCompanyFundraisers",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "invest", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "investETH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "investUF", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "investorBalances",
+    functionFragment: "investorETHBalances",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "investorUFBalances",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onFundraiserCompleted",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "receiveFunds",
-    data: BytesLike
-  ): Result;
+  decodeFunctionResult(functionFragment: "receiveETH", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "receiveUF", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -198,7 +226,11 @@ export interface CompanyInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "totalInvestments",
+    functionFragment: "totalInvestmentsETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "totalInvestmentsUF",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -215,7 +247,11 @@ export interface CompanyInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "withdrawInvestment",
+    functionFragment: "withdrawInvestmentETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawInvestmentUF",
     data: BytesLike
   ): Result;
 }
@@ -267,11 +303,16 @@ export namespace FundraiserCreatedEvent {
 }
 
 export namespace FundsReceivedEvent {
-  export type InputTuple = [amount: BigNumberish, sender: AddressLike];
-  export type OutputTuple = [amount: bigint, sender: string];
+  export type InputTuple = [
+    amount: BigNumberish,
+    sender: AddressLike,
+    asset: string
+  ];
+  export type OutputTuple = [amount: bigint, sender: string, asset: string];
   export interface OutputObject {
     amount: bigint;
     sender: string;
+    asset: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -280,11 +321,16 @@ export namespace FundsReceivedEvent {
 }
 
 export namespace FundsWithdrawnEvent {
-  export type InputTuple = [amount: BigNumberish, receiver: AddressLike];
-  export type OutputTuple = [amount: bigint, receiver: string];
+  export type InputTuple = [
+    amount: BigNumberish,
+    receiver: AddressLike,
+    asset: string
+  ];
+  export type OutputTuple = [amount: bigint, receiver: string, asset: string];
   export interface OutputObject {
     amount: bigint;
     receiver: string;
+    asset: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -293,11 +339,16 @@ export namespace FundsWithdrawnEvent {
 }
 
 export namespace InvestmentReceivedEvent {
-  export type InputTuple = [investor: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [investor: string, amount: bigint];
+  export type InputTuple = [
+    investor: AddressLike,
+    amount: BigNumberish,
+    asset: string
+  ];
+  export type OutputTuple = [investor: string, amount: bigint, asset: string];
   export interface OutputObject {
     investor: string;
     amount: bigint;
+    asset: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -306,11 +357,16 @@ export namespace InvestmentReceivedEvent {
 }
 
 export namespace InvestmentWithdrawnEvent {
-  export type InputTuple = [investor: AddressLike, amount: BigNumberish];
-  export type OutputTuple = [investor: string, amount: bigint];
+  export type InputTuple = [
+    investor: AddressLike,
+    amount: BigNumberish,
+    asset: string
+  ];
+  export type OutputTuple = [investor: string, amount: bigint, asset: string];
   export interface OutputObject {
     investor: string;
     amount: bigint;
+    asset: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -397,7 +453,7 @@ export interface Company extends BaseContract {
 
   founder: TypedContractMethod<[], [string], "view">;
 
-  fullWithdraw: TypedContractMethod<[], [void], "nonpayable">;
+  fullWithdraw: TypedContractMethod<[to: AddressLike], [void], "nonpayable">;
 
   fundraisers: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
@@ -405,9 +461,23 @@ export interface Company extends BaseContract {
 
   getCompanyFundraisers: TypedContractMethod<[], [string[]], "view">;
 
-  invest: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  investETH: TypedContractMethod<[], [void], "payable">;
 
-  investorBalances: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  investUF: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+
+  investorETHBalances: TypedContractMethod<
+    [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  investorUFBalances: TypedContractMethod<
+    [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  name: TypedContractMethod<[], [string], "view">;
 
   onFundraiserCompleted: TypedContractMethod<
     [totalCollectedETH: BigNumberish, totalCollectedUF: BigNumberish],
@@ -417,7 +487,9 @@ export interface Company extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
-  receiveFunds: TypedContractMethod<[], [void], "payable">;
+  receiveETH: TypedContractMethod<[], [void], "payable">;
+
+  receiveUF: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -427,7 +499,9 @@ export interface Company extends BaseContract {
 
   totalFundsUF: TypedContractMethod<[], [bigint], "view">;
 
-  totalInvestments: TypedContractMethod<[], [bigint], "view">;
+  totalInvestmentsETH: TypedContractMethod<[], [bigint], "view">;
+
+  totalInvestmentsUF: TypedContractMethod<[], [bigint], "view">;
 
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
@@ -438,18 +512,24 @@ export interface Company extends BaseContract {
   unityFlow: TypedContractMethod<[], [string], "view">;
 
   widthdrawETH: TypedContractMethod<
-    [amount: BigNumberish],
+    [to: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
 
   widthdrawUF: TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  withdrawInvestmentETH: TypedContractMethod<
     [amount: BigNumberish],
     [void],
     "nonpayable"
   >;
 
-  withdrawInvestment: TypedContractMethod<
+  withdrawInvestmentUF: TypedContractMethod<
     [amount: BigNumberish],
     [void],
     "nonpayable"
@@ -484,7 +564,7 @@ export interface Company extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "fullWithdraw"
-  ): TypedContractMethod<[], [void], "nonpayable">;
+  ): TypedContractMethod<[to: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "fundraisers"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
@@ -495,11 +575,20 @@ export interface Company extends BaseContract {
     nameOrSignature: "getCompanyFundraisers"
   ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
-    nameOrSignature: "invest"
+    nameOrSignature: "investETH"
+  ): TypedContractMethod<[], [void], "payable">;
+  getFunction(
+    nameOrSignature: "investUF"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "investorBalances"
+    nameOrSignature: "investorETHBalances"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "investorUFBalances"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "name"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "onFundraiserCompleted"
   ): TypedContractMethod<
@@ -511,8 +600,11 @@ export interface Company extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "receiveFunds"
+    nameOrSignature: "receiveETH"
   ): TypedContractMethod<[], [void], "payable">;
+  getFunction(
+    nameOrSignature: "receiveUF"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -526,7 +618,10 @@ export interface Company extends BaseContract {
     nameOrSignature: "totalFundsUF"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "totalInvestments"
+    nameOrSignature: "totalInvestmentsETH"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "totalInvestmentsUF"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "transferOwnership"
@@ -536,12 +631,23 @@ export interface Company extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "widthdrawETH"
-  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  ): TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "widthdrawUF"
+  ): TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "withdrawInvestmentETH"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "withdrawInvestment"
+    nameOrSignature: "withdrawInvestmentUF"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
 
   getEvent(
@@ -635,7 +741,7 @@ export interface Company extends BaseContract {
       FundraiserCreatedEvent.OutputObject
     >;
 
-    "FundsReceived(uint256,address)": TypedContractEvent<
+    "FundsReceived(uint256,address,string)": TypedContractEvent<
       FundsReceivedEvent.InputTuple,
       FundsReceivedEvent.OutputTuple,
       FundsReceivedEvent.OutputObject
@@ -646,7 +752,7 @@ export interface Company extends BaseContract {
       FundsReceivedEvent.OutputObject
     >;
 
-    "FundsWithdrawn(uint256,address)": TypedContractEvent<
+    "FundsWithdrawn(uint256,address,string)": TypedContractEvent<
       FundsWithdrawnEvent.InputTuple,
       FundsWithdrawnEvent.OutputTuple,
       FundsWithdrawnEvent.OutputObject
@@ -657,7 +763,7 @@ export interface Company extends BaseContract {
       FundsWithdrawnEvent.OutputObject
     >;
 
-    "InvestmentReceived(address,uint256)": TypedContractEvent<
+    "InvestmentReceived(address,uint256,string)": TypedContractEvent<
       InvestmentReceivedEvent.InputTuple,
       InvestmentReceivedEvent.OutputTuple,
       InvestmentReceivedEvent.OutputObject
@@ -668,7 +774,7 @@ export interface Company extends BaseContract {
       InvestmentReceivedEvent.OutputObject
     >;
 
-    "InvestmentWithdrawn(address,uint256)": TypedContractEvent<
+    "InvestmentWithdrawn(address,uint256,string)": TypedContractEvent<
       InvestmentWithdrawnEvent.InputTuple,
       InvestmentWithdrawnEvent.OutputTuple,
       InvestmentWithdrawnEvent.OutputObject
