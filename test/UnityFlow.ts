@@ -112,7 +112,7 @@ describe("UnityFlow", function () {
     expect(tx_withdraw_uf).to.changeTokenBalances(token, [company, owner], [-withdrawAmountUF, withdrawAmountUF]);
   });
 
-  // it("Повинна дозволяти створювати фандрейзинг", async function () {
+  // it("Повинна дозволяти створювати фандрейзинг і збір не створюється з невірним дедлайном або сумою", async function () {
   //   await expect(
   //     company.connect(owner).createFundraising("Test Campaign", "Description", "Category", 1000, 7, "image.png")
   //   ).to.emit(company, "FundraiserCreated");
@@ -137,4 +137,6 @@ describe("UnityFlow", function () {
 
   //   expect(await company.investorBalances(investor.address)).to.equal(ethers.utils.parseUnits("300", 18));
   // });
+
+  // Перевірка, що статистика оновлюється після донатів та інвестицій
 });

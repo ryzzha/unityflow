@@ -26,30 +26,33 @@ import type {
 export interface UnityFlowInterface extends Interface {
   getFunction(
     nameOrSignature:
-      | "activeCompanies"
       | "closeCompany"
-      | "closedCompanies"
       | "companies"
       | "companyCount"
       | "createFundraising"
       | "createProposal"
       | "decreaseInvestments"
       | "donationsByCurrency"
+      | "ethPriceFeed"
       | "executeProposal"
-      | "getAllCampaigns"
-      | "getAllCompanies"
+      | "getActiveCompanies"
+      | "getAllCompanies(bool)"
+      | "getAllCompanies()"
       | "getPlatformStats"
+      | "getTotalDonations"
+      | "getTotalInvestments"
       | "increaseInvestments"
       | "investmentsByCurrency"
       | "isCompanyActive"
+      | "lastProposalTime"
       | "minTokenBalance"
       | "platformFeePercent"
+      | "proposalCooldown"
       | "proposalCount"
       | "proposals"
       | "registerCompany"
       | "token"
-      | "totalDonations"
-      | "totalInvestments"
+      | "tokenPriceFeed"
       | "transferETH"
       | "transferUF"
       | "updateDonations"
@@ -63,19 +66,12 @@ export interface UnityFlowInterface extends Interface {
       | "ProposalCreated"
       | "ProposalExecuted"
       | "TotalFundsUpdated"
+      | "VoteCast"
   ): EventFragment;
 
   encodeFunctionData(
-    functionFragment: "activeCompanies",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "closeCompany",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "closedCompanies",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "companies",
@@ -99,7 +95,7 @@ export interface UnityFlowInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "createProposal",
-    values: [string]
+    values: [AddressLike, BytesLike, string, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "decreaseInvestments",
@@ -110,20 +106,36 @@ export interface UnityFlowInterface extends Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "executeProposal",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAllCampaigns",
+    functionFragment: "ethPriceFeed",
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAllCompanies",
+    functionFragment: "executeProposal",
+    values: [BigNumberish, AddressLike, string, BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getActiveCompanies",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAllCompanies(bool)",
+    values: [boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAllCompanies()",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getPlatformStats",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTotalDonations",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getTotalInvestments",
+    values: [string]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseInvestments",
@@ -138,11 +150,19 @@ export interface UnityFlowInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "lastProposalTime",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "minTokenBalance",
     values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "platformFeePercent",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "proposalCooldown",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -159,11 +179,7 @@ export interface UnityFlowInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "totalDonations",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "totalInvestments",
+    functionFragment: "tokenPriceFeed",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -184,15 +200,7 @@ export interface UnityFlowInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
-    functionFragment: "activeCompanies",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "closeCompany",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "closedCompanies",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "companies", data: BytesLike): Result;
@@ -217,19 +225,35 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "ethPriceFeed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "executeProposal",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAllCampaigns",
+    functionFragment: "getActiveCompanies",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAllCompanies",
+    functionFragment: "getAllCompanies(bool)",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAllCompanies()",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "getPlatformStats",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTotalDonations",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getTotalInvestments",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -245,11 +269,19 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "lastProposalTime",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "minTokenBalance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
     functionFragment: "platformFeePercent",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "proposalCooldown",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -263,11 +295,7 @@ export interface UnityFlowInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "totalDonations",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "totalInvestments",
+    functionFragment: "tokenPriceFeed",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -327,11 +355,23 @@ export namespace CompanyRegisteredEvent {
 }
 
 export namespace ProposalCreatedEvent {
-  export type InputTuple = [id: BigNumberish, description: string];
-  export type OutputTuple = [id: bigint, description: string];
+  export type InputTuple = [
+    id: BigNumberish,
+    description: string,
+    deadline: BigNumberish,
+    actionHash: BytesLike
+  ];
+  export type OutputTuple = [
+    id: bigint,
+    description: string,
+    deadline: bigint,
+    actionHash: string
+  ];
   export interface OutputObject {
     id: bigint;
     description: string;
+    deadline: bigint;
+    actionHash: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -340,10 +380,15 @@ export namespace ProposalCreatedEvent {
 }
 
 export namespace ProposalExecutedEvent {
-  export type InputTuple = [id: BigNumberish, success: boolean];
-  export type OutputTuple = [id: bigint, success: boolean];
+  export type InputTuple = [
+    id: BigNumberish,
+    description: string,
+    success: boolean
+  ];
+  export type OutputTuple = [id: bigint, description: string, success: boolean];
   export interface OutputObject {
     id: bigint;
+    description: string;
     success: boolean;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
@@ -367,6 +412,31 @@ export namespace TotalFundsUpdatedEvent {
     newTotalFunds: bigint;
     currency: string;
     kind: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace VoteCastEvent {
+  export type InputTuple = [
+    proposalId: BigNumberish,
+    voter: AddressLike,
+    support: boolean,
+    votingPower: BigNumberish
+  ];
+  export type OutputTuple = [
+    proposalId: bigint,
+    voter: string,
+    support: boolean,
+    votingPower: bigint
+  ];
+  export interface OutputObject {
+    proposalId: bigint;
+    voter: string;
+    support: boolean;
+    votingPower: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -417,15 +487,11 @@ export interface UnityFlow extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
-  activeCompanies: TypedContractMethod<[], [bigint], "view">;
-
   closeCompany: TypedContractMethod<
     [companyId: BigNumberish],
     [void],
     "nonpayable"
   >;
-
-  closedCompanies: TypedContractMethod<[], [bigint], "view">;
 
   companies: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
@@ -446,7 +512,12 @@ export interface UnityFlow extends BaseContract {
   >;
 
   createProposal: TypedContractMethod<
-    [_description: string],
+    [
+      target: AddressLike,
+      data: BytesLike,
+      description: string,
+      deadline: BigNumberish
+    ],
     [void],
     "nonpayable"
   >;
@@ -459,19 +530,66 @@ export interface UnityFlow extends BaseContract {
 
   donationsByCurrency: TypedContractMethod<[arg0: string], [bigint], "view">;
 
+  ethPriceFeed: TypedContractMethod<[], [string], "view">;
+
   executeProposal: TypedContractMethod<
-    [proposalId: BigNumberish],
+    [
+      proposalId: BigNumberish,
+      target: AddressLike,
+      description: string,
+      data: BytesLike
+    ],
     [void],
     "nonpayable"
   >;
 
-  getAllCampaigns: TypedContractMethod<[], [string[]], "view">;
+  getActiveCompanies: TypedContractMethod<[], [bigint], "view">;
 
-  getAllCompanies: TypedContractMethod<[], [string[]], "view">;
+  "getAllCompanies(bool)": TypedContractMethod<
+    [onlyActive: boolean],
+    [string[]],
+    "view"
+  >;
+
+  "getAllCompanies()": TypedContractMethod<[], [string[]], "view">;
 
   getPlatformStats: TypedContractMethod<
     [],
-    [[bigint, bigint, bigint, bigint, bigint]],
+    [
+      [
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint
+      ] & {
+        companyCount_: bigint;
+        totalDonationsETH: bigint;
+        totalDonationsUF: bigint;
+        totalInvestmentsETH: bigint;
+        totalInvestmentsUF: bigint;
+        activeCompanies: bigint;
+        closedCompanies: bigint;
+        proposalCount_: bigint;
+        totalVotes: bigint;
+        platformBalanceETH: bigint;
+        platformBalanceUF: bigint;
+      }
+    ],
+    "view"
+  >;
+
+  getTotalDonations: TypedContractMethod<[currency: string], [bigint], "view">;
+
+  getTotalInvestments: TypedContractMethod<
+    [currency: string],
+    [bigint],
     "view"
   >;
 
@@ -485,19 +603,25 @@ export interface UnityFlow extends BaseContract {
 
   isCompanyActive: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
 
+  lastProposalTime: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+
   minTokenBalance: TypedContractMethod<[], [bigint], "view">;
 
   platformFeePercent: TypedContractMethod<[], [bigint], "view">;
+
+  proposalCooldown: TypedContractMethod<[], [bigint], "view">;
 
   proposalCount: TypedContractMethod<[], [bigint], "view">;
 
   proposals: TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [string, bigint, bigint, boolean] & {
+      [string, string, bigint, bigint, bigint, boolean] & {
+        actionHash: string;
         description: string;
         votesFor: bigint;
         votesAgainst: bigint;
+        deadline: bigint;
         executed: boolean;
       }
     ],
@@ -508,9 +632,7 @@ export interface UnityFlow extends BaseContract {
 
   token: TypedContractMethod<[], [string], "view">;
 
-  totalDonations: TypedContractMethod<[], [bigint], "view">;
-
-  totalInvestments: TypedContractMethod<[], [bigint], "view">;
+  tokenPriceFeed: TypedContractMethod<[], [string], "view">;
 
   transferETH: TypedContractMethod<
     [to: AddressLike, _amount: BigNumberish],
@@ -541,14 +663,8 @@ export interface UnityFlow extends BaseContract {
   ): T;
 
   getFunction(
-    nameOrSignature: "activeCompanies"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
     nameOrSignature: "closeCompany"
   ): TypedContractMethod<[companyId: BigNumberish], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "closedCompanies"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "companies"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
@@ -572,7 +688,16 @@ export interface UnityFlow extends BaseContract {
   >;
   getFunction(
     nameOrSignature: "createProposal"
-  ): TypedContractMethod<[_description: string], [void], "nonpayable">;
+  ): TypedContractMethod<
+    [
+      target: AddressLike,
+      data: BytesLike,
+      description: string,
+      deadline: BigNumberish
+    ],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "decreaseInvestments"
   ): TypedContractMethod<
@@ -584,21 +709,68 @@ export interface UnityFlow extends BaseContract {
     nameOrSignature: "donationsByCurrency"
   ): TypedContractMethod<[arg0: string], [bigint], "view">;
   getFunction(
+    nameOrSignature: "ethPriceFeed"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "executeProposal"
-  ): TypedContractMethod<[proposalId: BigNumberish], [void], "nonpayable">;
+  ): TypedContractMethod<
+    [
+      proposalId: BigNumberish,
+      target: AddressLike,
+      description: string,
+      data: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
-    nameOrSignature: "getAllCampaigns"
-  ): TypedContractMethod<[], [string[]], "view">;
+    nameOrSignature: "getActiveCompanies"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getAllCompanies"
+    nameOrSignature: "getAllCompanies(bool)"
+  ): TypedContractMethod<[onlyActive: boolean], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "getAllCompanies()"
   ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
     nameOrSignature: "getPlatformStats"
   ): TypedContractMethod<
     [],
-    [[bigint, bigint, bigint, bigint, bigint]],
+    [
+      [
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint,
+        bigint
+      ] & {
+        companyCount_: bigint;
+        totalDonationsETH: bigint;
+        totalDonationsUF: bigint;
+        totalInvestmentsETH: bigint;
+        totalInvestmentsUF: bigint;
+        activeCompanies: bigint;
+        closedCompanies: bigint;
+        proposalCount_: bigint;
+        totalVotes: bigint;
+        platformBalanceETH: bigint;
+        platformBalanceUF: bigint;
+      }
+    ],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "getTotalDonations"
+  ): TypedContractMethod<[currency: string], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getTotalInvestments"
+  ): TypedContractMethod<[currency: string], [bigint], "view">;
   getFunction(
     nameOrSignature: "increaseInvestments"
   ): TypedContractMethod<
@@ -613,10 +785,16 @@ export interface UnityFlow extends BaseContract {
     nameOrSignature: "isCompanyActive"
   ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
   getFunction(
+    nameOrSignature: "lastProposalTime"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
     nameOrSignature: "minTokenBalance"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "platformFeePercent"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "proposalCooldown"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "proposalCount"
@@ -626,10 +804,12 @@ export interface UnityFlow extends BaseContract {
   ): TypedContractMethod<
     [arg0: BigNumberish],
     [
-      [string, bigint, bigint, boolean] & {
+      [string, string, bigint, bigint, bigint, boolean] & {
+        actionHash: string;
         description: string;
         votesFor: bigint;
         votesAgainst: bigint;
+        deadline: bigint;
         executed: boolean;
       }
     ],
@@ -642,11 +822,8 @@ export interface UnityFlow extends BaseContract {
     nameOrSignature: "token"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "totalDonations"
-  ): TypedContractMethod<[], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "totalInvestments"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: "tokenPriceFeed"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "transferETH"
   ): TypedContractMethod<
@@ -711,6 +888,13 @@ export interface UnityFlow extends BaseContract {
     TotalFundsUpdatedEvent.OutputTuple,
     TotalFundsUpdatedEvent.OutputObject
   >;
+  getEvent(
+    key: "VoteCast"
+  ): TypedContractEvent<
+    VoteCastEvent.InputTuple,
+    VoteCastEvent.OutputTuple,
+    VoteCastEvent.OutputObject
+  >;
 
   filters: {
     "CompanyClosed(uint256,address,address)": TypedContractEvent<
@@ -735,7 +919,7 @@ export interface UnityFlow extends BaseContract {
       CompanyRegisteredEvent.OutputObject
     >;
 
-    "ProposalCreated(uint256,string)": TypedContractEvent<
+    "ProposalCreated(uint256,string,uint256,bytes32)": TypedContractEvent<
       ProposalCreatedEvent.InputTuple,
       ProposalCreatedEvent.OutputTuple,
       ProposalCreatedEvent.OutputObject
@@ -746,7 +930,7 @@ export interface UnityFlow extends BaseContract {
       ProposalCreatedEvent.OutputObject
     >;
 
-    "ProposalExecuted(uint256,bool)": TypedContractEvent<
+    "ProposalExecuted(uint256,string,bool)": TypedContractEvent<
       ProposalExecutedEvent.InputTuple,
       ProposalExecutedEvent.OutputTuple,
       ProposalExecutedEvent.OutputObject
@@ -766,6 +950,17 @@ export interface UnityFlow extends BaseContract {
       TotalFundsUpdatedEvent.InputTuple,
       TotalFundsUpdatedEvent.OutputTuple,
       TotalFundsUpdatedEvent.OutputObject
+    >;
+
+    "VoteCast(uint256,address,bool,uint256)": TypedContractEvent<
+      VoteCastEvent.InputTuple,
+      VoteCastEvent.OutputTuple,
+      VoteCastEvent.OutputObject
+    >;
+    VoteCast: TypedContractEvent<
+      VoteCastEvent.InputTuple,
+      VoteCastEvent.OutputTuple,
+      VoteCastEvent.OutputObject
     >;
   };
 }

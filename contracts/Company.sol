@@ -78,7 +78,7 @@ contract Company is Ownable {
         emit FundsReceived(amount, msg.sender, "UF");
     }
 
-    function widthdrawETH(address to, uint amount) public onlyOwner {
+    function withdrawETH(address to, uint amount) public onlyOwner {
         require(amount > 0 && amount <= totalFundsETH, "Invalid withdraw amount");
         totalFundsETH -= amount;
         (bool sent, ) = to.call{value: amount}("");
@@ -86,7 +86,7 @@ contract Company is Ownable {
         emit FundsWithdrawn(amount, msg.sender, "ETH");
     }
 
-    function widthdrawUF(address to, uint amount) public onlyOwner {
+    function withdrawUF(address to, uint amount) public onlyOwner {
         require(amount > 0 && amount <= totalFundsUF, "Invalid withdraw amount");
         require(token.balanceOf(address(this)) >= amount, "not enougth tokens");
         totalFundsUF -= amount;
@@ -95,11 +95,13 @@ contract Company is Ownable {
     }
 
     function fullWithdraw(address to) external onlyOwner {
+        require(address(this).balance > 0 || token.balanceOf(address(this)) > 0, "No funds to withdraw");
+
         if (address(this).balance > 0) {
-            widthdrawETH(to, address(this).balance - 1);
+            withdrawETH(to, address(this).balance - 1);
         }
         if (token.balanceOf(address(this)) > 0) {
-            widthdrawUF(to, token.balanceOf(address(this)));
+            withdrawUF(to, token.balanceOf(address(this)));
         }
     }
 
@@ -111,6 +113,7 @@ contract Company is Ownable {
         uint deadline,
         string memory image
     ) external onlyFounderOrCofounder {
+        require(unityFlow.isCompanyActive(address(this)), "Company is not active");
         fundraisingCount++;
         address newFundraiser = unityFlow.createFundraising(
             fundraisingCount, title, description, category, goalUSD, deadline, image
@@ -188,6 +191,8 @@ contract Company is Ownable {
 
     function addCofounder(address cofounder) external onlyOwner {
         require(cofounder != address(0), "Invalid cofounder address");
+        require(!_isCofounder(cofounder), "Already a cofounder");
+
         cofounders.push(cofounder);
         emit CofounderAdded(cofounder);
     }

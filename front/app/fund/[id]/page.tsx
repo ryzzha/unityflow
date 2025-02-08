@@ -25,7 +25,7 @@ export default function CampaignPage() {
   useEffect(() => {
     const fetchCampaign = async () => {
       if (!wsProvider || !crowdfunding || !id) return;
-      try {
+      try { 
         setIsLoading(true);
         const campaignAddress = await crowdfunding.getCampaignAddress(Number(id));
         const campaignContract = Campaign__factory.connect(campaignAddress, wsProvider);

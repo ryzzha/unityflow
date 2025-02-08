@@ -23,9 +23,47 @@ import type {
   TypedContractMethod,
 } from "../common";
 
+export type FundraisingParamsStruct = {
+  id: BigNumberish;
+  company: AddressLike;
+  title: string;
+  description: string;
+  image: string;
+  category: string;
+  goalUSD: BigNumberish;
+  deadline: BigNumberish;
+  token: AddressLike;
+  platformFeePercent: BigNumberish;
+};
+
+export type FundraisingParamsStructOutput = [
+  id: bigint,
+  company: string,
+  title: string,
+  description: string,
+  image: string,
+  category: string,
+  goalUSD: bigint,
+  deadline: bigint,
+  token: string,
+  platformFeePercent: bigint
+] & {
+  id: bigint;
+  company: string;
+  title: string;
+  description: string;
+  image: string;
+  category: string;
+  goalUSD: bigint;
+  deadline: bigint;
+  token: string;
+  platformFeePercent: bigint;
+};
+
 export interface FundraisingInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "checkGoalReached"
       | "company"
       | "donateETH"
       | "donateUF"
@@ -33,6 +71,8 @@ export interface FundraisingInterface extends Interface {
       | "getDetails"
       | "getDonationETH"
       | "getDonationUF"
+      | "getLatestETHPrice"
+      | "getLatestTokenPrice"
       | "owner"
       | "platformFeePercent"
       | "refundETH"
@@ -50,9 +90,13 @@ export interface FundraisingInterface extends Interface {
       | "DonationReceived"
       | "OwnershipTransferred"
       | "RefundProcessed"
-      | "Withdrawed"
+      | "Withdrawn"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "checkGoalReached",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "company", values?: undefined): string;
   encodeFunctionData(functionFragment: "donateETH", values?: undefined): string;
   encodeFunctionData(
@@ -74,6 +118,14 @@ export interface FundraisingInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getDonationUF",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLatestETHPrice",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getLatestTokenPrice",
+    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -101,6 +153,10 @@ export interface FundraisingInterface extends Interface {
     values?: undefined
   ): string;
 
+  decodeFunctionResult(
+    functionFragment: "checkGoalReached",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "company", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "donateETH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "donateUF", data: BytesLike): Result;
@@ -115,6 +171,14 @@ export interface FundraisingInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getDonationUF",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLatestETHPrice",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getLatestTokenPrice",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -190,21 +254,21 @@ export namespace RefundProcessedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace WithdrawedEvent {
+export namespace WithdrawnEvent {
   export type InputTuple = [
     sender: AddressLike,
-    amounts: BigNumberish[],
-    currencies: string[]
+    amounts: [BigNumberish, BigNumberish],
+    currencies: [string, string]
   ];
   export type OutputTuple = [
     sender: string,
-    amounts: bigint[],
-    currencies: string[]
+    amounts: [bigint, bigint],
+    currencies: [string, string]
   ];
   export interface OutputObject {
     sender: string;
-    amounts: bigint[];
-    currencies: string[];
+    amounts: [bigint, bigint];
+    currencies: [string, string];
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -255,6 +319,8 @@ export interface Fundraising extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  checkGoalReached: TypedContractMethod<[], [boolean], "view">;
+
   company: TypedContractMethod<[], [string], "view">;
 
   donateETH: TypedContractMethod<[], [void], "payable">;
@@ -297,6 +363,10 @@ export interface Fundraising extends BaseContract {
 
   getDonationUF: TypedContractMethod<[donator: AddressLike], [bigint], "view">;
 
+  getLatestETHPrice: TypedContractMethod<[], [bigint], "view">;
+
+  getLatestTokenPrice: TypedContractMethod<[], [bigint], "view">;
+
   owner: TypedContractMethod<[], [string], "view">;
 
   platformFeePercent: TypedContractMethod<[], [bigint], "view">;
@@ -325,6 +395,9 @@ export interface Fundraising extends BaseContract {
     key: string | FunctionFragment
   ): T;
 
+  getFunction(
+    nameOrSignature: "checkGoalReached"
+  ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "company"
   ): TypedContractMethod<[], [string], "view">;
@@ -374,6 +447,12 @@ export interface Fundraising extends BaseContract {
   getFunction(
     nameOrSignature: "getDonationUF"
   ): TypedContractMethod<[donator: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getLatestETHPrice"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getLatestTokenPrice"
+  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -427,11 +506,11 @@ export interface Fundraising extends BaseContract {
     RefundProcessedEvent.OutputObject
   >;
   getEvent(
-    key: "Withdrawed"
+    key: "Withdrawn"
   ): TypedContractEvent<
-    WithdrawedEvent.InputTuple,
-    WithdrawedEvent.OutputTuple,
-    WithdrawedEvent.OutputObject
+    WithdrawnEvent.InputTuple,
+    WithdrawnEvent.OutputTuple,
+    WithdrawnEvent.OutputObject
   >;
 
   filters: {
@@ -468,15 +547,15 @@ export interface Fundraising extends BaseContract {
       RefundProcessedEvent.OutputObject
     >;
 
-    "Withdrawed(address,uint256[],string[])": TypedContractEvent<
-      WithdrawedEvent.InputTuple,
-      WithdrawedEvent.OutputTuple,
-      WithdrawedEvent.OutputObject
+    "Withdrawn(address,uint256[2],string[2])": TypedContractEvent<
+      WithdrawnEvent.InputTuple,
+      WithdrawnEvent.OutputTuple,
+      WithdrawnEvent.OutputObject
     >;
-    Withdrawed: TypedContractEvent<
-      WithdrawedEvent.InputTuple,
-      WithdrawedEvent.OutputTuple,
-      WithdrawedEvent.OutputObject
+    Withdrawn: TypedContractEvent<
+      WithdrawnEvent.InputTuple,
+      WithdrawnEvent.OutputTuple,
+      WithdrawnEvent.OutputObject
     >;
   };
 }

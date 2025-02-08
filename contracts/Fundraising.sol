@@ -2,15 +2,29 @@
 pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "./UnityFlow.sol";
 import "./TokenUF.sol";
 import "./Company.sol";
 
+struct FundraisingParams {
+    uint id;
+    address company;
+    string title;
+    string description;
+    string image;
+    string category;
+    uint goalUSD;
+    uint deadline;
+    TokenUF token;
+    uint platformFeePercent;
+}
+
 contract Fundraising is Ownable {
     UnityFlow public unityFlow;
     TokenUF public token;
-    // AggregatorV3Interface internal ethPriceFeed;
-    // AggregatorV3Interface internal tokenPriceFeed;
+    AggregatorV3Interface internal ethPriceFeed;
+    AggregatorV3Interface internal tokenPriceFeed;
     Company public company;
     uint id;
     string title;
@@ -27,35 +41,32 @@ contract Fundraising is Ownable {
     uint public platformFeePercent;
 
     constructor(
-        uint _id,
-        address _company,
-        string memory _title,
-        string memory _description,
-        string memory _image,
-        string memory _category,
-        uint _goalUSD,
-        uint _deadline,
-        TokenUF _tokenAddress,
-        uint _fee
-    ) Ownable(_company) {
-        id = _id;
-        company = Company(payable(_company));
-        title = _title;
-        description = _description;
-        image = _image;
-        category = _category;
-        goalUSD = _goalUSD;
-        deadline = _deadline;
-        token = _tokenAddress;
-        platformFeePercent = _fee;
+        FundraisingParams memory params, 
+        address _ethPriceFeed,
+        address _tokenPriceFeed
+    ) Ownable(params.company) {
+        id = params.id;
+        company = Company(payable(params.company));
+        title = params.title;
+        description = params.description;
+        image = params.image;
+        category = params.category;
+        goalUSD = params.goalUSD;
+        deadline = params.deadline;
+        token = params.token;
+        platformFeePercent = params.platformFeePercent;
 
         collectedETH = 0;
         collectedUF = 0;
         claimed = false;
+
+        ethPriceFeed = AggregatorV3Interface(_ethPriceFeed);
+        tokenPriceFeed = AggregatorV3Interface(_tokenPriceFeed);
     }
 
+
     event DonationReceived(address indexed donator, uint amount, string currency);
-    event Withdrawed(address sender, uint[] amounts, string[] currencies);
+    event Withdrawn(address sender, uint[2] amounts, string[2] currencies);
     event RefundProcessed(address indexed donator, uint amount, string currency);
 
     modifier notEnds() {
@@ -93,24 +104,8 @@ contract Fundraising is Ownable {
         collectedUF += _amount;
         ufDonators[msg.sender] += _amount;
 
-        emit DonationReceived(msg.sender, msg.value, "UF");
+        emit DonationReceived(msg.sender, _amount, "UF");
     }
-
-    // function getLatestETHPrice() public view returns (uint) {
-    //     (, int price, , , ) = ethPriceFeed.latestRoundData();
-    //     return uint(price) * 1e10; // Chainlink повертає 8 десяткових, конвертуємо до 18
-    // }
-
-    // function getLatestTokenPrice() public view returns (uint) {
-    //     (, int price, , , ) = tokenPriceFeed.latestRoundData();
-    //     return uint(price) * 1e10;
-    // }
-
-    // function checkGoalReached() public view returns (bool) {
-    //     uint ethInUSD = (collectedETH * getLatestETHPrice()) / 1e18;
-    //     uint tokenInUSD = (collectedUF * getLatestTokenPrice()) / 1e18;
-    //     return (ethInUSD + tokenInUSD) >= goalUSD;
-    // }
 
     function withdrawFunds() external onlyOwner Ends {
         require(!claimed, "Funds already claimed.");
@@ -132,22 +127,21 @@ contract Fundraising is Ownable {
 
         if (amountETHToWithdraw > 0) {
             company.receiveETH{value: amountETHToWithdraw}();
-            // (bool sentCompanyETH, ) = payable(company).call{value: amountETHToWithdraw}("");
-            // require(sentCompanyETH, "Failed to send ETH to company");
         }
         if (amountUFToWithdraw > 0) {
             company.receiveUF(amountUFToWithdraw);
         }
+
+        company.onFundraiserCompleted(collectedETH, collectedUF);
 
         collectedETH = 0;
         collectedUF = 0;
 
         unityFlow.updateDonations(amountETHToWithdraw, "ETH");
         unityFlow.updateDonations(amountUFToWithdraw, "UF");
-        company.onFundraiserCompleted(collectedETH, collectedUF);
 
-        uint[] memory amounts;
-        string[] memory currencies;
+        uint[2] memory amounts;
+        string[2] memory currencies;
 
         amounts[0] = amountETHToWithdraw;
         amounts[1] = amountUFToWithdraw;
@@ -155,11 +149,11 @@ contract Fundraising is Ownable {
         currencies[0] = "ETH";
         currencies[1] = "UF";
 
-        emit Withdrawed(msg.sender, amounts, currencies);
+        emit Withdrawn(msg.sender, amounts, currencies);
     }
 
     function refundETH() external Ends {
-        // require(!checkGoalReached(), "Goal reached.");
+        require(!checkGoalReached(), "Goal reached.");
         
         uint amount = ethDonators[msg.sender];
         require(amount > 0, "No donations to refund.");
@@ -169,7 +163,7 @@ contract Fundraising is Ownable {
     }
 
     function refundUF() external Ends {
-        // require(!checkGoalReached(), "Goal reached.");
+        require(!checkGoalReached(), "Goal reached.");
         
         uint amount = ufDonators[msg.sender];
         require(amount > 0, "No donations to refund.");
@@ -183,5 +177,21 @@ contract Fundraising is Ownable {
     }
     function getDonationUF(address donator) external view returns (uint) {
         return ufDonators[donator];
+    }
+
+    function getLatestETHPrice() public view returns (uint) {
+        (, int price, , , ) = ethPriceFeed.latestRoundData();
+        return uint(price) * 1e10; 
+    }
+
+    function getLatestTokenPrice() public view returns (uint) {
+        (, int price, , , ) = tokenPriceFeed.latestRoundData();
+        return uint(price) * 1e10;
+    }
+
+    function checkGoalReached() public view returns (bool) {
+        uint ethInUSD = (collectedETH * getLatestETHPrice()) / 1e18;
+        uint tokenInUSD = (collectedUF * getLatestTokenPrice()) / 1e18;
+        return (ethInUSD + tokenInUSD) >= goalUSD;
     }
 }

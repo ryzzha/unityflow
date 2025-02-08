@@ -61,7 +61,7 @@ export default function CreateCampaign() {
       console.error("❌ Error creating campaign:", error);
       setError("Transaction failed. Check logs.");
     }
-    setIsLoading(false);
+    setIsLoading(false); 
   };
 
   return (

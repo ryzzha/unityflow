@@ -51,10 +51,10 @@ export interface CompanyInterface extends Interface {
       | "totalInvestmentsUF"
       | "transferOwnership"
       | "unityFlow"
-      | "widthdrawETH"
-      | "widthdrawUF"
+      | "withdrawETH"
       | "withdrawInvestmentETH"
       | "withdrawInvestmentUF"
+      | "withdrawUF"
   ): FunctionFragment;
 
   getEvent(
@@ -152,11 +152,7 @@ export interface CompanyInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "unityFlow", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "widthdrawETH",
-    values: [AddressLike, BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "widthdrawUF",
+    functionFragment: "withdrawETH",
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
@@ -166,6 +162,10 @@ export interface CompanyInterface extends Interface {
   encodeFunctionData(
     functionFragment: "withdrawInvestmentUF",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawUF",
+    values: [AddressLike, BigNumberish]
   ): string;
 
   decodeFunctionResult(
@@ -239,11 +239,7 @@ export interface CompanyInterface extends Interface {
   ): Result;
   decodeFunctionResult(functionFragment: "unityFlow", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "widthdrawETH",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "widthdrawUF",
+    functionFragment: "withdrawETH",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -254,6 +250,7 @@ export interface CompanyInterface extends Interface {
     functionFragment: "withdrawInvestmentUF",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "withdrawUF", data: BytesLike): Result;
 }
 
 export namespace CofounderAddedEvent {
@@ -511,13 +508,7 @@ export interface Company extends BaseContract {
 
   unityFlow: TypedContractMethod<[], [string], "view">;
 
-  widthdrawETH: TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-
-  widthdrawUF: TypedContractMethod<
+  withdrawETH: TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
@@ -531,6 +522,12 @@ export interface Company extends BaseContract {
 
   withdrawInvestmentUF: TypedContractMethod<
     [amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  withdrawUF: TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
     [void],
     "nonpayable"
   >;
@@ -630,14 +627,7 @@ export interface Company extends BaseContract {
     nameOrSignature: "unityFlow"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "widthdrawETH"
-  ): TypedContractMethod<
-    [to: AddressLike, amount: BigNumberish],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "widthdrawUF"
+    nameOrSignature: "withdrawETH"
   ): TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
     [void],
@@ -649,6 +639,13 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "withdrawInvestmentUF"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "withdrawUF"
+  ): TypedContractMethod<
+    [to: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
 
   getEvent(
     key: "CofounderAdded"
