@@ -14,13 +14,35 @@ describe("UnityFlow", function () {
     token = await TokenUFFactory.deploy(100000);
     await token.waitForDeployment();
 
+    const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
+    const fundraisingManager = await FundraisingManagerFactory.deploy(token.target, 5);
+    await fundraisingManager.waitForDeployment();
+
+    const ProposalManagerFactory = await ethers.getContractFactory("ProposalManager");
+    const proposalManager = await ProposalManagerFactory.deploy(token.target);
+    await proposalManager.waitForDeployment();
+
+    const MockPriceFeedFactory = await ethers.getContractFactory("MockPriceFeed");
+    const ethInitialPrice = ethers.parseUnits("3000", 8); // 3000$
+    const tokenInitialPrice = ethers.parseUnits("1.5", 8); // 1.5$
+    const ethPriceFeed = await MockPriceFeedFactory.deploy(ethInitialPrice);
+    await ethPriceFeed.waitForDeployment();
+    const tokenPriceFeed = await MockPriceFeedFactory.deploy(tokenInitialPrice);
+    await tokenPriceFeed.waitForDeployment();
+
     const UnityFlowFactory = await ethers.getContractFactory("UnityFlow");
-    unityFlow = await UnityFlowFactory.deploy(token.target);
+    unityFlow = await UnityFlowFactory.deploy(
+        token.target, 
+        fundraisingManager.target, 
+        proposalManager.target,
+        ethPriceFeed.target,
+        tokenPriceFeed.target,
+    );
     await unityFlow.waitForDeployment();
 
     const tx_create = await unityFlow.connect(owner).registerCompany("UnityFlow");
     await tx_create.wait();
-
+    console.log("companyCount in beforeEach: " + await unityFlow.companyCount());
     company = await ethers.getContractAt("Company", await unityFlow.companies(1));
 
     const amount = ethers.parseUnits("5000", 18);
@@ -51,7 +73,11 @@ describe("UnityFlow", function () {
     await expect(tx_transfer).to.changeTokenBalances(token, [owner, founder], [-amount, amount]);
 
     const tx_create = await unityFlow.connect(founder).registerCompany("atb");
-    await tx_create.wait();
+    await tx_create.wait(); 
+
+    // const filter = unityFlow.filters.CompanyRegistered();
+    // const events = await unityFlow.queryFilter(filter);
+    // console.log("Events:", events);
 
     await expect(tx_create).to.emit(unityFlow, "CompanyRegistered").withArgs(2, await unityFlow.companies(2), founder.address);
 
@@ -59,7 +85,7 @@ describe("UnityFlow", function () {
     expect(companyAddress).to.not.equal(ethers.ZeroAddress);
     expect(await unityFlow.isCompanyActive(companyAddress)).to.be.true;
     expect(await unityFlow.companyCount()).to.equal(2);
-    expect(await unityFlow.activeCompanies()).to.equal(2);
+    expect(await unityFlow.getActiveCompanies()).to.equal(2);
 
     const companyAtb = await ethers.getContractAt("Company", companyAddress);
 
@@ -85,8 +111,8 @@ describe("UnityFlow", function () {
     expect(await ethers.provider.getBalance(company.target)).to.equal(amountETH);
     expect(await company.totalFundsETH()).to.equal(amountETH);
     expect(await company.totalFundsUF()).to.equal(amountUF);
-    expect(await unityFlow.donationsByCurrency("ETH")).to.equal(amountETH);
-    expect(await unityFlow.donationsByCurrency("UF")).to.equal(amountUF);
+    expect(await unityFlow.getTotalDonations("ETH")).to.equal(amountETH);
+    expect(await unityFlow.getTotalDonations("UF")).to.equal(amountUF);
   });
 
   it("can allow owner to withdraw ETH and UF token", async function () {
@@ -101,11 +127,11 @@ describe("UnityFlow", function () {
     await tx_transfer_uf.wait();
 
     const withdrawAmountETH = ethers.parseEther("300");
-    const tx_withdraw_eth = await company.connect(owner).widthdrawETH(owner.address, withdrawAmountETH);
+    const tx_withdraw_eth = await company.connect(owner).withdrawETH(owner.address, withdrawAmountETH);
     await tx_withdraw_eth.wait();
 
     const withdrawAmountUF = ethers.parseUnits("700", 18);
-    const tx_withdraw_uf = await company.connect(owner).widthdrawUF(owner.address, withdrawAmountUF);
+    const tx_withdraw_uf = await company.connect(owner).withdrawUF(owner.address, withdrawAmountUF);
     await tx_withdraw_uf.wait();
 
     expect(tx_withdraw_eth).to.changeEtherBalances([company, owner], [-withdrawAmountETH, withdrawAmountETH]);

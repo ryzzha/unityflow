@@ -4,6 +4,8 @@
 export * as mockAgregatorSol from "./MockAgregator.sol";
 export { Company__factory } from "./Company__factory";
 export { Fundraising__factory } from "./Fundraising__factory";
+export { FundraisingManager__factory } from "./FundraisingManager__factory";
+export { ProposalManager__factory } from "./ProposalManager__factory";
 export { Staking__factory } from "./Staking__factory";
 export { TokenUF__factory } from "./TokenUF__factory";
 export { UnityFlow__factory } from "./UnityFlow__factory";

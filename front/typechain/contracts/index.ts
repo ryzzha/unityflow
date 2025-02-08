@@ -5,6 +5,8 @@ import type * as mockAgregatorSol from "./MockAgregator.sol";
 export type { mockAgregatorSol };
 export type { Company } from "./Company";
 export type { Fundraising } from "./Fundraising";
+export type { FundraisingManager } from "./FundraisingManager";
+export type { ProposalManager } from "./ProposalManager";
 export type { Staking } from "./Staking";
 export type { TokenUF } from "./TokenUF";
 export type { UnityFlow } from "./UnityFlow";

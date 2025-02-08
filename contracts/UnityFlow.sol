@@ -35,8 +35,10 @@ contract UnityFlow {
     event VoteCast(uint256 proposalId, address voter, bool support, uint256 votingPower);
     event ProposalExecuted(uint256 id, string description, bool success);
 
-    constructor(address tokenAddress, address _ethPriceFeed, address _tokenPriceFeed) {
+    constructor(address tokenAddress, address fundraisingManagerAddress, address proposalManagerAddress, address _ethPriceFeed, address _tokenPriceFeed) {
         token = TokenUF(tokenAddress);
+        fundraisingManager = FundraisingManager(fundraisingManagerAddress);
+        proposalManager = ProposalManager(proposalManagerAddress);
 
         // ethPriceFeed = AggregatorV3Interface(_ethPriceFeed);
         // tokenPriceFeed = AggregatorV3Interface(_tokenPriceFeed);
@@ -71,9 +73,9 @@ contract UnityFlow {
     function registerCompany(string memory name) external hasMinimumTokens(msg.sender) {
         require(bytes(name).length > 0, "Company name cannot be empty");
 
+        companyCount++;
         Company newCompany = new Company(companyCount, name, msg.sender, address(this), address(token));
 
-        companyCount++;
         companies[companyCount] = address(newCompany);
         isCompanyActive[address(newCompany)] = true;
 
@@ -198,11 +200,12 @@ contract UnityFlow {
     }
 
     function getActiveCompanies() public view returns (uint256 activeCount) {
-        for (uint256 i = 0; i < companyCount; i++) {
+        for (uint256 i = 1; i <= companyCount; i++) {
             if (isCompanyActive[companies[i]]) {
                 activeCount++;
             }
         }
+        return activeCount;
     }
 
    function getTotalDonations(string memory currency) public view returns (uint256) {

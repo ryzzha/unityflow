@@ -90,9 +90,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Fundraising__factory>;
     getContractFactory(
+      name: "FundraisingManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.FundraisingManager__factory>;
+    getContractFactory(
       name: "MockPriceFeed",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockPriceFeed__factory>;
+    getContractFactory(
+      name: "ProposalManager",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ProposalManager__factory>;
     getContractFactory(
       name: "Staking",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -202,10 +210,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.Fundraising>;
     getContractAt(
+      name: "FundraisingManager",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.FundraisingManager>;
+    getContractAt(
       name: "MockPriceFeed",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.MockPriceFeed>;
+    getContractAt(
+      name: "ProposalManager",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ProposalManager>;
     getContractAt(
       name: "Staking",
       address: string | ethers.Addressable,
@@ -299,9 +317,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Fundraising>;
     deployContract(
+      name: "FundraisingManager",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.FundraisingManager>;
+    deployContract(
       name: "MockPriceFeed",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockPriceFeed>;
+    deployContract(
+      name: "ProposalManager",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ProposalManager>;
     deployContract(
       name: "Staking",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -411,10 +437,20 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Fundraising>;
     deployContract(
+      name: "FundraisingManager",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.FundraisingManager>;
+    deployContract(
       name: "MockPriceFeed",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockPriceFeed>;
+    deployContract(
+      name: "ProposalManager",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ProposalManager>;
     deployContract(
       name: "Staking",
       args: any[],
