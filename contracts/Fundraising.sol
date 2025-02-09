@@ -41,10 +41,12 @@ contract Fundraising is Ownable {
     uint public platformFeePercent;
 
     constructor(
+        address unityFlowAddress,
         FundraisingParams memory params, 
         address _ethPriceFeed,
         address _tokenPriceFeed
     ) Ownable(params.company) {
+        unityFlow = UnityFlow(unityFlowAddress);
         id = params.id;
         company = Company(payable(params.company));
         title = params.title;
@@ -118,17 +120,18 @@ contract Fundraising is Ownable {
         claimed = true;
 
         if (feeETH > 0) {
-            (bool sentETH, ) = address(unityFlow).call{value: feeETH}("");
-            require(sentETH, "Failed to send platform fee in ETH");
+            UnityFlow(payable(address(unityFlow))).receivePlatformFeeETH{value: feeETH}();
         }
         if (feeUF > 0) {
-            token.transfer(address(unityFlow), feeUF);
+            token.approve(address(unityFlow), feeUF);
+            UnityFlow(address(unityFlow)).receivePlatformFeeUF(feeUF);
         }
 
         if (amountETHToWithdraw > 0) {
             company.receiveETH{value: amountETHToWithdraw}();
         }
         if (amountUFToWithdraw > 0) {
+            token.approve(address(company), amountUFToWithdraw); 
             company.receiveUF(amountUFToWithdraw);
         }
 
@@ -136,9 +139,6 @@ contract Fundraising is Ownable {
 
         collectedETH = 0;
         collectedUF = 0;
-
-        unityFlow.updateDonations(amountETHToWithdraw, "ETH");
-        unityFlow.updateDonations(amountUFToWithdraw, "UF");
 
         uint[2] memory amounts;
         string[2] memory currencies;

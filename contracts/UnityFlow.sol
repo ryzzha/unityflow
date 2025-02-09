@@ -30,10 +30,7 @@ contract UnityFlow {
     event CompanyClosed(uint256 id, address contractAddress, address founder);
 
     event TotalFundsUpdated(uint256 newTotalFunds, string currency, string kind);
-
-    event ProposalCreated(string description, uint256 deadline);
-    event VoteCast(uint256 proposalId, address voter, bool support, uint256 votingPower);
-    event ProposalExecuted(uint256 id, string description, bool success);
+    event PlatformFeeReceived(uint256 amount, string currency);
 
     constructor(address tokenAddress, address fundraisingManagerAddress, address proposalManagerAddress, address _ethPriceFeed, address _tokenPriceFeed) {
         token = TokenUF(tokenAddress);
@@ -55,6 +52,12 @@ contract UnityFlow {
     modifier onlyTokenHolder(uint amount) {
         require(token.balanceOf(msg.sender) > amount, "Only token holders can interact");
         _;
+    }
+
+    function updatePlatformFee(uint256 newFee) external {
+        require(newFee <= 10, "Fee cannot exceed 10%"); 
+        require(msg.sender == address(proposalManager), "Only executed proposal can change fee");
+        platformFeePercent = newFee;
     }
 
     function transferETH(address to, uint _amount) public  {
@@ -112,7 +115,7 @@ contract UnityFlow {
         string memory image
     ) external returns(address) {
         require(isCompanyActive[msg.sender], "Only active companies can create fundraisers");
-        return fundraisingManager.createFundraising(id, msg.sender, title, description, category, goalUSD, deadline, image);
+        return fundraisingManager.createFundraising(address(this), id, msg.sender, title, description, category, goalUSD, deadline, image, platformFeePercent);
     }
 
     function createProposal(
@@ -122,17 +125,14 @@ contract UnityFlow {
         uint256 deadline   
     ) external {
         proposalManager.createProposal(msg.sender, target, data, description, deadline);
-        emit ProposalCreated(description, deadline);
     }
 
-    function vote(uint256 proposalId, bool support) external {
-        proposalManager.vote(proposalId, msg.sender, support);
-        emit VoteCast(proposalId, msg.sender, support, token.balanceOf(msg.sender));
+    function vote(bytes32 proposalHash, bool support) external {
+        proposalManager.vote(proposalHash, msg.sender, support);
     }
 
-    function executeProposal(uint256 proposalId, address target, string calldata description, bytes calldata data) external {
-        bool success = proposalManager.executeProposal(proposalId, target, description, data);
-        emit ProposalExecuted(proposalId, description, success);
+    function executeProposal(bytes32 proposalHash, address target, string calldata description, bytes calldata data) external {
+        proposalManager.executeProposal(proposalHash, target, description, data);
     }
 
     function getPlatformStats() external view returns (
@@ -143,14 +143,14 @@ contract UnityFlow {
         uint256 totalInvestmentsUF,
         uint256 activeCompanies,
         uint256 closedCompanies,
-        uint256 proposalCount_,
+        uint256 proposalCount,
         uint256 totalVotes,
         uint256 platformBalanceETH,
         uint256 platformBalanceUF
     ) {
         activeCompanies = getActiveCompanies();
         closedCompanies = companyCount > activeCompanies ? (companyCount - activeCompanies) : 0;
-        proposalCount_ = proposalManager.getProposalCount();
+        proposalCount = proposalManager.getProposalHashes().length;
         totalVotes = proposalManager.getTotalVotes();
 
         return (
@@ -161,7 +161,7 @@ contract UnityFlow {
             getTotalInvestments("UF"),  
             activeCompanies,                           
             closedCompanies,                    
-            proposalCount_,                          
+            proposalCount,                          
             totalVotes,                                 
             address(this).balance,                      
             token.balanceOf(address(this))          
@@ -214,6 +214,19 @@ contract UnityFlow {
 
     function getTotalInvestments(string memory currency) public view returns (uint256) {
         return fundraisingManager.getTotalInvestments(currency);
+    }
+
+    function receivePlatformFeeETH() external payable {
+        require(msg.value > 0, "Must send ETH fee");
+        emit PlatformFeeReceived(msg.value, "ETH");
+    }
+
+    function receivePlatformFeeUF(uint256 amount) external {
+        require(amount > 0, "Must send UF fee");
+        require(token.balanceOf(msg.sender) >= amount, "Insufficient token balance");
+
+        token.transferFrom(msg.sender, address(this), amount);
+        emit PlatformFeeReceived(amount, "UF");
     }
 }
 

@@ -27,6 +27,7 @@ export interface CompanyInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "addCofounder"
+      | "closeCompany"
       | "cofounders"
       | "createFundraising"
       | "founder"
@@ -34,6 +35,7 @@ export interface CompanyInterface extends Interface {
       | "fundraisers"
       | "fundraisingCount"
       | "getCompanyFundraisers"
+      | "id"
       | "investETH"
       | "investUF"
       | "investorETHBalances"
@@ -52,6 +54,7 @@ export interface CompanyInterface extends Interface {
       | "transferOwnership"
       | "unityFlow"
       | "withdrawETH"
+      | "withdrawFromFundraising"
       | "withdrawInvestmentETH"
       | "withdrawInvestmentUF"
       | "withdrawUF"
@@ -72,6 +75,10 @@ export interface CompanyInterface extends Interface {
   encodeFunctionData(
     functionFragment: "addCofounder",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "closeCompany",
+    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "cofounders",
@@ -98,6 +105,7 @@ export interface CompanyInterface extends Interface {
     functionFragment: "getCompanyFundraisers",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "id", values?: undefined): string;
   encodeFunctionData(functionFragment: "investETH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "investUF",
@@ -156,6 +164,10 @@ export interface CompanyInterface extends Interface {
     values: [AddressLike, BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "withdrawFromFundraising",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawInvestmentETH",
     values: [BigNumberish]
   ): string;
@@ -170,6 +182,10 @@ export interface CompanyInterface extends Interface {
 
   decodeFunctionResult(
     functionFragment: "addCofounder",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "closeCompany",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "cofounders", data: BytesLike): Result;
@@ -194,6 +210,7 @@ export interface CompanyInterface extends Interface {
     functionFragment: "getCompanyFundraisers",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "id", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "investETH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "investUF", data: BytesLike): Result;
   decodeFunctionResult(
@@ -240,6 +257,10 @@ export interface CompanyInterface extends Interface {
   decodeFunctionResult(functionFragment: "unityFlow", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFromFundraising",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -433,6 +454,8 @@ export interface Company extends BaseContract {
     "nonpayable"
   >;
 
+  closeCompany: TypedContractMethod<[], [void], "nonpayable">;
+
   cofounders: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   createFundraising: TypedContractMethod<
@@ -457,6 +480,8 @@ export interface Company extends BaseContract {
   fundraisingCount: TypedContractMethod<[], [bigint], "view">;
 
   getCompanyFundraisers: TypedContractMethod<[], [string[]], "view">;
+
+  id: TypedContractMethod<[], [bigint], "view">;
 
   investETH: TypedContractMethod<[], [void], "payable">;
 
@@ -514,6 +539,12 @@ export interface Company extends BaseContract {
     "nonpayable"
   >;
 
+  withdrawFromFundraising: TypedContractMethod<
+    [fundraisingContract: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   withdrawInvestmentETH: TypedContractMethod<
     [amount: BigNumberish],
     [void],
@@ -539,6 +570,9 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "addCofounder"
   ): TypedContractMethod<[cofounder: AddressLike], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "closeCompany"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "cofounders"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
@@ -571,6 +605,7 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "getCompanyFundraisers"
   ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(nameOrSignature: "id"): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "investETH"
   ): TypedContractMethod<[], [void], "payable">;
@@ -630,6 +665,13 @@ export interface Company extends BaseContract {
     nameOrSignature: "withdrawETH"
   ): TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "withdrawFromFundraising"
+  ): TypedContractMethod<
+    [fundraisingContract: AddressLike],
     [void],
     "nonpayable"
   >;

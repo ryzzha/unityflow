@@ -6,17 +6,16 @@ import "./TokenUF.sol";
 
 contract FundraisingManager {
     TokenUF public token;
-    uint256 public platformFeePercent;
 
     mapping(string => uint256) public donationsByCurrency;
     mapping(string => uint256) public investmentsByCurrency;
 
-    constructor(address tokenAddress, uint256 feePercent) {
+    constructor(address tokenAddress) {
         token = TokenUF(tokenAddress);
-        platformFeePercent = feePercent;
     }
 
     function createFundraising(
+        address unityFlowAddress,
         uint id,
         address company,
         string memory title,
@@ -24,7 +23,8 @@ contract FundraisingManager {
         string memory category,
         uint goalUSD,
         uint deadline,
-        string memory image
+        string memory image,
+        uint platformFeePercent
     ) external returns(address) {
         require(deadline > block.timestamp && deadline < block.timestamp + 30 days, "Invalid deadline");
         require(goalUSD >= 10 && goalUSD <= 1000000, "Goal out of range");
@@ -42,7 +42,7 @@ contract FundraisingManager {
             platformFeePercent: platformFeePercent
         });
 
-        Fundraising newFundraising = new Fundraising(params, address(0), address(0));
+        Fundraising newFundraising = new Fundraising(unityFlowAddress, params, address(0), address(0));
         return address(newFundraising);
     }
 

@@ -46,12 +46,15 @@ export interface UnityFlowInterface extends Interface {
       | "minTokenBalance"
       | "platformFeePercent"
       | "proposalManager"
+      | "receivePlatformFeeETH"
+      | "receivePlatformFeeUF"
       | "registerCompany"
       | "token"
       | "tokenPriceFeed"
       | "transferETH"
       | "transferUF"
       | "updateDonations"
+      | "updatePlatformFee"
       | "vote"
   ): FunctionFragment;
 
@@ -59,10 +62,8 @@ export interface UnityFlowInterface extends Interface {
     nameOrSignatureOrTopic:
       | "CompanyClosed"
       | "CompanyRegistered"
-      | "ProposalCreated"
-      | "ProposalExecuted"
+      | "PlatformFeeReceived"
       | "TotalFundsUpdated"
-      | "VoteCast"
   ): EventFragment;
 
   encodeFunctionData(
@@ -103,7 +104,7 @@ export interface UnityFlowInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "executeProposal",
-    values: [BigNumberish, AddressLike, string, BytesLike]
+    values: [BytesLike, AddressLike, string, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "fundraisingManager",
@@ -154,6 +155,14 @@ export interface UnityFlowInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "receivePlatformFeeETH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "receivePlatformFeeUF",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "registerCompany",
     values: [string]
   ): string;
@@ -175,8 +184,12 @@ export interface UnityFlowInterface extends Interface {
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "updatePlatformFee",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "vote",
-    values: [BigNumberish, boolean]
+    values: [BytesLike, boolean]
   ): string;
 
   decodeFunctionResult(
@@ -257,6 +270,14 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "receivePlatformFeeETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "receivePlatformFeeUF",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "registerCompany",
     data: BytesLike
   ): Result;
@@ -272,6 +293,10 @@ export interface UnityFlowInterface extends Interface {
   decodeFunctionResult(functionFragment: "transferUF", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "updateDonations",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "updatePlatformFee",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
@@ -321,30 +346,12 @@ export namespace CompanyRegisteredEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace ProposalCreatedEvent {
-  export type InputTuple = [description: string, deadline: BigNumberish];
-  export type OutputTuple = [description: string, deadline: bigint];
+export namespace PlatformFeeReceivedEvent {
+  export type InputTuple = [amount: BigNumberish, currency: string];
+  export type OutputTuple = [amount: bigint, currency: string];
   export interface OutputObject {
-    description: string;
-    deadline: bigint;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace ProposalExecutedEvent {
-  export type InputTuple = [
-    id: BigNumberish,
-    description: string,
-    success: boolean
-  ];
-  export type OutputTuple = [id: bigint, description: string, success: boolean];
-  export interface OutputObject {
-    id: bigint;
-    description: string;
-    success: boolean;
+    amount: bigint;
+    currency: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -367,31 +374,6 @@ export namespace TotalFundsUpdatedEvent {
     newTotalFunds: bigint;
     currency: string;
     kind: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace VoteCastEvent {
-  export type InputTuple = [
-    proposalId: BigNumberish,
-    voter: AddressLike,
-    support: boolean,
-    votingPower: BigNumberish
-  ];
-  export type OutputTuple = [
-    proposalId: bigint,
-    voter: string,
-    support: boolean,
-    votingPower: bigint
-  ];
-  export interface OutputObject {
-    proposalId: bigint;
-    voter: string;
-    support: boolean;
-    votingPower: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -487,7 +469,7 @@ export interface UnityFlow extends BaseContract {
 
   executeProposal: TypedContractMethod<
     [
-      proposalId: BigNumberish,
+      proposalHash: BytesLike,
       target: AddressLike,
       description: string,
       data: BytesLike
@@ -531,7 +513,7 @@ export interface UnityFlow extends BaseContract {
         totalInvestmentsUF: bigint;
         activeCompanies: bigint;
         closedCompanies: bigint;
-        proposalCount_: bigint;
+        proposalCount: bigint;
         totalVotes: bigint;
         platformBalanceETH: bigint;
         platformBalanceUF: bigint;
@@ -562,6 +544,14 @@ export interface UnityFlow extends BaseContract {
 
   proposalManager: TypedContractMethod<[], [string], "view">;
 
+  receivePlatformFeeETH: TypedContractMethod<[], [void], "payable">;
+
+  receivePlatformFeeUF: TypedContractMethod<
+    [amount: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   registerCompany: TypedContractMethod<[name: string], [void], "nonpayable">;
 
   token: TypedContractMethod<[], [string], "view">;
@@ -586,8 +576,14 @@ export interface UnityFlow extends BaseContract {
     "nonpayable"
   >;
 
+  updatePlatformFee: TypedContractMethod<
+    [newFee: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
   vote: TypedContractMethod<
-    [proposalId: BigNumberish, support: boolean],
+    [proposalHash: BytesLike, support: boolean],
     [void],
     "nonpayable"
   >;
@@ -646,7 +642,7 @@ export interface UnityFlow extends BaseContract {
     nameOrSignature: "executeProposal"
   ): TypedContractMethod<
     [
-      proposalId: BigNumberish,
+      proposalHash: BytesLike,
       target: AddressLike,
       description: string,
       data: BytesLike
@@ -691,7 +687,7 @@ export interface UnityFlow extends BaseContract {
         totalInvestmentsUF: bigint;
         activeCompanies: bigint;
         closedCompanies: bigint;
-        proposalCount_: bigint;
+        proposalCount: bigint;
         totalVotes: bigint;
         platformBalanceETH: bigint;
         platformBalanceUF: bigint;
@@ -725,6 +721,12 @@ export interface UnityFlow extends BaseContract {
     nameOrSignature: "proposalManager"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "receivePlatformFeeETH"
+  ): TypedContractMethod<[], [void], "payable">;
+  getFunction(
+    nameOrSignature: "receivePlatformFeeUF"
+  ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "registerCompany"
   ): TypedContractMethod<[name: string], [void], "nonpayable">;
   getFunction(
@@ -755,9 +757,12 @@ export interface UnityFlow extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "updatePlatformFee"
+  ): TypedContractMethod<[newFee: BigNumberish], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "vote"
   ): TypedContractMethod<
-    [proposalId: BigNumberish, support: boolean],
+    [proposalHash: BytesLike, support: boolean],
     [void],
     "nonpayable"
   >;
@@ -777,18 +782,11 @@ export interface UnityFlow extends BaseContract {
     CompanyRegisteredEvent.OutputObject
   >;
   getEvent(
-    key: "ProposalCreated"
+    key: "PlatformFeeReceived"
   ): TypedContractEvent<
-    ProposalCreatedEvent.InputTuple,
-    ProposalCreatedEvent.OutputTuple,
-    ProposalCreatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "ProposalExecuted"
-  ): TypedContractEvent<
-    ProposalExecutedEvent.InputTuple,
-    ProposalExecutedEvent.OutputTuple,
-    ProposalExecutedEvent.OutputObject
+    PlatformFeeReceivedEvent.InputTuple,
+    PlatformFeeReceivedEvent.OutputTuple,
+    PlatformFeeReceivedEvent.OutputObject
   >;
   getEvent(
     key: "TotalFundsUpdated"
@@ -796,13 +794,6 @@ export interface UnityFlow extends BaseContract {
     TotalFundsUpdatedEvent.InputTuple,
     TotalFundsUpdatedEvent.OutputTuple,
     TotalFundsUpdatedEvent.OutputObject
-  >;
-  getEvent(
-    key: "VoteCast"
-  ): TypedContractEvent<
-    VoteCastEvent.InputTuple,
-    VoteCastEvent.OutputTuple,
-    VoteCastEvent.OutputObject
   >;
 
   filters: {
@@ -828,26 +819,15 @@ export interface UnityFlow extends BaseContract {
       CompanyRegisteredEvent.OutputObject
     >;
 
-    "ProposalCreated(string,uint256)": TypedContractEvent<
-      ProposalCreatedEvent.InputTuple,
-      ProposalCreatedEvent.OutputTuple,
-      ProposalCreatedEvent.OutputObject
+    "PlatformFeeReceived(uint256,string)": TypedContractEvent<
+      PlatformFeeReceivedEvent.InputTuple,
+      PlatformFeeReceivedEvent.OutputTuple,
+      PlatformFeeReceivedEvent.OutputObject
     >;
-    ProposalCreated: TypedContractEvent<
-      ProposalCreatedEvent.InputTuple,
-      ProposalCreatedEvent.OutputTuple,
-      ProposalCreatedEvent.OutputObject
-    >;
-
-    "ProposalExecuted(uint256,string,bool)": TypedContractEvent<
-      ProposalExecutedEvent.InputTuple,
-      ProposalExecutedEvent.OutputTuple,
-      ProposalExecutedEvent.OutputObject
-    >;
-    ProposalExecuted: TypedContractEvent<
-      ProposalExecutedEvent.InputTuple,
-      ProposalExecutedEvent.OutputTuple,
-      ProposalExecutedEvent.OutputObject
+    PlatformFeeReceived: TypedContractEvent<
+      PlatformFeeReceivedEvent.InputTuple,
+      PlatformFeeReceivedEvent.OutputTuple,
+      PlatformFeeReceivedEvent.OutputObject
     >;
 
     "TotalFundsUpdated(uint256,string,string)": TypedContractEvent<
@@ -859,17 +839,6 @@ export interface UnityFlow extends BaseContract {
       TotalFundsUpdatedEvent.InputTuple,
       TotalFundsUpdatedEvent.OutputTuple,
       TotalFundsUpdatedEvent.OutputObject
-    >;
-
-    "VoteCast(uint256,address,bool,uint256)": TypedContractEvent<
-      VoteCastEvent.InputTuple,
-      VoteCastEvent.OutputTuple,
-      VoteCastEvent.OutputObject
-    >;
-    VoteCast: TypedContractEvent<
-      VoteCastEvent.InputTuple,
-      VoteCastEvent.OutputTuple,
-      VoteCastEvent.OutputObject
     >;
   };
 }

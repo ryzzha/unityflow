@@ -31,7 +31,6 @@ export interface FundraisingManagerInterface extends Interface {
       | "getTotalInvestments"
       | "increaseInvestments"
       | "investmentsByCurrency"
-      | "platformFeePercent"
       | "token"
       | "updateDonations"
   ): FunctionFragment;
@@ -39,6 +38,7 @@ export interface FundraisingManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "createFundraising",
     values: [
+      AddressLike,
       BigNumberish,
       AddressLike,
       string,
@@ -46,7 +46,8 @@ export interface FundraisingManagerInterface extends Interface {
       string,
       BigNumberish,
       BigNumberish,
-      string
+      string,
+      BigNumberish
     ]
   ): string;
   encodeFunctionData(
@@ -72,10 +73,6 @@ export interface FundraisingManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "investmentsByCurrency",
     values: [string]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "platformFeePercent",
-    values?: undefined
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
@@ -109,10 +106,6 @@ export interface FundraisingManagerInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "investmentsByCurrency",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "platformFeePercent",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
@@ -167,6 +160,7 @@ export interface FundraisingManager extends BaseContract {
 
   createFundraising: TypedContractMethod<
     [
+      unityFlowAddress: AddressLike,
       id: BigNumberish,
       company: AddressLike,
       title: string,
@@ -174,7 +168,8 @@ export interface FundraisingManager extends BaseContract {
       category: string,
       goalUSD: BigNumberish,
       deadline: BigNumberish,
-      image: string
+      image: string,
+      platformFeePercent: BigNumberish
     ],
     [string],
     "nonpayable"
@@ -204,8 +199,6 @@ export interface FundraisingManager extends BaseContract {
 
   investmentsByCurrency: TypedContractMethod<[arg0: string], [bigint], "view">;
 
-  platformFeePercent: TypedContractMethod<[], [bigint], "view">;
-
   token: TypedContractMethod<[], [string], "view">;
 
   updateDonations: TypedContractMethod<
@@ -222,6 +215,7 @@ export interface FundraisingManager extends BaseContract {
     nameOrSignature: "createFundraising"
   ): TypedContractMethod<
     [
+      unityFlowAddress: AddressLike,
       id: BigNumberish,
       company: AddressLike,
       title: string,
@@ -229,7 +223,8 @@ export interface FundraisingManager extends BaseContract {
       category: string,
       goalUSD: BigNumberish,
       deadline: BigNumberish,
-      image: string
+      image: string,
+      platformFeePercent: BigNumberish
     ],
     [string],
     "nonpayable"
@@ -260,9 +255,6 @@ export interface FundraisingManager extends BaseContract {
   getFunction(
     nameOrSignature: "investmentsByCurrency"
   ): TypedContractMethod<[arg0: string], [bigint], "view">;
-  getFunction(
-    nameOrSignature: "platformFeePercent"
-  ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "token"
   ): TypedContractMethod<[], [string], "view">;

@@ -8,6 +8,7 @@ import type {
   FunctionFragment,
   Result,
   Interface,
+  EventFragment,
   AddressLike,
   ContractRunner,
   ContractMethod,
@@ -17,6 +18,7 @@ import type {
   TypedContractEvent,
   TypedDeferredTopicFilter,
   TypedEventLog,
+  TypedLogDescription,
   TypedListener,
   TypedContractMethod,
 } from "../common";
@@ -26,15 +28,20 @@ export interface ProposalManagerInterface extends Interface {
     nameOrSignature:
       | "createProposal"
       | "executeProposal"
-      | "getProposalCount"
+      | "existingProposals"
+      | "getProposalHashes"
       | "getTotalVotes"
       | "lastProposalTime"
       | "proposalCooldown"
-      | "proposalCount"
+      | "proposalHashes"
       | "proposals"
       | "token"
       | "vote"
   ): FunctionFragment;
+
+  getEvent(
+    nameOrSignatureOrTopic: "ProposalCreated" | "ProposalExecuted" | "VoteCast"
+  ): EventFragment;
 
   encodeFunctionData(
     functionFragment: "createProposal",
@@ -42,10 +49,14 @@ export interface ProposalManagerInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "executeProposal",
-    values: [BigNumberish, AddressLike, string, BytesLike]
+    values: [BytesLike, AddressLike, string, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "getProposalCount",
+    functionFragment: "existingProposals",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getProposalHashes",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -61,17 +72,17 @@ export interface ProposalManagerInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "proposalCount",
-    values?: undefined
+    functionFragment: "proposalHashes",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "proposals",
-    values: [BigNumberish]
+    values: [BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "vote",
-    values: [BigNumberish, AddressLike, boolean]
+    values: [BytesLike, AddressLike, boolean]
   ): string;
 
   decodeFunctionResult(
@@ -83,7 +94,11 @@ export interface ProposalManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getProposalCount",
+    functionFragment: "existingProposals",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getProposalHashes",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -99,12 +114,93 @@ export interface ProposalManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "proposalCount",
+    functionFragment: "proposalHashes",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "proposals", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
+}
+
+export namespace ProposalCreatedEvent {
+  export type InputTuple = [
+    index: BigNumberish,
+    proposalHash: BytesLike,
+    creator: AddressLike,
+    target: AddressLike,
+    description: string,
+    deadline: BigNumberish
+  ];
+  export type OutputTuple = [
+    index: bigint,
+    proposalHash: string,
+    creator: string,
+    target: string,
+    description: string,
+    deadline: bigint
+  ];
+  export interface OutputObject {
+    index: bigint;
+    proposalHash: string;
+    creator: string;
+    target: string;
+    description: string;
+    deadline: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace ProposalExecutedEvent {
+  export type InputTuple = [
+    proposalHash: BytesLike,
+    target: AddressLike,
+    description: string,
+    success: boolean
+  ];
+  export type OutputTuple = [
+    proposalHash: string,
+    target: string,
+    description: string,
+    success: boolean
+  ];
+  export interface OutputObject {
+    proposalHash: string;
+    target: string;
+    description: string;
+    success: boolean;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace VoteCastEvent {
+  export type InputTuple = [
+    proposalHash: BytesLike,
+    voter: AddressLike,
+    support: boolean,
+    votingPower: BigNumberish
+  ];
+  export type OutputTuple = [
+    proposalHash: string,
+    voter: string,
+    support: boolean,
+    votingPower: bigint
+  ];
+  export interface OutputObject {
+    proposalHash: string;
+    voter: string;
+    support: boolean;
+    votingPower: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export interface ProposalManager extends BaseContract {
@@ -164,16 +260,18 @@ export interface ProposalManager extends BaseContract {
 
   executeProposal: TypedContractMethod<
     [
-      proposalId: BigNumberish,
+      proposalHash: BytesLike,
       target: AddressLike,
       description: string,
       data: BytesLike
     ],
-    [boolean],
+    [void],
     "nonpayable"
   >;
 
-  getProposalCount: TypedContractMethod<[], [bigint], "view">;
+  existingProposals: TypedContractMethod<[arg0: BytesLike], [boolean], "view">;
+
+  getProposalHashes: TypedContractMethod<[], [string[]], "view">;
 
   getTotalVotes: TypedContractMethod<[], [bigint], "view">;
 
@@ -181,10 +279,10 @@ export interface ProposalManager extends BaseContract {
 
   proposalCooldown: TypedContractMethod<[], [bigint], "view">;
 
-  proposalCount: TypedContractMethod<[], [bigint], "view">;
+  proposalHashes: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   proposals: TypedContractMethod<
-    [arg0: BigNumberish],
+    [arg0: BytesLike],
     [
       [string, string, bigint, bigint, bigint, boolean] & {
         actionHash: string;
@@ -201,7 +299,7 @@ export interface ProposalManager extends BaseContract {
   token: TypedContractMethod<[], [string], "view">;
 
   vote: TypedContractMethod<
-    [proposalId: BigNumberish, voter: AddressLike, support: boolean],
+    [proposalHash: BytesLike, voter: AddressLike, support: boolean],
     [void],
     "nonpayable"
   >;
@@ -227,17 +325,20 @@ export interface ProposalManager extends BaseContract {
     nameOrSignature: "executeProposal"
   ): TypedContractMethod<
     [
-      proposalId: BigNumberish,
+      proposalHash: BytesLike,
       target: AddressLike,
       description: string,
       data: BytesLike
     ],
-    [boolean],
+    [void],
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "getProposalCount"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: "existingProposals"
+  ): TypedContractMethod<[arg0: BytesLike], [boolean], "view">;
+  getFunction(
+    nameOrSignature: "getProposalHashes"
+  ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
     nameOrSignature: "getTotalVotes"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -248,12 +349,12 @@ export interface ProposalManager extends BaseContract {
     nameOrSignature: "proposalCooldown"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "proposalCount"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: "proposalHashes"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
     nameOrSignature: "proposals"
   ): TypedContractMethod<
-    [arg0: BigNumberish],
+    [arg0: BytesLike],
     [
       [string, string, bigint, bigint, bigint, boolean] & {
         actionHash: string;
@@ -272,10 +373,65 @@ export interface ProposalManager extends BaseContract {
   getFunction(
     nameOrSignature: "vote"
   ): TypedContractMethod<
-    [proposalId: BigNumberish, voter: AddressLike, support: boolean],
+    [proposalHash: BytesLike, voter: AddressLike, support: boolean],
     [void],
     "nonpayable"
   >;
 
-  filters: {};
+  getEvent(
+    key: "ProposalCreated"
+  ): TypedContractEvent<
+    ProposalCreatedEvent.InputTuple,
+    ProposalCreatedEvent.OutputTuple,
+    ProposalCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "ProposalExecuted"
+  ): TypedContractEvent<
+    ProposalExecutedEvent.InputTuple,
+    ProposalExecutedEvent.OutputTuple,
+    ProposalExecutedEvent.OutputObject
+  >;
+  getEvent(
+    key: "VoteCast"
+  ): TypedContractEvent<
+    VoteCastEvent.InputTuple,
+    VoteCastEvent.OutputTuple,
+    VoteCastEvent.OutputObject
+  >;
+
+  filters: {
+    "ProposalCreated(uint256,bytes32,address,address,string,uint256)": TypedContractEvent<
+      ProposalCreatedEvent.InputTuple,
+      ProposalCreatedEvent.OutputTuple,
+      ProposalCreatedEvent.OutputObject
+    >;
+    ProposalCreated: TypedContractEvent<
+      ProposalCreatedEvent.InputTuple,
+      ProposalCreatedEvent.OutputTuple,
+      ProposalCreatedEvent.OutputObject
+    >;
+
+    "ProposalExecuted(bytes32,address,string,bool)": TypedContractEvent<
+      ProposalExecutedEvent.InputTuple,
+      ProposalExecutedEvent.OutputTuple,
+      ProposalExecutedEvent.OutputObject
+    >;
+    ProposalExecuted: TypedContractEvent<
+      ProposalExecutedEvent.InputTuple,
+      ProposalExecutedEvent.OutputTuple,
+      ProposalExecutedEvent.OutputObject
+    >;
+
+    "VoteCast(bytes32,address,bool,uint256)": TypedContractEvent<
+      VoteCastEvent.InputTuple,
+      VoteCastEvent.OutputTuple,
+      VoteCastEvent.OutputObject
+    >;
+    VoteCast: TypedContractEvent<
+      VoteCastEvent.InputTuple,
+      VoteCastEvent.OutputTuple,
+      VoteCastEvent.OutputObject
+    >;
+  };
 }

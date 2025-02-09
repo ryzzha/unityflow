@@ -9,7 +9,7 @@ contract Company is Ownable {
     UnityFlow public unityFlow;
     TokenUF public token;
 
-    uint id;
+    uint public id;
     string public name;
 
     address public founder;
@@ -26,6 +26,8 @@ contract Company is Ownable {
     mapping(address => uint256) public investorUFBalances;
 
     uint public fundraisingCount;
+
+    bool closed;
 
     event CofounderAdded(address cofounder);
 
@@ -103,6 +105,10 @@ contract Company is Ownable {
         if (token.balanceOf(address(this)) > 0) {
             withdrawUF(to, token.balanceOf(address(this)));
         }
+    }
+
+    function withdrawFromFundraising(address fundraisingContract) external onlyOwner {
+        Fundraising(fundraisingContract).withdrawFunds();
     }
 
     function createFundraising(
@@ -213,5 +219,10 @@ contract Company is Ownable {
             }
         }
         return false;
+    }
+
+    function closeCompany() external onlyOwner() {
+        closed = true;
+        unityFlow.closeCompany(id);
     }
 }
