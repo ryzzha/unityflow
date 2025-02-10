@@ -1,10 +1,13 @@
 import { IconKey } from "./types";
 
 const menuItems: { name: string; link: string; icon: IconKey }[] = [
-    { name: "Funds", link: "/", icon: "funds" },
+    { name: "Overview", link: "/", icon: "statistics" },
     { name: "Create", link: "/create", icon: "create" },
+    { name: "Companies", link: "/companies", icon: "company" },
+    { name: "Funds", link: "/funds", icon: "funds" },
     { name: "Dao", link: "/dao", icon: "dao" },
-    { name: "Statistics", link: "/statistics", icon: "statistics" },
+    { name: "Staking", link: "/staking", icon: "staking" },
+    { name: "Account", link: "/profile", icon: "account" },
 ];
 
 const categories = [

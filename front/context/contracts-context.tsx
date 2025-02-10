@@ -2,16 +2,16 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
-import { CROWDFUNDING_ADDRESS, TOKEN_ADDRESS, DAO_ADDRESS } from "@/config";
-import { TokenUF, TokenUF__factory, GovernanceUF, GovernanceUF__factory, Crowdfunding, Crowdfunding__factory } from "@/typechain";
+import { UNITYFLOW_ADDRESS, TOKEN_ADDRESS } from "@/config";
+import { TokenUF, TokenUF__factory, UnityFlow, UnityFlow__factory,  } from "@/typechain";
 
 interface ContractsContextProps {
     provider: ethers.Provider | null;
     browserProvider: ethers.BrowserProvider | null;
     wsProvider: ethers.WebSocketProvider | null;
     token: TokenUF | null;
-    dao: GovernanceUF | null;
-    crowdfunding: Crowdfunding | null;
+    unityFlow: UnityFlow | null;
+    // crowdfunding: Crowdfunding | null;
     loadingWallet: boolean;
     connectWallet: () => Promise<void>; 
     signer: ethers.Signer | null;
@@ -22,8 +22,8 @@ const ContractsContext = createContext<ContractsContextProps>({
     browserProvider: null,
     wsProvider: null,
     token: null,
-    dao: null,
-    crowdfunding: null,
+    unityFlow: null,
+    // crowdfunding: null,
     loadingWallet: false,
     connectWallet: async () => {},
     signer: null
@@ -34,9 +34,9 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     provider: null as ethers.Provider | null,
     browserProvider: null as ethers.BrowserProvider | null,
     wsProvider: null as ethers.WebSocketProvider | null,
-    crowdfunding: null as Crowdfunding | null,
+    unityFlow: null as UnityFlow | null,
     token: null as TokenUF | null,
-    dao: null as GovernanceUF | null,
+    // dao: null as GovernanceUF | null,
     loadingWallet: false,
     signer: null as ethers.Signer | null,
   });
@@ -57,22 +57,21 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
           console.error("WebSocket error:", error);
         });
 
-        const crowdfunding = Crowdfunding__factory.connect(CROWDFUNDING_ADDRESS, provider);
+        const unityFlow = UnityFlow__factory.connect(UNITYFLOW_ADDRESS, provider);
         const token = TokenUF__factory.connect(TOKEN_ADDRESS, provider);
-        const dao = GovernanceUF__factory.connect(DAO_ADDRESS, provider);
+        // const dao = GovernanceUF__factory.connect(DAO_ADDRESS, provider);
   
         setState({
           provider,
           browserProvider: null,
           wsProvider: ws,
-          crowdfunding,
+          unityFlow,
           token,
-          dao,
           loadingWallet: false,
           signer: null,
         });
   
-        console.log("Контракти ініціалізовано:", { crowdfunding, token, dao });
+        console.log("Контракти ініціалізовано:", { unityFlow, token });
 
         return () => {
           console.log("ws destroy")

@@ -6,16 +6,19 @@ import { IconKey } from "@/shared/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { JSX, useEffect, useState } from "react";
-import { FundIcon, CreateIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
+import { CompanyIcon, MoneyIcon, AccountIcon, StakingIcon, CreateIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
 import { unityFlowLogo } from "@/assets";
 import { useMainContext } from "@/context/main-context";
 import { useContractsContext } from "@/context/contracts-context";
 
 const iconComponents: Record<IconKey, () => JSX.Element> = {
-    funds: FundIcon,
-    create: CreateIcon,
-    dao: DaoIcon,
     statistics: StatisticsIcon,
+    create: CreateIcon,
+    company: CompanyIcon,
+    funds: MoneyIcon,
+    dao: DaoIcon,
+    staking: StakingIcon,
+    account: AccountIcon,
 };
 
 export default function Navigation() {
@@ -54,7 +57,7 @@ export default function Navigation() {
         {isMenuOpen && <h1 className="text-2xl font-bold">UnityFlow</h1>}
       </div>
 
-      <nav className="flex w-full h-full flex-col items-start justify-start gap-2 rounded-xl">
+      <nav className="flex w-full h-full flex-col items-start justify-center gap-2 rounded-xl">
         {menuItems.map((menuItem) => {
           const Icon = iconComponents[menuItem.icon];
           const isActive = pathname === menuItem.link;

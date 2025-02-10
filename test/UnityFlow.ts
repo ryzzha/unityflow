@@ -234,49 +234,51 @@ describe("UnityFlow", function () {
   });
 
   it("should update UnityFlow balances correctly through Company and Fundraising", async function () {
-      const donationETH = ethers.parseUnits("1", 18);
+      const donationETH = ethers.parseUnits("20", 18);
       const donationUF = ethers.parseUnits("100", 18);
-      const investmentETH = ethers.parseUnits("2", 18);
+      const investmentETH = ethers.parseUnits("30", 18);
       const investmentUF = ethers.parseUnits("200", 18);
       const currencyETH = "ETH";
       const currencyUF = "UF";
 
-      // Отримуємо початкові значення загальних донатів та інвестицій
       const initialDonationsETH = await unityFlow.getTotalDonations(currencyETH);
       const initialDonationsUF = await unityFlow.getTotalDonations(currencyUF);
       const initialInvestmentsETH = await unityFlow.getTotalInvestments(currencyETH);
       const initialInvestmentsUF = await unityFlow.getTotalInvestments(currencyUF);
 
-      // 🟢 Інвестиції в компанію через ETH
       const tx_investETH = await company.connect(user).investETH({ value: investmentETH });
       await tx_investETH.wait();
 
-      // 🟢 Інвестиції в компанію через UF
       const tx_approveInvestUF = await token.connect(user).approve(company.target, investmentUF);
       await tx_approveInvestUF.wait();
       const tx_investUF = await company.connect(user).investUF(investmentUF);
       await tx_investUF.wait();
 
-      // Перевіряємо оновлені баланси у UnityFlow
       expect(await unityFlow.getTotalInvestments(currencyETH)).to.equal(initialInvestmentsETH + investmentETH);
       expect(await unityFlow.getTotalInvestments(currencyUF)).to.equal(initialInvestmentsUF + investmentUF);
 
-      // 🟢 Фандрейзинг — створюємо збір коштів
+      const tx_withdrawInvestmentETH = await company.connect(user).withdrawInvestmentETH(investmentETH);
+      await tx_withdrawInvestmentETH.wait();
+      expect(tx_withdrawInvestmentETH).to.changeEtherBalances([company, user], [-investmentETH, investmentETH]);
+      expect(await unityFlow.getTotalInvestments(currencyETH)).to.equal(initialInvestmentsETH);
+
+      const tx_withdrawInvestmentUF = await company.connect(user).withdrawInvestmentUF(investmentUF);
+      await tx_withdrawInvestmentUF.wait();
+      expect(tx_withdrawInvestmentUF).to.changeTokenBalances(token, [company, user], [-investmentUF, investmentUF]);
+      expect(await unityFlow.getTotalInvestments(currencyUF)).to.equal(initialInvestmentsUF);
+
       const deadline = Math.floor(Date.now() / 1000) + 7 * SECONDS_IN_A_DAY;
       const tx_fundraising = await company.connect(owner).createFundraising(
           "Support Project", "Funding description", "tech", 1000, deadline, "image.png"
       );
       await tx_fundraising.wait();
 
-      // Отримуємо адреси зборів коштів
       const fundraisingAddress = (await company.getCompanyFundraisers())[0];
       const fundraisingContract = await ethers.getContractAt("Fundraising", fundraisingAddress);
 
-      // 🟢 Донатимо через Fundraising контракт
       const tx_fundraisingDonateETH = await fundraisingContract.connect(user).donateETH({ value: donationETH });
       await tx_fundraisingDonateETH.wait();
 
-      // Отримуємо nonce для користувача
       const userAddress = await user.getAddress();
       const nonce = await token.nonces(userAddress);
 
@@ -284,10 +286,10 @@ describe("UnityFlow", function () {
       const chainId = network.chainId;  
 
       const domain = {
-          name: "TokenUF", // Назва токена (має збігатися з `name()` у контракті)
-          version: "1",    // Версія (якщо вказана в контракті)
-          chainId: Number(chainId),      // Chain ID (наприклад, `1` для Ethereum Mainnet або `31337` для Hardhat)
-          verifyingContract: token.target.toString(), // Адреса твого токена
+          name: "TokenUF", 
+          version: "1",    
+          chainId: Number(chainId),      
+          verifyingContract: token.target.toString(), 
       };
       
       const types = {
@@ -300,16 +302,14 @@ describe("UnityFlow", function () {
           ],
       };
       
-      // Формуємо значення для підпису
       const permitMessage = {
           owner: userAddress,
-          spender: fundraisingContract.target, // Контракт, який буде витрачати токени
-          value: ethers.parseUnits("100", 18),  // Сума, яку ми дозволяємо витратити
+          spender: fundraisingContract.target,
+          value: ethers.parseUnits("100", 18),  
           nonce: nonce,
           deadline: deadline,
       };
       
-      // Виконуємо підпис
       const signature = await user.signTypedData(domain, types, permitMessage);
 
       const { r, s, v } = splitSignatureToRSV(signature);
@@ -319,12 +319,10 @@ describe("UnityFlow", function () {
       const tx_fundraisingDonateUF = await fundraisingContract.connect(user).donateUF(donationUF, deadline, v, r, s);
       await tx_fundraisingDonateUF.wait();
 
-      // Завершуємо збір коштів
-      await time.increase(SECONDS_IN_A_DAY * 8); // Збільшуємо час, щоб збір завершився
+      await time.increase(SECONDS_IN_A_DAY * 8); 
       const tx_withdrawFunds = await company.connect(owner).withdrawFromFundraising(fundraisingAddress);
       await tx_withdrawFunds.wait();
 
-      // Перевіряємо, що UnityFlow знову оновився після збору
       const feeETH = BigInt(donationETH) * BigInt(5) / BigInt(100);
       const feeUF = BigInt(donationUF) * BigInt(5) / BigInt(100);
 
@@ -335,26 +333,6 @@ describe("UnityFlow", function () {
           BigInt(initialDonationsUF) + (BigInt(donationUF) - feeUF)
       );
   });
-
-  // it("Повинна дозволяти інвестувати в компанію i знімати інвестиції", async function () {
-  //   await token.transfer(investor.address, ethers.utils.parseUnits("1000", 18));
-
-  //   await token.connect(investor).approve(company.address, ethers.utils.parseUnits("500", 18));
-  //   await company.connect(investor).invest(ethers.utils.parseUnits("500", 18));
-
-  //   expect(await company.investorBalances(investor.address)).to.equal(ethers.utils.parseUnits("500", 18));
-
-  //   await token.transfer(investor.address, ethers.utils.parseUnits("1000", 18));
-
-  //   await token.connect(investor).approve(company.address, ethers.utils.parseUnits("500", 18));
-  //   await company.connect(investor).invest(ethers.utils.parseUnits("500", 18));
-
-  //   await company.connect(investor).withdrawInvestment(ethers.utils.parseUnits("200", 18));
-
-  //   expect(await company.investorBalances(investor.address)).to.equal(ethers.utils.parseUnits("300", 18));
-  // });
-
-  // Перевірка, що статистика оновлюється після донатів та інвестицій
 });
 
 interface RSV { 
