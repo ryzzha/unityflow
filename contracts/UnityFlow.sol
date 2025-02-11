@@ -73,11 +73,13 @@ contract UnityFlow {
         token.transfer(to, _amount);
     }
 
-    function registerCompany(string memory name) external hasMinimumTokens(msg.sender) {
+    function registerCompany(string memory name, string memory image, string memory description, address[] memory cofounders) external hasMinimumTokens(msg.sender) {
         require(bytes(name).length > 0, "Company name cannot be empty");
+        require(bytes(image).length > 0, "Company image cannot be empty");
+        require(bytes(description).length > 0, "Company description cannot be empty");
 
         companyCount++;
-        Company newCompany = new Company(companyCount, name, msg.sender, address(this), address(token));
+        Company newCompany = new Company(companyCount, name, image, description, msg.sender, cofounders, address(this), address(token));
 
         companies[companyCount] = address(newCompany);
         isCompanyActive[address(newCompany)] = true;
@@ -95,14 +97,6 @@ contract UnityFlow {
         isCompanyActive[companyAddress] = false;
 
         emit CompanyClosed(companyId, companyAddress, msg.sender);
-    }
-
-    function getAllCompanies() external view returns (address[] memory) {
-        address[] memory companyList = new address[](companyCount);
-        for (uint256 i = 1; i <= companyCount; i++) {
-            companyList[i - 1] = companies[i];
-        }
-        return companyList;
     }
 
     function createFundraising(

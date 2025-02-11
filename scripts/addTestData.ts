@@ -1,3 +1,4 @@
+import { Addressable } from "ethers";
 import { ethers } from "hardhat";
 
 async function main() {
@@ -43,7 +44,10 @@ async function main() {
   // 🔸 12️⃣ Реєструємо компанії
   for (const name of companyNames) {
     console.log(`Реєстрація компанії: ${name}...`);
-    const tx = await UnityFlow.connect(founder).registerCompany(name);
+    const image = "https://picsum.photos/200";
+    const description = `A decentralized company ${name}`;
+    const cofounders: Addressable[] = [];
+    const tx = await UnityFlow.connect(founder).registerCompany(name, image, description, cofounders);
     await tx.wait();
 
     const companyIndex = await UnityFlow.companyCount();

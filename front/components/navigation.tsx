@@ -29,7 +29,7 @@ export default function Navigation() {
   const router = useRouter();
   const pathname = usePathname();
 
-  // console.log(pathname)
+  console.log(pathname)
 
   useEffect(() => {
     const fetchAddress = async () => {
@@ -42,7 +42,7 @@ export default function Navigation() {
   }, [signer]);
 
   return (
-    <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} py-5 flex flex-col items-start justify-between gap-16 inset-y-0 sticky bg-green-300 bg-opacity-85 shadow-md transition-all duration-300`}>
+    <header className={`h-screen ${isMenuOpen ? "w-[255px] px-8" : "w-[112px] px-5"} z-50 py-5 flex flex-col items-start justify-between gap-16 inset-y-0 sticky bg-green-300/85 shadow-md transition-all duration-300`}>
       <div
         className="w-full flex justify-center items-center gap-1 md:gap-3 cursor-pointer"
         onClick={() => router.replace("/")}
@@ -68,7 +68,7 @@ export default function Navigation() {
               className={`
                 ${isActive && "bg-gray-50 bg-opacity-50"}
                 ${isMenuOpen ? "justify-start" : "justify-center"}
-                  w-full flex items-center gap-3 hover:bg-gray-50 hover:scale-[1.02] rounded-xl px-3 py-2
+                  w-full flex items-center gap-3 hover:bg-gray-50/85 hover:scale-[1.02] rounded-xl px-3 py-2
               `}
             >
               <Icon />

@@ -1,6 +1,9 @@
 export const ActionsOverview = () => {
     return (
-      <div className="mt-6 p-6 bg-gradient-to-r from-yellow-50 to-gray-100 rounded-2xl shadow-md w-full text-center">
+      <div className="mt-6 p-6 bg-gradient-to-r from-gray-50/85 to-gray-100/55 rounded-2xl shadow-md w-full text-center">
+
+        <div className="absolute inset-0 bg-white bg-opacity-10 rounded-3xl"></div>
+
         <h2 className="text-xl font-semibold text-gray-800 mb-5">🚀 What You Can Do</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
@@ -10,7 +13,7 @@ export const ActionsOverview = () => {
             title="Create Company"
             description="Launch your own organization and manage fundraising campaigns."
             bgColor="bg-blue-200/85"
-            hoverColor="hover:bg-blue-300/85"
+            hoverColor="hover:bg-blue-100/85"
             emoji="🏢"
           />
   
@@ -19,7 +22,7 @@ export const ActionsOverview = () => {
             title="Start Fundraiser"
             description="Raise funds for your project or contribute to existing campaigns."
             bgColor="bg-green-200/85"
-            hoverColor="hover:bg-green-300/85"
+            hoverColor="hover:bg-green-100/85"
             emoji="💰"
           />
   
@@ -28,7 +31,7 @@ export const ActionsOverview = () => {
             title="Donate & Invest"
             description="Support projects by donating and investing in them."
             bgColor="bg-red-200/85"
-            hoverColor="hover:bg-red-300/85"
+            hoverColor="hover:bg-red-100/85"
             emoji="📊"
           />
   
@@ -37,7 +40,7 @@ export const ActionsOverview = () => {
             title="Vote on Proposals"
             description="Participate in DAO decision-making by voting on proposals."
             bgColor="bg-yellow-200/85"
-            hoverColor="hover:bg-yellow-300/85"
+            hoverColor="hover:bg-yellow-100/85"
             emoji="🗳"
           />
   

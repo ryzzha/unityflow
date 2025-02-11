@@ -10,7 +10,9 @@ contract Company is Ownable {
     TokenUF public token;
 
     uint public id;
+    string public image;
     string public name;
+    string public description;
 
     address public founder;
     address[] public cofounders;
@@ -22,12 +24,29 @@ contract Company is Ownable {
     uint256 public totalInvestmentsETH;
     uint256 public totalInvestmentsUF;
 
+    address[] public investors;
     mapping(address => uint256) public investorETHBalances;
     mapping(address => uint256) public investorUFBalances;
 
     uint public fundraisingCount;
 
     bool closed;
+
+    struct CompanyDetails {
+        uint companyId;
+        string name;
+        string image;
+        string description;
+        address founder;
+        address[] cofounders;
+        uint256 totalFundsETH;
+        uint256 totalFundsUF;
+        uint256 totalInvestmentsETH;
+        uint256 totalInvestmentsUF;
+        address[] fundraisers;
+        address[] investors;
+        bool isActive;
+    }
 
     event CofounderAdded(address cofounder);
 
@@ -45,14 +64,17 @@ contract Company is Ownable {
         _;
     }
 
-    constructor(uint _id, string memory _name, address _founder, address _unityFlow, address _token) Ownable(_founder) {
+    constructor(uint _id, string memory _name, string memory _image, string memory _description,  address _founder, address[] memory _cofounders, address _unityFlow, address _token) Ownable(_founder) {
         require(_founder != address(0), "Invalid founder address");
         require(_unityFlow != address(0), "Invalid UnityFlow address");
         require(_token != address(0), "Invalid TokenUF address");
         
         id = _id;
+        image = _image;
         name = _name;
+        description = _description;
         founder = _founder;
+        cofounders = _cofounders;
         unityFlow = UnityFlow(_unityFlow);
         token = TokenUF(_token);
     }
@@ -113,16 +135,16 @@ contract Company is Ownable {
 
     function createFundraising(
         string memory title,
-        string memory description,
+        string memory _description,
         string memory category,
         uint goalUSD,
         uint deadline,
-        string memory image
+        string memory _image
     ) external onlyFounderOrCofounder {
         require(unityFlow.isCompanyActive(address(this)), "Company is not active");
         fundraisingCount++;
         address newFundraiser = unityFlow.createFundraising(
-            fundraisingCount, title, description, category, goalUSD, deadline, image
+            fundraisingCount, title, _description, category, goalUSD, deadline, _image
         );
         fundraisers.push(newFundraiser);
         emit FundraiserCreated(newFundraiser);
@@ -142,6 +164,10 @@ contract Company is Ownable {
 
     function investETH() external payable {
         require(msg.value > 0, "Investment must be greater than 0");
+
+        if (investorETHBalances[msg.sender] == 0 && investorUFBalances[msg.sender] == 0) {
+            investors.push(msg.sender);
+        }
         
         investorETHBalances[msg.sender] += msg.value;
         totalInvestmentsETH += msg.value;
@@ -154,6 +180,10 @@ contract Company is Ownable {
     function investUF(uint256 amount) external {
         require(amount > 0, "Investment must be greater than 0");
         require(token.balanceOf(msg.sender) >= amount, "Insufficient token balance");
+
+        if (investorETHBalances[msg.sender] == 0 && investorUFBalances[msg.sender] == 0) {
+            investors.push(msg.sender);
+        }
 
         token.transferFrom(msg.sender, address(this), amount);
         require(token.balanceOf(address(this)) >= totalFundsUF + amount, "Transfer failed");
@@ -201,6 +231,39 @@ contract Company is Ownable {
 
         cofounders.push(cofounder);
         emit CofounderAdded(cofounder);
+    }
+
+    function getCompanyInfo() external view returns (
+        uint companyId,
+        string memory companyName,
+        string memory companyImage,
+        string memory companyDescription,
+        address companyFounder,
+        bool isActive
+    ) {
+        return (id, name, image, description, founder, !closed);
+    }
+
+    function getCompanyDetails() external view returns (CompanyDetails memory) {
+        return CompanyDetails({
+            companyId: id,
+            name: name,
+            image: image,
+            description: description,
+            founder: founder,
+            cofounders: cofounders,
+            totalFundsETH: totalFundsETH,
+            totalFundsUF: totalFundsUF,
+            totalInvestmentsETH: totalInvestmentsETH,
+            totalInvestmentsUF: totalInvestmentsUF,
+            fundraisers: fundraisers,
+            investors: investors,
+            isActive: !closed
+        });
+    }
+
+    function getInvestorBalance(address investor) external view returns (uint256 ethBalance, uint256 ufBalance) {
+        return (investorETHBalances[investor], investorUFBalances[investor]);
     }
 
     function _isCofounder(address user) private view returns (bool) {

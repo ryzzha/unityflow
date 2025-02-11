@@ -54,7 +54,7 @@ async function main() {
 
   // Реєструємо компанію
   console.log("Реєструємо компанію...");
-  const tx_create = await unityFlow.registerCompany("UnityFlow");
+  const tx_create = await unityFlow.registerCompany("UnityFlow", "https://picsum.photos/200", ":)", []);
   await tx_create.wait();
   console.log("Компанія зареєстрована!");
 

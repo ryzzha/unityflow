@@ -9,7 +9,7 @@ interface ContractsContextProps {
     provider: ethers.Provider | null;
     browserProvider: ethers.BrowserProvider | null;
     wsProvider: ethers.WebSocketProvider | null;
-    token: TokenUF | null;
+    tokenUF: TokenUF | null;
     unityFlow: UnityFlow | null;
     // crowdfunding: Crowdfunding | null;
     loadingWallet: boolean;
@@ -21,7 +21,7 @@ const ContractsContext = createContext<ContractsContextProps>({
     provider: null,
     browserProvider: null,
     wsProvider: null,
-    token: null,
+    tokenUF: null,
     unityFlow: null,
     // crowdfunding: null,
     loadingWallet: false,
@@ -35,7 +35,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     browserProvider: null as ethers.BrowserProvider | null,
     wsProvider: null as ethers.WebSocketProvider | null,
     unityFlow: null as UnityFlow | null,
-    token: null as TokenUF | null,
+    tokenUF: null as TokenUF | null,
     // dao: null as GovernanceUF | null,
     loadingWallet: false,
     signer: null as ethers.Signer | null,
@@ -66,7 +66,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
           browserProvider: null,
           wsProvider: ws,
           unityFlow,
-          token,
+          tokenUF: token,
           loadingWallet: false,
           signer: null,
         });

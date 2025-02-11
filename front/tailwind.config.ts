@@ -7,6 +7,7 @@ export default {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
     "./entities/**/*.{js,ts,jsx,tsx}",
     "./shared/**/*.{js,ts,jsx,tsx}",
+    "./widgets/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {

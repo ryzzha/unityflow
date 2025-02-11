@@ -23,6 +23,54 @@ import type {
   TypedContractMethod,
 } from "../common";
 
+export declare namespace Company {
+  export type CompanyDetailsStruct = {
+    companyId: BigNumberish;
+    name: string;
+    image: string;
+    description: string;
+    founder: AddressLike;
+    cofounders: AddressLike[];
+    totalFundsETH: BigNumberish;
+    totalFundsUF: BigNumberish;
+    totalInvestmentsETH: BigNumberish;
+    totalInvestmentsUF: BigNumberish;
+    fundraisers: AddressLike[];
+    investors: AddressLike[];
+    isActive: boolean;
+  };
+
+  export type CompanyDetailsStructOutput = [
+    companyId: bigint,
+    name: string,
+    image: string,
+    description: string,
+    founder: string,
+    cofounders: string[],
+    totalFundsETH: bigint,
+    totalFundsUF: bigint,
+    totalInvestmentsETH: bigint,
+    totalInvestmentsUF: bigint,
+    fundraisers: string[],
+    investors: string[],
+    isActive: boolean
+  ] & {
+    companyId: bigint;
+    name: string;
+    image: string;
+    description: string;
+    founder: string;
+    cofounders: string[];
+    totalFundsETH: bigint;
+    totalFundsUF: bigint;
+    totalInvestmentsETH: bigint;
+    totalInvestmentsUF: bigint;
+    fundraisers: string[];
+    investors: string[];
+    isActive: boolean;
+  };
+}
+
 export interface CompanyInterface extends Interface {
   getFunction(
     nameOrSignature:
@@ -30,16 +78,22 @@ export interface CompanyInterface extends Interface {
       | "closeCompany"
       | "cofounders"
       | "createFundraising"
+      | "description"
       | "founder"
       | "fullWithdraw"
       | "fundraisers"
       | "fundraisingCount"
+      | "getCompanyDetails"
       | "getCompanyFundraisers"
+      | "getCompanyInfo"
+      | "getInvestorBalance"
       | "id"
+      | "image"
       | "investETH"
       | "investUF"
       | "investorETHBalances"
       | "investorUFBalances"
+      | "investors"
       | "name"
       | "onFundraiserCompleted"
       | "owner"
@@ -88,6 +142,10 @@ export interface CompanyInterface extends Interface {
     functionFragment: "createFundraising",
     values: [string, string, string, BigNumberish, BigNumberish, string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "description",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "founder", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fullWithdraw",
@@ -102,10 +160,23 @@ export interface CompanyInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "getCompanyDetails",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getCompanyFundraisers",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "getCompanyInfo",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getInvestorBalance",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "id", values?: undefined): string;
+  encodeFunctionData(functionFragment: "image", values?: undefined): string;
   encodeFunctionData(functionFragment: "investETH", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "investUF",
@@ -118,6 +189,10 @@ export interface CompanyInterface extends Interface {
   encodeFunctionData(
     functionFragment: "investorUFBalances",
     values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "investors",
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
@@ -193,6 +268,10 @@ export interface CompanyInterface extends Interface {
     functionFragment: "createFundraising",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "description",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "founder", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fullWithdraw",
@@ -207,10 +286,23 @@ export interface CompanyInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getCompanyDetails",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getCompanyFundraisers",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getCompanyInfo",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getInvestorBalance",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "id", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "investETH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "investUF", data: BytesLike): Result;
   decodeFunctionResult(
@@ -221,6 +313,7 @@ export interface CompanyInterface extends Interface {
     functionFragment: "investorUFBalances",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "investors", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onFundraiserCompleted",
@@ -461,15 +554,17 @@ export interface Company extends BaseContract {
   createFundraising: TypedContractMethod<
     [
       title: string,
-      description: string,
+      _description: string,
       category: string,
       goalUSD: BigNumberish,
       deadline: BigNumberish,
-      image: string
+      _image: string
     ],
     [void],
     "nonpayable"
   >;
+
+  description: TypedContractMethod<[], [string], "view">;
 
   founder: TypedContractMethod<[], [string], "view">;
 
@@ -479,9 +574,38 @@ export interface Company extends BaseContract {
 
   fundraisingCount: TypedContractMethod<[], [bigint], "view">;
 
+  getCompanyDetails: TypedContractMethod<
+    [],
+    [Company.CompanyDetailsStructOutput],
+    "view"
+  >;
+
   getCompanyFundraisers: TypedContractMethod<[], [string[]], "view">;
 
+  getCompanyInfo: TypedContractMethod<
+    [],
+    [
+      [bigint, string, string, string, string, boolean] & {
+        companyId: bigint;
+        companyName: string;
+        companyImage: string;
+        companyDescription: string;
+        companyFounder: string;
+        isActive: boolean;
+      }
+    ],
+    "view"
+  >;
+
+  getInvestorBalance: TypedContractMethod<
+    [investor: AddressLike],
+    [[bigint, bigint] & { ethBalance: bigint; ufBalance: bigint }],
+    "view"
+  >;
+
   id: TypedContractMethod<[], [bigint], "view">;
+
+  image: TypedContractMethod<[], [string], "view">;
 
   investETH: TypedContractMethod<[], [void], "payable">;
 
@@ -498,6 +622,8 @@ export interface Company extends BaseContract {
     [bigint],
     "view"
   >;
+
+  investors: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
   name: TypedContractMethod<[], [string], "view">;
 
@@ -581,15 +707,18 @@ export interface Company extends BaseContract {
   ): TypedContractMethod<
     [
       title: string,
-      description: string,
+      _description: string,
       category: string,
       goalUSD: BigNumberish,
       deadline: BigNumberish,
-      image: string
+      _image: string
     ],
     [void],
     "nonpayable"
   >;
+  getFunction(
+    nameOrSignature: "description"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "founder"
   ): TypedContractMethod<[], [string], "view">;
@@ -603,9 +732,38 @@ export interface Company extends BaseContract {
     nameOrSignature: "fundraisingCount"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getCompanyDetails"
+  ): TypedContractMethod<[], [Company.CompanyDetailsStructOutput], "view">;
+  getFunction(
     nameOrSignature: "getCompanyFundraisers"
   ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "getCompanyInfo"
+  ): TypedContractMethod<
+    [],
+    [
+      [bigint, string, string, string, string, boolean] & {
+        companyId: bigint;
+        companyName: string;
+        companyImage: string;
+        companyDescription: string;
+        companyFounder: string;
+        isActive: boolean;
+      }
+    ],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getInvestorBalance"
+  ): TypedContractMethod<
+    [investor: AddressLike],
+    [[bigint, bigint] & { ethBalance: bigint; ufBalance: bigint }],
+    "view"
+  >;
   getFunction(nameOrSignature: "id"): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "image"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "investETH"
   ): TypedContractMethod<[], [void], "payable">;
@@ -618,6 +776,9 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "investorUFBalances"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "investors"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;

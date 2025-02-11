@@ -12,8 +12,8 @@ import { categories } from '@/shared/constants';
 interface IProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
-  category: string;
-  setCategory: (value: string) => void;
+  // category: string;
+  // setCategory: (value: string) => void;
 }
 
 export default function Search({ searchQuery, setSearchQuery, category, setCategory }: IProps) {
@@ -23,7 +23,7 @@ export default function Search({ searchQuery, setSearchQuery, category, setCateg
   };
 
   return (
-    <div className="w-full max-w-sm flex gap-1">
+    <div className="w-full max-w-sm flex gap-1 m-1">
       <div className="flex items-center gap-2 px-5 py-[3px] bg-white rounded-full 
                       shadow-md border border-gray-300 
                       focus-within:ring-2 focus-within:ring-green-400 

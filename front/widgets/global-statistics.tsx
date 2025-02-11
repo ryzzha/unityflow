@@ -26,7 +26,7 @@ interface GlobalStatsProps {
       (parseFloat(stats.platformBalanceUF ?? "0") * ufToUsd);
   
     return (
-      <div className="mt-6 p-6 bg-gray-50 shadow-md rounded-2xl w-full mx-auto">
+      <div className="mt-6 p-6 bg-gradient-to-r from-gray-50/85 to-gray-100/55 shadow-md rounded-2xl w-full mx-auto">
         <h2 className="text-xl font-semibold text-center mb-5 text-gray-700">📊 Platform Statistics</h2>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">

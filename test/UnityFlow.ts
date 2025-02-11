@@ -1,3 +1,4 @@
+import { AddressLike } from "ethers";
 import { TokenUF, UnityFlow, Company, ProposalManager__factory } from "../front/typechain";
 import { time, ethers, expect, HardhatEthersSigner } from "./setup";
 
@@ -42,7 +43,10 @@ describe("UnityFlow", function () {
     );
     await unityFlow.waitForDeployment();
 
-    const tx_create = await unityFlow.connect(owner).registerCompany("UnityFlow");
+    const image = "test-url";
+    const description = "Decentralized tech company";
+    const cofounders: AddressLike[] = [];
+    const tx_create = await unityFlow.connect(owner).registerCompany("UnityFlow", image, description, cofounders);
     await tx_create.wait();
     company = await ethers.getContractAt("Company", await unityFlow.companies(1));
 
@@ -65,7 +69,10 @@ describe("UnityFlow", function () {
   });
 
   it("can create company user with enougth tokens UF and correct data", async function () {
-    await expect(unityFlow.connect(poorUser).registerCompany("atb")).to.be.revertedWith("Insufficient token balance to create a company");
+    const image = "test-url";
+    const description = "Decentralized tech company";
+    const cofounders: AddressLike[] = [cofounder.address];
+    await expect(unityFlow.connect(poorUser).registerCompany("atb", image, description, cofounders)).to.be.revertedWith("Insufficient token balance to create a company");
 
     const amount = ethers.parseUnits("100", 18);
     const tx_transfer = await token.connect(owner).transfer(founder.address, amount);
@@ -73,7 +80,7 @@ describe("UnityFlow", function () {
 
     await expect(tx_transfer).to.changeTokenBalances(token, [owner, founder], [-amount, amount]);
 
-    const tx_create = await unityFlow.connect(founder).registerCompany("atb");
+    const tx_create = await unityFlow.connect(founder).registerCompany("atb", image, description, cofounders);
     await tx_create.wait(); 
 
     // const filter = unityFlow.filters.CompanyRegistered();
@@ -155,7 +162,10 @@ describe("UnityFlow", function () {
       company.connect(owner).createFundraising("test fund", "description:)", "startup", 1000001, deadline_correct, "image.png")
     ).to.be.revertedWith("Goal out of range");
 
-    const tx_create = await unityFlow.connect(founder).registerCompany("atb");
+    const image = "test-url";
+    const description = "Decentralized tech company";
+    const cofounders: AddressLike[] = [cofounder.address];
+    const tx_create = await unityFlow.connect(founder).registerCompany("atb", image, description, cofounders);
     await tx_create.wait(); 
 
     const companyAddress = await unityFlow.companies(2);

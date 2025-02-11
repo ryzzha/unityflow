@@ -36,8 +36,7 @@ export interface UnityFlowInterface extends Interface {
       | "executeProposal"
       | "fundraisingManager"
       | "getActiveCompanies"
-      | "getAllCompanies(bool)"
-      | "getAllCompanies()"
+      | "getAllCompanies"
       | "getPlatformStats"
       | "getTotalDonations"
       | "getTotalInvestments"
@@ -115,12 +114,8 @@ export interface UnityFlowInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "getAllCompanies(bool)",
+    functionFragment: "getAllCompanies",
     values: [boolean]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getAllCompanies()",
-    values?: undefined
   ): string;
   encodeFunctionData(
     functionFragment: "getPlatformStats",
@@ -164,7 +159,7 @@ export interface UnityFlowInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "registerCompany",
-    values: [string]
+    values: [string, string, string, AddressLike[]]
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
@@ -230,11 +225,7 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "getAllCompanies(bool)",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getAllCompanies()",
+    functionFragment: "getAllCompanies",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -482,13 +473,11 @@ export interface UnityFlow extends BaseContract {
 
   getActiveCompanies: TypedContractMethod<[], [bigint], "view">;
 
-  "getAllCompanies(bool)": TypedContractMethod<
+  getAllCompanies: TypedContractMethod<
     [onlyActive: boolean],
     [string[]],
     "view"
   >;
-
-  "getAllCompanies()": TypedContractMethod<[], [string[]], "view">;
 
   getPlatformStats: TypedContractMethod<
     [],
@@ -552,7 +541,16 @@ export interface UnityFlow extends BaseContract {
     "nonpayable"
   >;
 
-  registerCompany: TypedContractMethod<[name: string], [void], "nonpayable">;
+  registerCompany: TypedContractMethod<
+    [
+      name: string,
+      image: string,
+      description: string,
+      cofounders: AddressLike[]
+    ],
+    [void],
+    "nonpayable"
+  >;
 
   token: TypedContractMethod<[], [string], "view">;
 
@@ -657,11 +655,8 @@ export interface UnityFlow extends BaseContract {
     nameOrSignature: "getActiveCompanies"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
-    nameOrSignature: "getAllCompanies(bool)"
+    nameOrSignature: "getAllCompanies"
   ): TypedContractMethod<[onlyActive: boolean], [string[]], "view">;
-  getFunction(
-    nameOrSignature: "getAllCompanies()"
-  ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
     nameOrSignature: "getPlatformStats"
   ): TypedContractMethod<
@@ -728,7 +723,16 @@ export interface UnityFlow extends BaseContract {
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "registerCompany"
-  ): TypedContractMethod<[name: string], [void], "nonpayable">;
+  ): TypedContractMethod<
+    [
+      name: string,
+      image: string,
+      description: string,
+      cofounders: AddressLike[]
+    ],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "token"
   ): TypedContractMethod<[], [string], "view">;
