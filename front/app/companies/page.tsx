@@ -14,12 +14,15 @@ interface ICompany {
   name: string;
   image: string;
   description: string;
+  category: string;
   founder: string;
+  isActive: boolean;
 }
 
 export default function Companies() {
   const { provider, unityFlow } = useContractsContext();
   const [searchQuery, setSearchQuery] = useState("");
+  const [category, setCategory] = useState("All");
   const [isLoading, setIsLoading] = useState(false);
   const [companies, setCompanies] = useState<ICompany[]>([]);
   const [onlyActive, setOnlyActive] = useState<boolean>(false);
@@ -37,13 +40,14 @@ export default function Companies() {
       const companyData: ICompany[] = await Promise.all(
         activeCompanies.map(async (companyAddress: string) => {
           const companyContract = Company__factory.connect(companyAddress, provider);
-          const [id, name, image, description, founder, isActive] = await companyContract.getCompanyInfo();
+          const [id, name, image, description, category, founder, isActive] = await companyContract.getCompanyInfo();
 
           return {
             id,
             name,
             image,
             description,
+            category,
             founder,
             isActive,
           };
@@ -64,10 +68,14 @@ export default function Companies() {
   const filteredCompanies = companies.filter((company) => {
     const name = company.name?.toLowerCase() || "";
     const description = company.description?.toLowerCase() || "";
-    return (
+
+    const matchesSearch =
       name.includes(searchQuery.toLowerCase()) ||
-      description.includes(searchQuery.toLowerCase())
-    );
+      description.includes(searchQuery.toLowerCase());
+
+    const matchesCategory = category === "All" || company.category === category;
+
+    return matchesSearch && matchesCategory;
   });
 
   return (
@@ -76,6 +84,8 @@ export default function Companies() {
         <Search
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
+          category={category}
+          setCategory={(value) => setCategory(value)}
         />
         <CustomButton onClick={() => router.push("create")} variant="primary">
           Create Company
@@ -103,7 +113,7 @@ export default function Companies() {
 
         {isLoading && <span>Loading...</span>}
 
-        <div className="w-full grid grid-cols-4 gap-3">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filteredCompanies.map((company) => (
             <CompanyCard key={company.id} company={company} />
           ))}

@@ -3,6 +3,7 @@
 /* eslint-disable */
 export * as mockAgregatorSol from "./MockAgregator.sol";
 export { Company__factory } from "./Company__factory";
+export { CompanyManager__factory } from "./CompanyManager__factory";
 export { Fundraising__factory } from "./Fundraising__factory";
 export { FundraisingManager__factory } from "./FundraisingManager__factory";
 export { ProposalManager__factory } from "./ProposalManager__factory";

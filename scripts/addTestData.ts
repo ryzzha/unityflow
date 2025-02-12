@@ -41,17 +41,21 @@ async function main() {
 
   console.log("🔹 Починаємо створення компаній...");
 
+  const companyManager = await ethers.getContractAt("CompanyManager", UnityFlow.companyManager.toString());
+
+  const category = ["Tech","Web3","FinTech","Security","Marketing","Gaming","SaaS","E-commerce"];
+
   // 🔸 12️⃣ Реєструємо компанії
   for (const name of companyNames) {
     console.log(`Реєстрація компанії: ${name}...`);
     const image = "https://picsum.photos/200";
     const description = `A decentralized company ${name}`;
     const cofounders: Addressable[] = [];
-    const tx = await UnityFlow.connect(founder).registerCompany(name, image, description, cofounders);
+    const tx = await UnityFlow.connect(founder).registerCompany(name, image, description, category[getRandomInt(0, category.length)], cofounders);
     await tx.wait();
 
-    const companyIndex = await UnityFlow.companyCount();
-    const companyAddress = await UnityFlow.companies(companyIndex);
+    const companyIndex = await companyManager.companyCount();
+    const companyAddress = await companyManager.companies(companyIndex);
     const companyContract = await ethers.getContractAt("Company", companyAddress);
 
     companyContracts.push(companyContract);
@@ -89,3 +93,9 @@ main().catch((error) => {
   console.error("❌ Помилка під час деплою тестових даних:", error);
   process.exitCode = 1;
 });
+
+function getRandomInt(min: number, max: number) {
+  min = Math.ceil(min);  // Округлюємо вгору, щоб уникнути дробових значень
+  max = Math.floor(max); // Округлюємо вниз, щоб залишитися в межах діапазону
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}

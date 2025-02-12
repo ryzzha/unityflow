@@ -44,6 +44,8 @@ export type { Strings } from "./@openzeppelin/contracts/utils/Strings";
 export { Strings__factory } from "./factories/@openzeppelin/contracts/utils/Strings__factory";
 export type { Company } from "./contracts/Company";
 export { Company__factory } from "./factories/contracts/Company__factory";
+export type { CompanyManager } from "./contracts/CompanyManager";
+export { CompanyManager__factory } from "./factories/contracts/CompanyManager__factory";
 export type { Fundraising } from "./contracts/Fundraising";
 export { Fundraising__factory } from "./factories/contracts/Fundraising__factory";
 export type { FundraisingManager } from "./contracts/FundraisingManager";

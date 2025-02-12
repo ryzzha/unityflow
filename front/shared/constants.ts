@@ -1,4 +1,4 @@
-import { IconKey } from "./types";
+import { IconKey, TCompanyCategory, TFundraisingCategory } from "./types";
 
 const menuItems: { name: string; link: string; icon: IconKey }[] = [
     { name: "Overview", link: "/", icon: "statistics" },
@@ -10,17 +10,27 @@ const menuItems: { name: string; link: string; icon: IconKey }[] = [
     { name: "Account", link: "/profile", icon: "account" },
 ];
 
-const categories = [
-    "All",
-    "Startups",
-    "Art",
-    "Fun",
-    "Education",
-    "Health",
-    "Environment",
-    "Social",
-    "Animals",
-    "Personal",
-  ];
+ const COMPANY_CATEGORIES: TCompanyCategory[] = [
+  "Tech",
+  "Web3",
+  "FinTech",
+  "Security",
+  "Marketing",
+  "Gaming",
+  "SaaS",
+  "E-commerce",
+];
 
-export { menuItems, categories };
+ const FUNDRAISING_CATEGORIES: TFundraisingCategory[] = [
+  "Product",
+  "R&D",
+  "Marketing",
+  "Partnerships",
+  "Hiring",
+  "Infrastructure",
+  "Expansion",
+  "Community",
+];
+
+
+export { menuItems, COMPANY_CATEGORIES, FUNDRAISING_CATEGORIES };

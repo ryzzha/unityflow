@@ -5,12 +5,15 @@ import ethers, {formatUnits} from "ethers"
 import CustomButton from "@/components/custom-button";
 import { useContractsContext } from "@/context/contracts-context";
 import { useRouter } from "next/navigation";
+import { TCompanyCategory } from "@/shared/types";
+import { COMPANY_CATEGORIES } from "@/shared/constants";
 
 export default function CreateCompanyForm() {
   const { signer, unityFlow, tokenUF } = useContractsContext();
   const [name, setName] = useState("");
   const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<TCompanyCategory>("Tech");
   const [cofounders, setCofounders] = useState<string[]>([]);
   const [cofounderInput, setCofounderInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -64,13 +67,14 @@ export default function CreateCompanyForm() {
     setIsLoading(true);
     try {
       const tx = await unityFlow.connect(signer).registerCompany(
-        name, image, description, cofounders
+        name, image, description, category, cofounders
       );
       await tx.wait();
       alert("Company registered successfully!");
       setName("");
       setImage("");
       setDescription("");
+      setCategory("Tech");
       setCofounders([]);
     } catch (error) {
       console.error("❌ Error registering company:", error);
@@ -81,12 +85,12 @@ export default function CreateCompanyForm() {
 
   return (
     <div className="w-full flex flex-col justify-center items-center gap-3">
-    <div className="p-3 bg-gray-100 rounded-full text-center shadow-md">
+      <div className="px-5 py-3 bg-gray-100 rounded-full text-center shadow-md">
         <h3 className="text-base font-semibold">ℹ️ How It Works</h3>
         <p className="text-gray-700 text-sm mt-1">
           Creating a company on **UnityFlow** allows you to launch fundraising campaigns, attract investors, and participate in the governance of the platform.
         </p>
-        <p className="text-gray-700 text-sm mt-2">
+        <p className="text-gray-700 text-sm mt-1">
           **Requirements:** To register a company, you must hold at least **{requiredTokens} UF tokens**.
         </p>
         <p className={`mt-1 font-bold text-sm ${balance ? parseFloat(balance) : 0 >= requiredTokens ? "text-green-600" : "text-red-600"}`}>
@@ -94,7 +98,7 @@ export default function CreateCompanyForm() {
         </p>
       </div>
 
-      <div className="w-40 h-40 rounded-full flex items-center justify-center bg-gray-200">
+      <div className="w-36 h-36 rounded-full flex items-center justify-center bg-gray-200">
         {image ? (
           <img src={image} alt="Company logo" className="w-40 h-40 rounded-full object-cover" />
         ) : (
@@ -124,6 +128,20 @@ export default function CreateCompanyForm() {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
+
+      <div className="flex gap-2 flex-wrap justify-center">
+        {COMPANY_CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            className={`px-2 py-1 border rounded-full transition-all text-sm ${
+              category === cat ? "bg-green-300 text-white" : "bg-gray-200 text-black"
+            }`}
+            onClick={() => setCategory(cat)}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
       <div className="w-full">
         <h4 className="ml-2 text-md font-medium">Cofounders</h4>

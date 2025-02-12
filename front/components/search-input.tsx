@@ -7,13 +7,13 @@ import {
   ListboxOptions,
   Transition,
 } from "@headlessui/react";
-import { categories } from '@/shared/constants';
+import { COMPANY_CATEGORIES } from '@/shared/constants';
 
 interface IProps {
   searchQuery: string;
   setSearchQuery: (value: string) => void;
-  // category: string;
-  // setCategory: (value: string) => void;
+  category: string;
+  setCategory: (value: string) => void;
 }
 
 export default function Search({ searchQuery, setSearchQuery, category, setCategory }: IProps) {
@@ -23,7 +23,7 @@ export default function Search({ searchQuery, setSearchQuery, category, setCateg
   };
 
   return (
-    <div className="w-full max-w-sm flex gap-1 m-1">
+    <div className="w-full max-w-md flex gap-1 m-1">
       <div className="flex items-center gap-2 px-5 py-[3px] bg-white rounded-full 
                       shadow-md border border-gray-300 
                       focus-within:ring-2 focus-within:ring-green-400 
@@ -49,7 +49,7 @@ export default function Search({ searchQuery, setSearchQuery, category, setCateg
         </button>
       </div>
 
-         <div className="relative w-auto">
+      <div className="relative w-auto">
          <Listbox value={category} onChange={setCategory}>
           <ListboxButton
             className="w-full px-3 py-3 text-sm bg-white border border-gray-300 
@@ -72,11 +72,11 @@ export default function Search({ searchQuery, setSearchQuery, category, setCateg
               className="absolute top-0 -right-350 flex left-auto z-10 px-3 py-2 w-auto 
                          bg-white border border-gray-300 rounded-full shadow-lg"
             >
-              {categories.map((item) => (
+              {["All", ...COMPANY_CATEGORIES].map((item) => (
                 <ListboxOption
                   key={item}
                   value={item}
-                  className={`${item == category && "bg-green-300"} z-30 cursor-pointer select-none rounded-full px-2 py-1 text-sm text-center hover:bg-gray-100 focus:bg-gray-200`}
+                  className={`${item == category && "bg-green-300"} z-30 cursor-pointer select-none rounded-full px-2 py-1 text-sm text-center whitespace-nowrap break-keep hover:bg-gray-100 focus:bg-gray-200`}
                 >
                   {item}
                 </ListboxOption>

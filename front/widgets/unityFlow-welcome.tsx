@@ -2,7 +2,7 @@
 
 export const UnityFlowWelcome = () => {
     return (
-      <div className="relative bg-gradient-to-r from-green-300/85 to-green-500/65 text-white text-center py-8 px-5 rounded-3xl shadow-lg w-full max-w-5xl mx-auto">
+      <div className="relative bg-gradient-to-r from-gray-200/85 to-gray-300/95 text-white text-center py-8 px-5 rounded-3xl shadow-lg w-full max-w-5xl mx-auto">
         
         {/* Додаємо фон для кращого контрасту */}
         <div className="absolute inset-0 bg-black bg-opacity-5 rounded-3xl"></div>

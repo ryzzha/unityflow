@@ -1,3 +1,5 @@
+import ArrowRightCircle from "@/components/icons/arrow-right-circle";
+
 export const ActionsOverview = () => {
     return (
       <div className="mt-6 p-6 bg-gradient-to-r from-gray-50/85 to-gray-100/55 rounded-2xl shadow-md w-full text-center">
@@ -59,12 +61,15 @@ export const ActionsOverview = () => {
 
   const ActionCard = ({ title, description, bgColor, hoverColor, emoji }: ActionCardProps) => {
     return (
-      <button
-        className={`flex flex-col items-center px-5 py-3 rounded-xl shadow-sm ${bgColor} text-gray-800 transition-transform duration-200 ${hoverColor} hover:scale-[1.02]`}
-      >
-        <span className="text-3xl">{emoji}</span>
-        <h3 className="text-base font-semibold mt-2">{title}</h3>
-        <p className="text-sm text-gray-700 text-opacity-80 mt-1">{description}</p>
-      </button>
+      <div className={`flex items-center z-50 px-5 py-3 rounded-xl shadow-sm ${bgColor} text-gray-800 transition-transform duration-200 ${hoverColor} hover:scale-[1.02]`}>
+        <button
+        className={`flex flex-col items-center`}
+        >
+          <span className="text-3xl">{emoji}</span>
+          <h3 className="text-base font-semibold mt-2">{title}</h3>
+          <p className="text-sm text-gray-700 text-opacity-80 mt-1">{description}</p>
+        </button>
+        <ArrowRightCircle />
+      </div>
     );
   };

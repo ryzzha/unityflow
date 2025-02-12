@@ -2,15 +2,17 @@
 pragma solidity ^0.8.20;
 
 import "./TokenUF.sol";
-import "./Staking.sol";
+// import "./Staking.sol";
 import "./Company.sol";
-import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+// import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "./MockAgregator.sol";
+import "./CompanyManager.sol";
 import "./FundraisingManager.sol";
 import "./ProposalManager.sol";
 
 contract UnityFlow {
     TokenUF public token; 
+    CompanyManager public companyManager;
     FundraisingManager public fundraisingManager;
     ProposalManager public proposalManager;
     // AggregatorV3Interface public ethPriceFeed;
@@ -18,22 +20,16 @@ contract UnityFlow {
 
     MockPriceFeed public ethPriceFeed;
     MockPriceFeed public tokenPriceFeed;
-
-    uint256 public companyCount;
-    mapping(uint256 => address) public companies;
-    mapping(address => bool) public isCompanyActive;
     
     uint256 public platformFeePercent = 5;
     uint256 public minTokenBalance = 100 * 10**18;
-
-    event CompanyRegistered(uint256 id, address contractAddress, address founder);
-    event CompanyClosed(uint256 id, address contractAddress, address founder);
 
     event TotalFundsUpdated(uint256 newTotalFunds, string currency, string kind);
     event PlatformFeeReceived(uint256 amount, string currency);
 
     constructor(address tokenAddress, address fundraisingManagerAddress, address proposalManagerAddress, address _ethPriceFeed, address _tokenPriceFeed) {
         token = TokenUF(tokenAddress);
+        companyManager = new CompanyManager(address(token));
         fundraisingManager = FundraisingManager(fundraisingManagerAddress);
         proposalManager = ProposalManager(proposalManagerAddress);
 
@@ -73,30 +69,28 @@ contract UnityFlow {
         token.transfer(to, _amount);
     }
 
-    function registerCompany(string memory name, string memory image, string memory description, address[] memory cofounders) external hasMinimumTokens(msg.sender) {
-        require(bytes(name).length > 0, "Company name cannot be empty");
-        require(bytes(image).length > 0, "Company image cannot be empty");
-        require(bytes(description).length > 0, "Company description cannot be empty");
-
-        companyCount++;
-        Company newCompany = new Company(companyCount, name, image, description, msg.sender, cofounders, address(this), address(token));
-
-        companies[companyCount] = address(newCompany);
-        isCompanyActive[address(newCompany)] = true;
-
-        emit CompanyRegistered(companyCount, address(newCompany), msg.sender);
+    function registerCompany(string memory name, string memory image, string memory description, string memory category, address[] memory cofounders) external hasMinimumTokens(msg.sender) {
+        companyManager.registerCompany(name, image, description, category, cofounders, msg.sender);
     }
 
     function closeCompany(uint256 companyId) external {
-        address payable companyAddress = payable(companies[companyId]);
+        companyManager.closeCompany(companyId, msg.sender);
+    }
 
-        require(companyAddress != address(0), "Company does not exist");
-        require(isCompanyActive[companyAddress], "Company is already closed");
-        require(msg.sender == companyAddress || msg.sender == Company(companyAddress).founder(), "Not authorized");
+    function addCompanyToUser(address user, address company) external {
+        companyManager.addCompanyToUser(user, company);
+    }
 
-        isCompanyActive[companyAddress] = false;
+    function removeCompanyFromUser(address user, address company) external {
+        companyManager.removeCompanyFromUser(user, company);
+    }
 
-        emit CompanyClosed(companyId, companyAddress, msg.sender);
+    function getCompanyAddress(uint companyId) external view returns(address) {
+        return companyManager.getCompanyAddress(companyId);
+    }
+
+    function isActiveCompany(address company) external view returns(bool) {
+        return companyManager.isActiveCompany(company);
     }
 
     function createFundraising(
@@ -108,7 +102,7 @@ contract UnityFlow {
         uint deadline,
         string memory image
     ) external returns(address) {
-        require(isCompanyActive[msg.sender], "Only active companies can create fundraisers");
+        require(companyManager.isActiveCompany(msg.sender), "Only active companies can create fundraisers");
         return fundraisingManager.createFundraising(address(this), id, msg.sender, title, description, category, goalUSD, deadline, image, platformFeePercent);
     }
 
@@ -142,33 +136,34 @@ contract UnityFlow {
         uint256 platformBalanceETH,
         uint256 platformBalanceUF
     ) {
-        activeCompanies = getActiveCompanies();
-        closedCompanies = companyCount > activeCompanies ? (companyCount - activeCompanies) : 0;
-        proposalCount = proposalManager.getProposalHashes().length;
-        totalVotes = proposalManager.getTotalVotes();
+        uint256 totalCompanies = companyManager.companyCount(); 
+        uint256 activeCompanies_ = getActiveCompanies(); 
 
         return (
-            companyCount,                              
+            totalCompanies,                            
             getTotalDonations("ETH"),  
             getTotalDonations("UF"),   
             getTotalInvestments("ETH"), 
             getTotalInvestments("UF"),  
-            activeCompanies,                           
-            closedCompanies,                    
-            proposalCount,                          
-            totalVotes,                                 
+            activeCompanies_,                           
+            totalCompanies > activeCompanies_ ? (totalCompanies - activeCompanies_) : 0, 
+            proposalManager.getProposalHashes().length,   
+            proposalManager.getTotalVotes(),               
             address(this).balance,                      
-            token.balanceOf(address(this))          
+            token.balanceOf(address(this))              
         );
     }
 
     function getAllCompanies(bool onlyActive) external view returns (address[] memory) {
-        address[] memory companyList = new address[](companyCount);
+        uint256 totalCompanies = companyManager.companyCount(); 
+        address[] memory companyList = new address[](totalCompanies);
         uint256 index = 0;
 
-        for (uint256 i = 1; i <= companyCount; i++) {
-            if (!onlyActive || isCompanyActive[companies[i]]) {
-                companyList[index] = companies[i];
+        for (uint256 i = 0; i < totalCompanies; i++) { 
+            address companyAddress = companyManager.companies(i); 
+
+            if (!onlyActive || companyManager.isActiveCompany(companyAddress)) {
+                companyList[index] = companyAddress;
                 index++;
             }
         }
@@ -194,11 +189,16 @@ contract UnityFlow {
     }
 
     function getActiveCompanies() public view returns (uint256 activeCount) {
-        for (uint256 i = 1; i <= companyCount; i++) {
-            if (isCompanyActive[companies[i]]) {
+        uint256 totalCompanies = companyManager.companyCount(); // Отримуємо загальну кількість компаній
+
+        for (uint256 i = 0; i < totalCompanies; i++) { // Починаємо з 0
+            address companyAddress = companyManager.companies(i); // Отримуємо адресу компанії
+
+            if (companyAddress != address(0) && companyManager.isCompanyActive(companyAddress)) { 
                 activeCount++;
             }
         }
+
         return activeCount;
     }
 

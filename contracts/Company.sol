@@ -13,6 +13,7 @@ contract Company is Ownable {
     string public image;
     string public name;
     string public description;
+    string public category;
 
     address public founder;
     address[] public cofounders;
@@ -37,6 +38,7 @@ contract Company is Ownable {
         string name;
         string image;
         string description;
+        string category;
         address founder;
         address[] cofounders;
         uint256 totalFundsETH;
@@ -49,6 +51,7 @@ contract Company is Ownable {
     }
 
     event CofounderAdded(address cofounder);
+    event CofounderRemoved(address cofounder);
 
     event InvestmentReceived(address investor, uint256 amount, string asset);
     event InvestmentWithdrawn(address investor, uint256 amount, string asset);
@@ -64,7 +67,7 @@ contract Company is Ownable {
         _;
     }
 
-    constructor(uint _id, string memory _name, string memory _image, string memory _description,  address _founder, address[] memory _cofounders, address _unityFlow, address _token) Ownable(_founder) {
+    constructor(uint _id, string memory _name, string memory _image, string memory _description, string memory _category, address _founder, address[] memory _cofounders, address _unityFlow, address _token) Ownable(_founder) {
         require(_founder != address(0), "Invalid founder address");
         require(_unityFlow != address(0), "Invalid UnityFlow address");
         require(_token != address(0), "Invalid TokenUF address");
@@ -73,6 +76,7 @@ contract Company is Ownable {
         image = _image;
         name = _name;
         description = _description;
+        category = _category;
         founder = _founder;
         cofounders = _cofounders;
         unityFlow = UnityFlow(_unityFlow);
@@ -136,15 +140,14 @@ contract Company is Ownable {
     function createFundraising(
         string memory title,
         string memory _description,
-        string memory category,
+        string memory _category,
         uint goalUSD,
         uint deadline,
         string memory _image
     ) external onlyFounderOrCofounder {
-        require(unityFlow.isCompanyActive(address(this)), "Company is not active");
         fundraisingCount++;
         address newFundraiser = unityFlow.createFundraising(
-            fundraisingCount, title, _description, category, goalUSD, deadline, _image
+            fundraisingCount, title, _description, _category, goalUSD, deadline, _image
         );
         fundraisers.push(newFundraiser);
         emit FundraiserCreated(newFundraiser);
@@ -229,8 +232,30 @@ contract Company is Ownable {
         require(cofounder != address(0), "Invalid cofounder address");
         require(!_isCofounder(cofounder), "Already a cofounder");
 
+        unityFlow.addCompanyToUser(cofounder, address(this));
+
         cofounders.push(cofounder);
         emit CofounderAdded(cofounder);
+    }
+
+    function removeCofounder(address cofounder) external onlyOwner {
+        require(_isCofounder(cofounder), "Not a cofounder");
+
+        uint length = cofounders.length;
+        for (uint i = 0; i < length; i++) {
+            if (cofounders[i] == cofounder) {
+                cofounders[i] = cofounders[length - 1];
+                cofounders.pop();
+                break;
+            }
+        }
+
+        unityFlow.removeCompanyFromUser(cofounder, address(this));
+        emit CofounderRemoved(cofounder);
+    }
+
+    function getCofounders() external view returns (address[] memory) {
+        return cofounders;
     }
 
     function getCompanyInfo() external view returns (
@@ -238,10 +263,11 @@ contract Company is Ownable {
         string memory companyName,
         string memory companyImage,
         string memory companyDescription,
+        string memory companyCategory,
         address companyFounder,
         bool isActive
     ) {
-        return (id, name, image, description, founder, !closed);
+        return (id, name, image, description, category, founder, !closed);
     }
 
     function getCompanyDetails() external view returns (CompanyDetails memory) {
@@ -250,6 +276,7 @@ contract Company is Ownable {
             name: name,
             image: image,
             description: description,
+            category: category,
             founder: founder,
             cofounders: cofounders,
             totalFundsETH: totalFundsETH,

@@ -21,7 +21,7 @@ export default function CreateCampaign() {
   const [activeTab, setActiveTab] = useState("company");
 
   return (
-    <div className="w-full h-screen flex flex-col gap-3 py-5 items-center">
+    <div className="w-full h-screen flex flex-col gap-2 py-3 items-center">
       <h2 className="text-2xl font-bold">Create New Entity</h2>
 
       <div className="flex space-x-3 border-b pb-1 transition-all duration-300">

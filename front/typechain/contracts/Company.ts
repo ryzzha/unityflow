@@ -29,6 +29,7 @@ export declare namespace Company {
     name: string;
     image: string;
     description: string;
+    category: string;
     founder: AddressLike;
     cofounders: AddressLike[];
     totalFundsETH: BigNumberish;
@@ -45,6 +46,7 @@ export declare namespace Company {
     name: string,
     image: string,
     description: string,
+    category: string,
     founder: string,
     cofounders: string[],
     totalFundsETH: bigint,
@@ -59,6 +61,7 @@ export declare namespace Company {
     name: string;
     image: string;
     description: string;
+    category: string;
     founder: string;
     cofounders: string[];
     totalFundsETH: bigint;
@@ -75,6 +78,7 @@ export interface CompanyInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "addCofounder"
+      | "category"
       | "closeCompany"
       | "cofounders"
       | "createFundraising"
@@ -83,6 +87,7 @@ export interface CompanyInterface extends Interface {
       | "fullWithdraw"
       | "fundraisers"
       | "fundraisingCount"
+      | "getCofounders"
       | "getCompanyDetails"
       | "getCompanyFundraisers"
       | "getCompanyInfo"
@@ -99,6 +104,7 @@ export interface CompanyInterface extends Interface {
       | "owner"
       | "receiveETH"
       | "receiveUF"
+      | "removeCofounder"
       | "renounceOwnership"
       | "token"
       | "totalFundsETH"
@@ -117,6 +123,7 @@ export interface CompanyInterface extends Interface {
   getEvent(
     nameOrSignatureOrTopic:
       | "CofounderAdded"
+      | "CofounderRemoved"
       | "FundraiserCompleted"
       | "FundraiserCreated"
       | "FundsReceived"
@@ -130,6 +137,7 @@ export interface CompanyInterface extends Interface {
     functionFragment: "addCofounder",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(functionFragment: "category", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "closeCompany",
     values?: undefined
@@ -157,6 +165,10 @@ export interface CompanyInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "fundraisingCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getCofounders",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -209,6 +221,10 @@ export interface CompanyInterface extends Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
+    functionFragment: "removeCofounder",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
   ): string;
@@ -259,6 +275,7 @@ export interface CompanyInterface extends Interface {
     functionFragment: "addCofounder",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "category", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "closeCompany",
     data: BytesLike
@@ -283,6 +300,10 @@ export interface CompanyInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "fundraisingCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getCofounders",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -322,6 +343,10 @@ export interface CompanyInterface extends Interface {
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "receiveETH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "receiveUF", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "removeCofounder",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
@@ -368,6 +393,18 @@ export interface CompanyInterface extends Interface {
 }
 
 export namespace CofounderAddedEvent {
+  export type InputTuple = [cofounder: AddressLike];
+  export type OutputTuple = [cofounder: string];
+  export interface OutputObject {
+    cofounder: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace CofounderRemovedEvent {
   export type InputTuple = [cofounder: AddressLike];
   export type OutputTuple = [cofounder: string];
   export interface OutputObject {
@@ -547,6 +584,8 @@ export interface Company extends BaseContract {
     "nonpayable"
   >;
 
+  category: TypedContractMethod<[], [string], "view">;
+
   closeCompany: TypedContractMethod<[], [void], "nonpayable">;
 
   cofounders: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
@@ -555,7 +594,7 @@ export interface Company extends BaseContract {
     [
       title: string,
       _description: string,
-      category: string,
+      _category: string,
       goalUSD: BigNumberish,
       deadline: BigNumberish,
       _image: string
@@ -574,6 +613,8 @@ export interface Company extends BaseContract {
 
   fundraisingCount: TypedContractMethod<[], [bigint], "view">;
 
+  getCofounders: TypedContractMethod<[], [string[]], "view">;
+
   getCompanyDetails: TypedContractMethod<
     [],
     [Company.CompanyDetailsStructOutput],
@@ -585,11 +626,12 @@ export interface Company extends BaseContract {
   getCompanyInfo: TypedContractMethod<
     [],
     [
-      [bigint, string, string, string, string, boolean] & {
+      [bigint, string, string, string, string, string, boolean] & {
         companyId: bigint;
         companyName: string;
         companyImage: string;
         companyDescription: string;
+        companyCategory: string;
         companyFounder: string;
         isActive: boolean;
       }
@@ -638,6 +680,12 @@ export interface Company extends BaseContract {
   receiveETH: TypedContractMethod<[], [void], "payable">;
 
   receiveUF: TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+
+  removeCofounder: TypedContractMethod<
+    [cofounder: AddressLike],
+    [void],
+    "nonpayable"
+  >;
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
@@ -697,6 +745,9 @@ export interface Company extends BaseContract {
     nameOrSignature: "addCofounder"
   ): TypedContractMethod<[cofounder: AddressLike], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "category"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
     nameOrSignature: "closeCompany"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
@@ -708,7 +759,7 @@ export interface Company extends BaseContract {
     [
       title: string,
       _description: string,
-      category: string,
+      _category: string,
       goalUSD: BigNumberish,
       deadline: BigNumberish,
       _image: string
@@ -732,6 +783,9 @@ export interface Company extends BaseContract {
     nameOrSignature: "fundraisingCount"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getCofounders"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
     nameOrSignature: "getCompanyDetails"
   ): TypedContractMethod<[], [Company.CompanyDetailsStructOutput], "view">;
   getFunction(
@@ -742,11 +796,12 @@ export interface Company extends BaseContract {
   ): TypedContractMethod<
     [],
     [
-      [bigint, string, string, string, string, boolean] & {
+      [bigint, string, string, string, string, string, boolean] & {
         companyId: bigint;
         companyName: string;
         companyImage: string;
         companyDescription: string;
+        companyCategory: string;
         companyFounder: string;
         isActive: boolean;
       }
@@ -798,6 +853,9 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "receiveUF"
   ): TypedContractMethod<[amount: BigNumberish], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "removeCofounder"
+  ): TypedContractMethod<[cofounder: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
@@ -856,6 +914,13 @@ export interface Company extends BaseContract {
     CofounderAddedEvent.InputTuple,
     CofounderAddedEvent.OutputTuple,
     CofounderAddedEvent.OutputObject
+  >;
+  getEvent(
+    key: "CofounderRemoved"
+  ): TypedContractEvent<
+    CofounderRemovedEvent.InputTuple,
+    CofounderRemovedEvent.OutputTuple,
+    CofounderRemovedEvent.OutputObject
   >;
   getEvent(
     key: "FundraiserCompleted"
@@ -917,6 +982,17 @@ export interface Company extends BaseContract {
       CofounderAddedEvent.InputTuple,
       CofounderAddedEvent.OutputTuple,
       CofounderAddedEvent.OutputObject
+    >;
+
+    "CofounderRemoved(address)": TypedContractEvent<
+      CofounderRemovedEvent.InputTuple,
+      CofounderRemovedEvent.OutputTuple,
+      CofounderRemovedEvent.OutputObject
+    >;
+    CofounderRemoved: TypedContractEvent<
+      CofounderRemovedEvent.InputTuple,
+      CofounderRemovedEvent.OutputTuple,
+      CofounderRemovedEvent.OutputObject
     >;
 
     "FundraiserCompleted(address,uint256,uint256)": TypedContractEvent<

@@ -26,9 +26,9 @@ import type {
 export interface UnityFlowInterface extends Interface {
   getFunction(
     nameOrSignature:
+      | "addCompanyToUser"
       | "closeCompany"
-      | "companies"
-      | "companyCount"
+      | "companyManager"
       | "createFundraising"
       | "createProposal"
       | "decreaseInvestments"
@@ -37,17 +37,19 @@ export interface UnityFlowInterface extends Interface {
       | "fundraisingManager"
       | "getActiveCompanies"
       | "getAllCompanies"
+      | "getCompanyAddress"
       | "getPlatformStats"
       | "getTotalDonations"
       | "getTotalInvestments"
       | "increaseInvestments"
-      | "isCompanyActive"
+      | "isActiveCompany"
       | "minTokenBalance"
       | "platformFeePercent"
       | "proposalManager"
       | "receivePlatformFeeETH"
       | "receivePlatformFeeUF"
       | "registerCompany"
+      | "removeCompanyFromUser"
       | "token"
       | "tokenPriceFeed"
       | "transferETH"
@@ -58,23 +60,19 @@ export interface UnityFlowInterface extends Interface {
   ): FunctionFragment;
 
   getEvent(
-    nameOrSignatureOrTopic:
-      | "CompanyClosed"
-      | "CompanyRegistered"
-      | "PlatformFeeReceived"
-      | "TotalFundsUpdated"
+    nameOrSignatureOrTopic: "PlatformFeeReceived" | "TotalFundsUpdated"
   ): EventFragment;
 
+  encodeFunctionData(
+    functionFragment: "addCompanyToUser",
+    values: [AddressLike, AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "closeCompany",
     values: [BigNumberish]
   ): string;
   encodeFunctionData(
-    functionFragment: "companies",
-    values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "companyCount",
+    functionFragment: "companyManager",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -118,6 +116,10 @@ export interface UnityFlowInterface extends Interface {
     values: [boolean]
   ): string;
   encodeFunctionData(
+    functionFragment: "getCompanyAddress",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
     functionFragment: "getPlatformStats",
     values?: undefined
   ): string;
@@ -134,7 +136,7 @@ export interface UnityFlowInterface extends Interface {
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "isCompanyActive",
+    functionFragment: "isActiveCompany",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -159,7 +161,11 @@ export interface UnityFlowInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "registerCompany",
-    values: [string, string, string, AddressLike[]]
+    values: [string, string, string, string, AddressLike[]]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "removeCompanyFromUser",
+    values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
@@ -188,12 +194,15 @@ export interface UnityFlowInterface extends Interface {
   ): string;
 
   decodeFunctionResult(
+    functionFragment: "addCompanyToUser",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "closeCompany",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "companies", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "companyCount",
+    functionFragment: "companyManager",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -229,6 +238,10 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getCompanyAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getPlatformStats",
     data: BytesLike
   ): Result;
@@ -245,7 +258,7 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "isCompanyActive",
+    functionFragment: "isActiveCompany",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -272,6 +285,10 @@ export interface UnityFlowInterface extends Interface {
     functionFragment: "registerCompany",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "removeCompanyFromUser",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "tokenPriceFeed",
@@ -291,50 +308,6 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "vote", data: BytesLike): Result;
-}
-
-export namespace CompanyClosedEvent {
-  export type InputTuple = [
-    id: BigNumberish,
-    contractAddress: AddressLike,
-    founder: AddressLike
-  ];
-  export type OutputTuple = [
-    id: bigint,
-    contractAddress: string,
-    founder: string
-  ];
-  export interface OutputObject {
-    id: bigint;
-    contractAddress: string;
-    founder: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace CompanyRegisteredEvent {
-  export type InputTuple = [
-    id: BigNumberish,
-    contractAddress: AddressLike,
-    founder: AddressLike
-  ];
-  export type OutputTuple = [
-    id: bigint,
-    contractAddress: string,
-    founder: string
-  ];
-  export interface OutputObject {
-    id: bigint;
-    contractAddress: string;
-    founder: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
 }
 
 export namespace PlatformFeeReceivedEvent {
@@ -415,15 +388,19 @@ export interface UnityFlow extends BaseContract {
     event?: TCEvent
   ): Promise<this>;
 
+  addCompanyToUser: TypedContractMethod<
+    [user: AddressLike, company: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   closeCompany: TypedContractMethod<
     [companyId: BigNumberish],
     [void],
     "nonpayable"
   >;
 
-  companies: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
-
-  companyCount: TypedContractMethod<[], [bigint], "view">;
+  companyManager: TypedContractMethod<[], [string], "view">;
 
   createFundraising: TypedContractMethod<
     [
@@ -479,6 +456,12 @@ export interface UnityFlow extends BaseContract {
     "view"
   >;
 
+  getCompanyAddress: TypedContractMethod<
+    [companyId: BigNumberish],
+    [string],
+    "view"
+  >;
+
   getPlatformStats: TypedContractMethod<
     [],
     [
@@ -525,7 +508,11 @@ export interface UnityFlow extends BaseContract {
     "nonpayable"
   >;
 
-  isCompanyActive: TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+  isActiveCompany: TypedContractMethod<
+    [company: AddressLike],
+    [boolean],
+    "view"
+  >;
 
   minTokenBalance: TypedContractMethod<[], [bigint], "view">;
 
@@ -546,8 +533,15 @@ export interface UnityFlow extends BaseContract {
       name: string,
       image: string,
       description: string,
+      category: string,
       cofounders: AddressLike[]
     ],
+    [void],
+    "nonpayable"
+  >;
+
+  removeCompanyFromUser: TypedContractMethod<
+    [user: AddressLike, company: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -591,14 +585,18 @@ export interface UnityFlow extends BaseContract {
   ): T;
 
   getFunction(
+    nameOrSignature: "addCompanyToUser"
+  ): TypedContractMethod<
+    [user: AddressLike, company: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "closeCompany"
   ): TypedContractMethod<[companyId: BigNumberish], [void], "nonpayable">;
   getFunction(
-    nameOrSignature: "companies"
-  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
-  getFunction(
-    nameOrSignature: "companyCount"
-  ): TypedContractMethod<[], [bigint], "view">;
+    nameOrSignature: "companyManager"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "createFundraising"
   ): TypedContractMethod<
@@ -658,6 +656,9 @@ export interface UnityFlow extends BaseContract {
     nameOrSignature: "getAllCompanies"
   ): TypedContractMethod<[onlyActive: boolean], [string[]], "view">;
   getFunction(
+    nameOrSignature: "getCompanyAddress"
+  ): TypedContractMethod<[companyId: BigNumberish], [string], "view">;
+  getFunction(
     nameOrSignature: "getPlatformStats"
   ): TypedContractMethod<
     [],
@@ -704,8 +705,8 @@ export interface UnityFlow extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "isCompanyActive"
-  ): TypedContractMethod<[arg0: AddressLike], [boolean], "view">;
+    nameOrSignature: "isActiveCompany"
+  ): TypedContractMethod<[company: AddressLike], [boolean], "view">;
   getFunction(
     nameOrSignature: "minTokenBalance"
   ): TypedContractMethod<[], [bigint], "view">;
@@ -728,8 +729,16 @@ export interface UnityFlow extends BaseContract {
       name: string,
       image: string,
       description: string,
+      category: string,
       cofounders: AddressLike[]
     ],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "removeCompanyFromUser"
+  ): TypedContractMethod<
+    [user: AddressLike, company: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -772,20 +781,6 @@ export interface UnityFlow extends BaseContract {
   >;
 
   getEvent(
-    key: "CompanyClosed"
-  ): TypedContractEvent<
-    CompanyClosedEvent.InputTuple,
-    CompanyClosedEvent.OutputTuple,
-    CompanyClosedEvent.OutputObject
-  >;
-  getEvent(
-    key: "CompanyRegistered"
-  ): TypedContractEvent<
-    CompanyRegisteredEvent.InputTuple,
-    CompanyRegisteredEvent.OutputTuple,
-    CompanyRegisteredEvent.OutputObject
-  >;
-  getEvent(
     key: "PlatformFeeReceived"
   ): TypedContractEvent<
     PlatformFeeReceivedEvent.InputTuple,
@@ -801,28 +796,6 @@ export interface UnityFlow extends BaseContract {
   >;
 
   filters: {
-    "CompanyClosed(uint256,address,address)": TypedContractEvent<
-      CompanyClosedEvent.InputTuple,
-      CompanyClosedEvent.OutputTuple,
-      CompanyClosedEvent.OutputObject
-    >;
-    CompanyClosed: TypedContractEvent<
-      CompanyClosedEvent.InputTuple,
-      CompanyClosedEvent.OutputTuple,
-      CompanyClosedEvent.OutputObject
-    >;
-
-    "CompanyRegistered(uint256,address,address)": TypedContractEvent<
-      CompanyRegisteredEvent.InputTuple,
-      CompanyRegisteredEvent.OutputTuple,
-      CompanyRegisteredEvent.OutputObject
-    >;
-    CompanyRegistered: TypedContractEvent<
-      CompanyRegisteredEvent.InputTuple,
-      CompanyRegisteredEvent.OutputTuple,
-      CompanyRegisteredEvent.OutputObject
-    >;
-
     "PlatformFeeReceived(uint256,string)": TypedContractEvent<
       PlatformFeeReceivedEvent.InputTuple,
       PlatformFeeReceivedEvent.OutputTuple,
