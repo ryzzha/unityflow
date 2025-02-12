@@ -48,7 +48,7 @@ contract CompanyManager {
         companies[companyCount] = companyAddress;
         isCompanyActive[companyAddress] = true;
 
-        addCompanyToUser(msg.sender, companyAddress);
+        addCompanyToUser(sender, companyAddress);
         for (uint i = 0; i < cofounders.length; i++) {
             addCompanyToUser(cofounders[i], companyAddress);
         }
@@ -96,5 +96,9 @@ contract CompanyManager {
 
     function getCompanyAddress(uint companyId) external view returns(address) {
         return companies[companyId];
+    }
+
+    function getUserCompanies(address user) external view returns (address[] memory) {
+        return userToCompanies[user];
     }
 }

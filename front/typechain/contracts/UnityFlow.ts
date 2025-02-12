@@ -41,6 +41,7 @@ export interface UnityFlowInterface extends Interface {
       | "getPlatformStats"
       | "getTotalDonations"
       | "getTotalInvestments"
+      | "getUserCompanies"
       | "increaseInvestments"
       | "isActiveCompany"
       | "minTokenBalance"
@@ -130,6 +131,10 @@ export interface UnityFlowInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getTotalInvestments",
     values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserCompanies",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "increaseInvestments",
@@ -251,6 +256,10 @@ export interface UnityFlowInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getTotalInvestments",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserCompanies",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -502,6 +511,12 @@ export interface UnityFlow extends BaseContract {
     "view"
   >;
 
+  getUserCompanies: TypedContractMethod<
+    [user: AddressLike],
+    [string[]],
+    "view"
+  >;
+
   increaseInvestments: TypedContractMethod<
     [amount: BigNumberish, currency: string],
     [void],
@@ -697,6 +712,9 @@ export interface UnityFlow extends BaseContract {
   getFunction(
     nameOrSignature: "getTotalInvestments"
   ): TypedContractMethod<[currency: string], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getUserCompanies"
+  ): TypedContractMethod<[user: AddressLike], [string[]], "view">;
   getFunction(
     nameOrSignature: "increaseInvestments"
   ): TypedContractMethod<

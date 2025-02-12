@@ -40,6 +40,7 @@ export default function CustomButton({
         duration-300 
         ${variantClasses} 
         ${className ?? ""}
+        ${props.disabled ? "opacity-50 pointer-events-none" : ""}
       `}
       {...props}
     >

@@ -178,7 +178,7 @@ export default function CreateCompanyForm() {
 
       {error && <p className="text-red-500 text-sm">{error}</p>}
 
-       <div className="flex gap-4">
+       <div className="flex gap-3">
          <CustomButton onClick={() => router.back()} variant="secondary">
            Back
          </CustomButton>

@@ -93,6 +93,10 @@ contract UnityFlow {
         return companyManager.isActiveCompany(company);
     }
 
+    function getUserCompanies(address user) external view returns (address[] memory) {
+        return companyManager.getUserCompanies(user);
+    }
+
     function createFundraising(
         uint id,
         string memory title,
@@ -159,7 +163,7 @@ contract UnityFlow {
         address[] memory companyList = new address[](totalCompanies);
         uint256 index = 0;
 
-        for (uint256 i = 0; i < totalCompanies; i++) { 
+        for (uint256 i = 1; i <= totalCompanies; i++) { 
             address companyAddress = companyManager.companies(i); 
 
             if (!onlyActive || companyManager.isActiveCompany(companyAddress)) {

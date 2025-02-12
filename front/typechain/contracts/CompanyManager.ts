@@ -31,6 +31,7 @@ export interface CompanyManagerInterface extends Interface {
       | "companies"
       | "companyCount"
       | "getCompanyAddress"
+      | "getUserCompanies"
       | "isActiveCompany"
       | "isCompanyActive"
       | "minTokenBalance"
@@ -64,6 +65,10 @@ export interface CompanyManagerInterface extends Interface {
   encodeFunctionData(
     functionFragment: "getCompanyAddress",
     values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserCompanies",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "isActiveCompany",
@@ -107,6 +112,10 @@ export interface CompanyManagerInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getCompanyAddress",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserCompanies",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -246,6 +255,12 @@ export interface CompanyManager extends BaseContract {
     "view"
   >;
 
+  getUserCompanies: TypedContractMethod<
+    [user: AddressLike],
+    [string[]],
+    "view"
+  >;
+
   isActiveCompany: TypedContractMethod<
     [company: AddressLike],
     [boolean],
@@ -312,6 +327,9 @@ export interface CompanyManager extends BaseContract {
   getFunction(
     nameOrSignature: "getCompanyAddress"
   ): TypedContractMethod<[companyId: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "getUserCompanies"
+  ): TypedContractMethod<[user: AddressLike], [string[]], "view">;
   getFunction(
     nameOrSignature: "isActiveCompany"
   ): TypedContractMethod<[company: AddressLike], [boolean], "view">;

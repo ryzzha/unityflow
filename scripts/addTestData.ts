@@ -41,7 +41,11 @@ async function main() {
 
   console.log("🔹 Починаємо створення компаній...");
 
-  const companyManager = await ethers.getContractAt("CompanyManager", UnityFlow.companyManager.toString());
+  const companyManagerAddress = await UnityFlow.companyManager(); 
+  console.log("CompanyManager Address:", companyManagerAddress); 
+
+  const companyManager = await ethers.getContractAt("CompanyManager", companyManagerAddress);
+
 
   const category = ["Tech","Web3","FinTech","Security","Marketing","Gaming","SaaS","E-commerce"];
 

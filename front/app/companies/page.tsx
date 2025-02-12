@@ -34,7 +34,6 @@ export default function Companies() {
     try {
       if (!provider || !unityFlow) return;
       
-      const companyCount = await unityFlow.companyCount();
       const activeCompanies = await unityFlow.getAllCompanies(onlyActive);
 
       const companyData: ICompany[] = await Promise.all(
