@@ -3,6 +3,7 @@
 import ArrowRightFilled from "@/components/icons/arrow-right-filled";
 import CategoryIcon from "@/components/icons/category-icon";
 import Image from "next/image";
+import CustomButton from "@/components/custom-button";
 
 interface CompanyCardProps {
   company: {
@@ -25,7 +26,7 @@ export default function CompanyCard({ company }: CompanyCardProps) {
 
   return (
     <div
-      className={`relative rounded-xl shadow-md p-3 flex flex-col justify-center items-center w-full transition-transform duration-300 hover:shadow-lg hover:scale-[1.01] ${
+      className={`relative rounded-xl shadow-md p-5 flex flex-col justify-center items-center w-full transition-transform duration-300 hover:shadow-lg hover:scale-[1.01] ${
         isActive ? "bg-white" : "bg-gray-200"
       }`}
     >
@@ -36,16 +37,16 @@ export default function CompanyCard({ company }: CompanyCardProps) {
         </div>
       )}
 
-      <div className="w-full flex items-center gap-3 overflow-hidden ">
-        <Image
-          src={image}
-          alt={name}
-          width={100}
-          height={100}
-          className="rounded-full border border-gray-300 shadow-sm"
+      <div className="w-full flex flex-col items-center gap-3 overflow-hidden ">
+        <Image 
+          src={image} 
+          alt={name} 
+          width={100} 
+          height={100} 
+          className="w-full h-[125px] object-cover mt-1 rounded-lg"
         />
 
-        <div className="flex flex-col items-start flex-1">
+        <div className="w-full flex flex-col justify-center items-start flex-1">
           <h4 className="text-base font-semibold text-gray-900 truncate">{name}</h4>
 
           <p className="text-gray-600 text-sm line-clamp-2 break-words overflow-hidden text-ellipsis">
@@ -63,14 +64,14 @@ export default function CompanyCard({ company }: CompanyCardProps) {
             </span>
           </span>
 
-          <button
-            className={`flex justify-start gap-2 mt-3 px-3 py-1 rounded-md text-sm font-medium transition ${
-              isActive ? "bg-gray-400 hover:bg-gray-500 text-white" : "bg-gray-500 text-gray-300 cursor-not-allowed"
-            }`}
-            disabled={!isActive}
-          >
-            <span>View Details</span> <ArrowRightFilled />
-          </button>
+          <CustomButton 
+            variant="secondary"
+            size="small" 
+            disabled={!isActive} 
+            className="flex gap-1 mt-2"
+            >
+              <span>View Details</span> <ArrowRightFilled /> 
+          </CustomButton>
         </div>
       </div>
 

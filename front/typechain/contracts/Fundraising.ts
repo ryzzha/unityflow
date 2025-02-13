@@ -68,11 +68,16 @@ export interface FundraisingInterface extends Interface {
       | "donateETH"
       | "donateUF"
       | "ethDonators"
+      | "finalizeFundraising"
       | "getDetails"
       | "getDonationETH"
       | "getDonationUF"
+      | "getDonationsForToken"
+      | "getDonators"
+      | "getInfo"
       | "getLatestETHPrice"
       | "getLatestTokenPrice"
+      | "isActive"
       | "owner"
       | "platformFeePercent"
       | "refundETH"
@@ -88,6 +93,8 @@ export interface FundraisingInterface extends Interface {
   getEvent(
     nameOrSignatureOrTopic:
       | "DonationReceived"
+      | "FundraisingFailed"
+      | "FundraisingSuccessful"
       | "OwnershipTransferred"
       | "RefundProcessed"
       | "Withdrawn"
@@ -108,6 +115,10 @@ export interface FundraisingInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "finalizeFundraising",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getDetails",
     values?: undefined
   ): string;
@@ -120,6 +131,15 @@ export interface FundraisingInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getDonationsForToken",
+    values: [string]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getDonators",
+    values?: undefined
+  ): string;
+  encodeFunctionData(functionFragment: "getInfo", values?: undefined): string;
+  encodeFunctionData(
     functionFragment: "getLatestETHPrice",
     values?: undefined
   ): string;
@@ -127,6 +147,7 @@ export interface FundraisingInterface extends Interface {
     functionFragment: "getLatestTokenPrice",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "isActive", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "platformFeePercent",
@@ -164,6 +185,10 @@ export interface FundraisingInterface extends Interface {
     functionFragment: "ethDonators",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "finalizeFundraising",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getDetails", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getDonationETH",
@@ -174,6 +199,15 @@ export interface FundraisingInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "getDonationsForToken",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getDonators",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getInfo", data: BytesLike): Result;
+  decodeFunctionResult(
     functionFragment: "getLatestETHPrice",
     data: BytesLike
   ): Result;
@@ -181,6 +215,7 @@ export interface FundraisingInterface extends Interface {
     functionFragment: "getLatestTokenPrice",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "isActive", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "platformFeePercent",
@@ -216,6 +251,56 @@ export namespace DonationReceivedEvent {
     donator: string;
     amount: bigint;
     currency: string;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace FundraisingFailedEvent {
+  export type InputTuple = [
+    fundraiser: AddressLike,
+    company: AddressLike,
+    collectedETH: BigNumberish,
+    collectedUF: BigNumberish
+  ];
+  export type OutputTuple = [
+    fundraiser: string,
+    company: string,
+    collectedETH: bigint,
+    collectedUF: bigint
+  ];
+  export interface OutputObject {
+    fundraiser: string;
+    company: string;
+    collectedETH: bigint;
+    collectedUF: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace FundraisingSuccessfulEvent {
+  export type InputTuple = [
+    fundraiser: AddressLike,
+    company: AddressLike,
+    collectedETH: BigNumberish,
+    collectedUF: BigNumberish
+  ];
+  export type OutputTuple = [
+    fundraiser: string,
+    company: string,
+    collectedETH: bigint,
+    collectedUF: bigint
+  ];
+  export interface OutputObject {
+    fundraiser: string;
+    company: string;
+    collectedETH: bigint;
+    collectedUF: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -339,6 +424,8 @@ export interface Fundraising extends BaseContract {
 
   ethDonators: TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
 
+  finalizeFundraising: TypedContractMethod<[], [void], "nonpayable">;
+
   getDetails: TypedContractMethod<
     [],
     [
@@ -363,9 +450,29 @@ export interface Fundraising extends BaseContract {
 
   getDonationUF: TypedContractMethod<[donator: AddressLike], [bigint], "view">;
 
+  getDonationsForToken: TypedContractMethod<
+    [tokenSymbol: string],
+    [[string[], bigint[]]],
+    "view"
+  >;
+
+  getDonators: TypedContractMethod<
+    [],
+    [[string[], bigint[], bigint[]]],
+    "view"
+  >;
+
+  getInfo: TypedContractMethod<
+    [],
+    [[bigint, string, string, string, string, bigint, bigint, boolean]],
+    "view"
+  >;
+
   getLatestETHPrice: TypedContractMethod<[], [bigint], "view">;
 
   getLatestTokenPrice: TypedContractMethod<[], [bigint], "view">;
+
+  isActive: TypedContractMethod<[], [boolean], "view">;
 
   owner: TypedContractMethod<[], [string], "view">;
 
@@ -421,6 +528,9 @@ export interface Fundraising extends BaseContract {
     nameOrSignature: "ethDonators"
   ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "finalizeFundraising"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "getDetails"
   ): TypedContractMethod<
     [],
@@ -448,11 +558,27 @@ export interface Fundraising extends BaseContract {
     nameOrSignature: "getDonationUF"
   ): TypedContractMethod<[donator: AddressLike], [bigint], "view">;
   getFunction(
+    nameOrSignature: "getDonationsForToken"
+  ): TypedContractMethod<[tokenSymbol: string], [[string[], bigint[]]], "view">;
+  getFunction(
+    nameOrSignature: "getDonators"
+  ): TypedContractMethod<[], [[string[], bigint[], bigint[]]], "view">;
+  getFunction(
+    nameOrSignature: "getInfo"
+  ): TypedContractMethod<
+    [],
+    [[bigint, string, string, string, string, bigint, bigint, boolean]],
+    "view"
+  >;
+  getFunction(
     nameOrSignature: "getLatestETHPrice"
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getLatestTokenPrice"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "isActive"
+  ): TypedContractMethod<[], [boolean], "view">;
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
@@ -492,6 +618,20 @@ export interface Fundraising extends BaseContract {
     DonationReceivedEvent.OutputObject
   >;
   getEvent(
+    key: "FundraisingFailed"
+  ): TypedContractEvent<
+    FundraisingFailedEvent.InputTuple,
+    FundraisingFailedEvent.OutputTuple,
+    FundraisingFailedEvent.OutputObject
+  >;
+  getEvent(
+    key: "FundraisingSuccessful"
+  ): TypedContractEvent<
+    FundraisingSuccessfulEvent.InputTuple,
+    FundraisingSuccessfulEvent.OutputTuple,
+    FundraisingSuccessfulEvent.OutputObject
+  >;
+  getEvent(
     key: "OwnershipTransferred"
   ): TypedContractEvent<
     OwnershipTransferredEvent.InputTuple,
@@ -523,6 +663,28 @@ export interface Fundraising extends BaseContract {
       DonationReceivedEvent.InputTuple,
       DonationReceivedEvent.OutputTuple,
       DonationReceivedEvent.OutputObject
+    >;
+
+    "FundraisingFailed(address,address,uint256,uint256)": TypedContractEvent<
+      FundraisingFailedEvent.InputTuple,
+      FundraisingFailedEvent.OutputTuple,
+      FundraisingFailedEvent.OutputObject
+    >;
+    FundraisingFailed: TypedContractEvent<
+      FundraisingFailedEvent.InputTuple,
+      FundraisingFailedEvent.OutputTuple,
+      FundraisingFailedEvent.OutputObject
+    >;
+
+    "FundraisingSuccessful(address,address,uint256,uint256)": TypedContractEvent<
+      FundraisingSuccessfulEvent.InputTuple,
+      FundraisingSuccessfulEvent.OutputTuple,
+      FundraisingSuccessfulEvent.OutputObject
+    >;
+    FundraisingSuccessful: TypedContractEvent<
+      FundraisingSuccessfulEvent.InputTuple,
+      FundraisingSuccessfulEvent.OutputTuple,
+      FundraisingSuccessfulEvent.OutputObject
     >;
 
     "OwnershipTransferred(address,address)": TypedContractEvent<

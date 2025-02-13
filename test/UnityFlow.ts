@@ -17,14 +17,6 @@ describe("UnityFlow", function () {
     token = await TokenUFFactory.deploy(100000);
     await token.waitForDeployment();
 
-    const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
-    const fundraisingManager = await FundraisingManagerFactory.deploy(token.target);
-    await fundraisingManager.waitForDeployment();
-
-    const ProposalManagerFactory = await ethers.getContractFactory("ProposalManager");
-    const proposalManager = await ProposalManagerFactory.deploy(token.target);
-    await proposalManager.waitForDeployment();
-
     const MockPriceFeedFactory = await ethers.getContractFactory("MockPriceFeed");
     const ethInitialPrice = ethers.parseUnits("3000", 8); // 3000$
     const tokenInitialPrice = ethers.parseUnits("5", 8); // 5$
@@ -33,13 +25,20 @@ describe("UnityFlow", function () {
     const tokenPriceFeed = await MockPriceFeedFactory.deploy(tokenInitialPrice);
     await tokenPriceFeed.waitForDeployment();
 
+    const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
+    const fundraisingManager = await FundraisingManagerFactory.deploy(token.target,  ethPriceFeed.target, tokenPriceFeed.target);
+    await fundraisingManager.waitForDeployment();
+
+    const ProposalManagerFactory = await ethers.getContractFactory("ProposalManager");
+    const proposalManager = await ProposalManagerFactory.deploy(token.target);
+    await proposalManager.waitForDeployment();
+
+
     const UnityFlowFactory = await ethers.getContractFactory("UnityFlow");
     unityFlow = await UnityFlowFactory.deploy(
         token.target, 
         fundraisingManager.target, 
         proposalManager.target,
-        ethPriceFeed.target,
-        tokenPriceFeed.target,
     );
     await unityFlow.waitForDeployment();
 

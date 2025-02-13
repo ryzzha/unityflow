@@ -3,15 +3,27 @@ pragma solidity ^0.8.20;
 
 import "./Fundraising.sol";
 import "./TokenUF.sol";
+// import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
+import "./MockAgregator.sol";
 
 contract FundraisingManager {
     TokenUF public token;
+    // AggregatorV3Interface public ethPriceFeed;
+    // AggregatorV3Interface public tokenPriceFeed;
+
+    MockPriceFeed public ethPriceFeed;
+    MockPriceFeed public tokenPriceFeed;
 
     mapping(string => uint256) public donationsByCurrency;
     mapping(string => uint256) public investmentsByCurrency;
 
-    constructor(address tokenAddress) {
+    address[] public fundraisers; 
+
+    constructor(address tokenAddress, address _ethPriceFeed, address _tokenPriceFeed) {
         token = TokenUF(tokenAddress);
+        
+        ethPriceFeed = MockPriceFeed(_ethPriceFeed);
+        tokenPriceFeed = MockPriceFeed(_tokenPriceFeed);
     }
 
     function createFundraising(
@@ -42,7 +54,8 @@ contract FundraisingManager {
             platformFeePercent: platformFeePercent
         });
 
-        Fundraising newFundraising = new Fundraising(unityFlowAddress, params, address(0), address(0));
+        Fundraising newFundraising = new Fundraising(unityFlowAddress, params, address(ethPriceFeed), address(tokenPriceFeed));
+        fundraisers.push(address(newFundraising));
         return address(newFundraising);
     }
 
@@ -66,5 +79,17 @@ contract FundraisingManager {
 
     function getTotalInvestments(string memory currency) external view returns (uint256) {
         return investmentsByCurrency[currency];
+    }
+
+    function getFundraisers() external view returns (address[] memory) {
+        return fundraisers;
+    }
+
+    function fundraiserCount() external view returns (uint256) {
+        return fundraisers.length;
+    }
+
+    function isActiveFundraiser(address fundraiser) public view returns (bool) {
+        return Fundraising(fundraiser).isActive();
     }
 }

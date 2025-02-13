@@ -1,6 +1,7 @@
 "use client"
 
 import { IGlobalStatistics } from "@/shared/interfaces";
+import { useState, useEffect } from "react";
 
 interface GlobalStatsProps {
     stats: IGlobalStatistics | null;
@@ -9,10 +10,18 @@ interface GlobalStatsProps {
   }
   
   export const GlobalStatistics = ({ stats, ethToUsd = 3000, ufToUsd = 5 }: GlobalStatsProps) => {
-    if (!stats) return <div className="text-center text-gray-500">Loading...</div>;
-  
-    console.log("Stats received:", stats);
-  
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+      if (stats) {
+        setIsLoading(false);
+      }
+    }, [stats]);
+
+    if (isLoading) return <SkeletonLoader />;
+
+    if (!stats) return null;
+
     const totalDonationsUSD =
       (parseFloat(stats.totalDonationsETH ?? "0") * ethToUsd) +
       (parseFloat(stats.totalDonationsUF ?? "0") * ufToUsd);
@@ -100,4 +109,18 @@ interface GlobalStatsProps {
       )}
     </div>
   );
+
+  const SkeletonLoader = () => {
+    return (
+      <div className="animate-pulse mt-6 p-6 bg-gray-100/85 shadow-md rounded-2xl w-full mx-auto">
+        <h2 className="text-xl font-semibold text-center mb-5 text-gray-400">📊 Loading Platform Statistics...</h2>
+  
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {Array.from({ length: 5 }).map((_, index) => (
+            <div key={index} className="p-5 rounded-xl bg-gray-300/40 h-32 shadow-sm"></div>
+          ))}
+        </div>
+      </div>
+    );
+  };
   

@@ -10,18 +10,6 @@ async function main() {
   await token.waitForDeployment();
   console.log("TokenUF контракт деплоєно за адресою:", await token.getAddress());
 
-  // Деплоїмо FundraisingManager
-  const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
-  const fundraisingManager = await FundraisingManagerFactory.deploy(token.target);
-  await fundraisingManager.waitForDeployment();
-  console.log("FundraisingManager контракт деплоєно за адресою:", await fundraisingManager.getAddress());
-
-  // Деплоїмо ProposalManager
-  const ProposalManagerFactory = await ethers.getContractFactory("ProposalManager");
-  const proposalManager = await ProposalManagerFactory.deploy(token.target);
-  await proposalManager.waitForDeployment();
-  console.log("ProposalManager контракт деплоєно за адресою:", await proposalManager.getAddress());
-
   // Деплоїмо MockPriceFeed для ETH та токена
   const MockPriceFeedFactory = await ethers.getContractFactory("MockPriceFeed");
   const ethInitialPrice = ethers.parseUnits("3000", 8); // 3000$
@@ -34,14 +22,24 @@ async function main() {
   await tokenPriceFeed.waitForDeployment();
   console.log("Token PriceFeed контракт деплоєно за адресою:", await tokenPriceFeed.getAddress());
 
+  // Деплоїмо FundraisingManager
+  const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
+  const fundraisingManager = await FundraisingManagerFactory.deploy(token.target, ethPriceFeed.target, tokenPriceFeed.target);
+  await fundraisingManager.waitForDeployment();
+  console.log("FundraisingManager контракт деплоєно за адресою:", await fundraisingManager.getAddress());
+
+  // Деплоїмо ProposalManager
+  const ProposalManagerFactory = await ethers.getContractFactory("ProposalManager");
+  const proposalManager = await ProposalManagerFactory.deploy(token.target);
+  await proposalManager.waitForDeployment();
+  console.log("ProposalManager контракт деплоєно за адресою:", await proposalManager.getAddress());
+
   // Деплоїмо UnityFlow
   const UnityFlowFactory = await ethers.getContractFactory("UnityFlow");
   const unityFlow = await UnityFlowFactory.deploy(
     token.target,
     fundraisingManager.target,
     proposalManager.target,
-    ethPriceFeed.target,
-    tokenPriceFeed.target
   );
   await unityFlow.waitForDeployment();
   console.log("UnityFlow контракт деплоєно за адресою:", await unityFlow.getAddress());

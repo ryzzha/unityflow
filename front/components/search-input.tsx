@@ -7,20 +7,23 @@ import {
   ListboxOptions,
   Transition,
 } from "@headlessui/react";
-import { COMPANY_CATEGORIES } from '@/shared/constants';
+import { COMPANY_CATEGORIES, FUNDRAISING_CATEGORIES } from '@/shared/constants';
 
 interface IProps {
+  type: "company" | "fund";
   searchQuery: string;
   setSearchQuery: (value: string) => void;
   category: string;
   setCategory: (value: string) => void;
 }
 
-export default function Search({ searchQuery, setSearchQuery, category, setCategory }: IProps) {
+export default function Search({ type, searchQuery, setSearchQuery, category, setCategory }: IProps) {
 
   const handleSearch = () => {
     alert(`Ви ввели: ${searchQuery} | Обрана категорія: ${category}`);
   };
+
+  const categories = type === "company" ? COMPANY_CATEGORIES : FUNDRAISING_CATEGORIES;
 
   return (
     <div className="w-full max-w-md flex gap-1 m-1">
@@ -31,7 +34,7 @@ export default function Search({ searchQuery, setSearchQuery, category, setCateg
 
         <input
           type="text"
-          placeholder="Search campaign..."
+          placeholder="Search ..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full bg-transparent text-sm font-semibold placeholder-gray-400 text-gray-800 
@@ -72,7 +75,7 @@ export default function Search({ searchQuery, setSearchQuery, category, setCateg
               className="absolute top-0 -right-350 flex left-auto z-10 px-3 py-2 w-auto 
                          bg-white border border-gray-300 rounded-full shadow-lg"
             >
-              {["All", ...COMPANY_CATEGORIES].map((item) => (
+              {["All",  ...categories].map((item) => (
                 <ListboxOption
                   key={item}
                   value={item}

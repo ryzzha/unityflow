@@ -91,14 +91,14 @@ export default function CreateFundraisingForm() {
   };
 
   return (
-    <div className="w-full z-50 flex flex-col gap-4 bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
+    <div className="w-full z-50 flex flex-col gap-4 bg-white px-8 py-11 rounded-3xl shadow-md max-w-lg mx-auto">
       <h3 className="text-lg font-semibold text-center">Start a Fundraising</h3>
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
       {companies.length > 0 && (
         <select
-          className="border p-3 rounded-md w-full"
+          className="border p-3 rounded-full w-full"
           value={company || ""}
           onChange={(e) => setCompany(e.target.value)}
         >
@@ -113,7 +113,7 @@ export default function CreateFundraisingForm() {
       <input
         type="text"
         placeholder="Title"
-        className="border p-3 rounded-md w-full"
+        className="border p-3 rounded-full w-full"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
@@ -121,7 +121,7 @@ export default function CreateFundraisingForm() {
       <input
         type="text"
         placeholder="Description"
-        className="border p-3 rounded-md w-full"
+        className="border p-3 rounded-full w-full"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
@@ -129,7 +129,7 @@ export default function CreateFundraisingForm() {
       <input
         type="number"
         placeholder="Goal (USD)"
-        className="border p-3 rounded-md w-full"
+        className="border p-3 rounded-full w-full"
         value={goal}
         onChange={(e) => setGoal(e.target.value)}
         min="1"
@@ -137,7 +137,7 @@ export default function CreateFundraisingForm() {
 
       <input
         type="date"
-        className="border p-3 rounded-md w-full"
+        className="border p-3 rounded-full w-full"
         value={deadline}
         onChange={(e) => setDeadline(e.target.value)}
         min={new Date().toISOString().split("T")[0]}
@@ -157,7 +157,7 @@ export default function CreateFundraisingForm() {
         ))}
       </div>
 
-      <div className="w-full mx-auto justify-center flex gap-3">
+      <div className="w-full mt-3 mx-auto justify-center flex gap-3">
          <CustomButton onClick={() => router.back()} variant="secondary">
            Back
          </CustomButton>

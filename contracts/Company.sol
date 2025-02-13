@@ -53,14 +53,12 @@ contract Company is Ownable {
     event CofounderAdded(address cofounder);
     event CofounderRemoved(address cofounder);
 
-    event InvestmentReceived(address investor, uint256 amount, string asset);
-    event InvestmentWithdrawn(address investor, uint256 amount, string asset);
+    event FundraiserCreated(address indexed company, address fundraiser, string title, uint goalUSD, uint deadline);
+    event FundraiserSuccessfullyCompleted(address indexed company, address fundraiser, uint collectedETH, uint collectedUF);
+    event FundraiserUnsuccessfulEnded(address indexed company, address fundraiser, uint collectedETH, uint collectedUF);
 
-    event FundraiserCreated(address fundraiserContract);
-    event FundraiserCompleted(address fundraiserContract, uint totalCollectedETH, uint totalCollectedUF);
-
-    event FundsReceived(uint256 amount, address sender, string asset);
-    event FundsWithdrawn(uint256 amount, address receiver, string asset);
+    event FundsReceived(uint256 amount, address sender, string asset, string source);
+    event FundsWithdrawn(uint256 amount, address receiver, string asset, string source);
 
     modifier onlyFounderOrCofounder() {
         require(msg.sender == founder || _isCofounder(msg.sender), "Not authorized");
@@ -91,7 +89,7 @@ contract Company is Ownable {
         require(msg.value > 0, "Must send some funds");
         totalFundsETH += msg.value;
         unityFlow.updateDonations(msg.value, "ETH");
-        emit FundsReceived(msg.value, msg.sender, "ETH");
+        emit FundsReceived(msg.value, msg.sender, "ETH", "donation");
     }
 
     function receiveUF(uint256 amount) external {
@@ -103,7 +101,7 @@ contract Company is Ownable {
 
         unityFlow.updateDonations(amount, "UF");
         
-        emit FundsReceived(amount, msg.sender, "UF");
+        emit FundsReceived(amount, msg.sender, "UF", "donation");
     }
 
     function withdrawETH(address to, uint amount) public onlyOwner {
@@ -111,7 +109,7 @@ contract Company is Ownable {
         totalFundsETH -= amount;
         (bool sent, ) = to.call{value: amount}("");
         require(sent, "Failed to send funds.");
-        emit FundsWithdrawn(amount, msg.sender, "ETH");
+        emit FundsWithdrawn(amount, to, "ETH", "company");
     }
 
     function withdrawUF(address to, uint amount) public onlyOwner {
@@ -119,7 +117,7 @@ contract Company is Ownable {
         require(token.balanceOf(address(this)) >= amount, "not enougth tokens");
         totalFundsUF -= amount;
         token.transfer(to, amount);
-        emit FundsWithdrawn(amount, msg.sender, "UF");
+        emit FundsWithdrawn(amount, to, "UF", "company");
     }
 
     function fullWithdraw(address to) external onlyOwner {
@@ -150,19 +148,27 @@ contract Company is Ownable {
             fundraisingCount, title, _description, _category, goalUSD, deadline, _image
         );
         fundraisers.push(newFundraiser);
-        emit FundraiserCreated(newFundraiser);
+        emit FundraiserCreated(address(this), address(newFundraiser), title, goalUSD, deadline);
     }
 
     function getCompanyFundraisers() external view returns (address[] memory) {
         return fundraisers;
     }
 
-    function onFundraiserCompleted(uint totalCollectedETH, uint totalCollectedUF) external {
+    function onFundraiserSuccessfullyCompleted(uint totalCollectedETH, uint totalCollectedUF) external {
         require(_isFundraiser(msg.sender), "Caller is not a fundraiser");
         totalFundsETH += totalCollectedETH;
         totalFundsUF += totalCollectedUF;
         fundraisingCount--;
-        emit FundraiserCompleted(msg.sender, totalCollectedETH, totalCollectedUF);
+        emit FundraiserSuccessfullyCompleted(address(this), msg.sender, totalCollectedETH, totalCollectedUF);
+    }
+
+    function onFundraiserUnsuccessfulEnded(uint totalCollectedETH, uint totalCollectedUF) external {
+        require(_isFundraiser(msg.sender), "Caller is not a fundraiser");
+        totalFundsETH += totalCollectedETH;
+        totalFundsUF += totalCollectedUF;
+        fundraisingCount--;
+        emit FundraiserUnsuccessfulEnded(address(this), msg.sender, totalCollectedETH, totalCollectedUF);
     }
 
     function investETH() external payable {
@@ -177,7 +183,7 @@ contract Company is Ownable {
         totalFundsETH += msg.value;
 
         unityFlow.increaseInvestments(msg.value, "ETH");
-        emit InvestmentReceived(msg.sender, msg.value, "ETH");
+        emit FundsReceived(msg.value, msg.sender, "ETH", "investment_received");
     }
 
     function investUF(uint256 amount) external {
@@ -196,7 +202,7 @@ contract Company is Ownable {
         totalFundsUF += amount;
 
         unityFlow.increaseInvestments(amount, "UF");
-        emit InvestmentReceived(msg.sender, amount, "UF");
+        emit FundsReceived(amount, msg.sender, "ETH", "investment_received");
     }
 
     function withdrawInvestmentETH(uint256 amount) external {
@@ -211,7 +217,7 @@ contract Company is Ownable {
         require(sent, "Failed to send ETH");
 
         unityFlow.decreaseInvestments(amount, "ETH");
-        emit InvestmentWithdrawn(msg.sender, amount, "ETH");
+        emit FundsWithdrawn(amount, msg.sender, "ETH", "investment_withdraw");
     }
 
     function withdrawInvestmentUF(uint256 amount) external {
@@ -225,7 +231,7 @@ contract Company is Ownable {
         token.transfer(msg.sender, amount);
         unityFlow.decreaseInvestments(amount, "UF");
 
-        emit InvestmentWithdrawn(msg.sender, amount, "UF");
+        emit FundsWithdrawn(amount, msg.sender, "UF", "investment_withdraw");
     }
 
     function addCofounder(address cofounder) external onlyOwner {

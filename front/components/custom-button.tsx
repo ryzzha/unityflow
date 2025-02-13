@@ -3,16 +3,19 @@ import React, { ButtonHTMLAttributes } from "react";
 
 interface CustomButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger";
+  size?: "small" | "base" | "big";
   className?: string;
 }
 
 export default function CustomButton({
   variant = "primary",
+  size = "base",
   className,
   children,
   ...props
 }: CustomButtonProps) {
   let variantClasses = "";
+  let sizeClasses = "";
   
   switch (variant) {
     case "primary":
@@ -28,17 +31,30 @@ export default function CustomButton({
       variantClasses = "bg-green-500 hover:bg-green-600 text-white";
   }
 
+  switch (size) {
+    case "small":
+      sizeClasses = "px-2 py-1";
+      break;
+    case "base":
+      sizeClasses = "px-4 py-2";
+      break;
+    case "big":
+      sizeClasses = "px-4 py-3";
+      break;
+    default:
+      variantClasses = "bg-green-500 hover:bg-green-600 text-white";
+  }
+
   return (
     <button
       className={`
         text-sm
         font-semibold 
         rounded-md 
-        px-4 
-        py-2
         transition-colors 
         duration-300 
         ${variantClasses} 
+        ${sizeClasses} 
         ${className ?? ""}
         ${props.disabled ? "opacity-50 pointer-events-none" : ""}
       `}

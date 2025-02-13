@@ -100,7 +100,8 @@ export interface CompanyInterface extends Interface {
       | "investorUFBalances"
       | "investors"
       | "name"
-      | "onFundraiserCompleted"
+      | "onFundraiserSuccessfullyCompleted"
+      | "onFundraiserUnsuccessfulEnded"
       | "owner"
       | "receiveETH"
       | "receiveUF"
@@ -124,12 +125,11 @@ export interface CompanyInterface extends Interface {
     nameOrSignatureOrTopic:
       | "CofounderAdded"
       | "CofounderRemoved"
-      | "FundraiserCompleted"
       | "FundraiserCreated"
+      | "FundraiserSuccessfullyCompleted"
+      | "FundraiserUnsuccessfulEnded"
       | "FundsReceived"
       | "FundsWithdrawn"
-      | "InvestmentReceived"
-      | "InvestmentWithdrawn"
       | "OwnershipTransferred"
   ): EventFragment;
 
@@ -208,7 +208,11 @@ export interface CompanyInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "onFundraiserCompleted",
+    functionFragment: "onFundraiserSuccessfullyCompleted",
+    values: [BigNumberish, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "onFundraiserUnsuccessfulEnded",
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
@@ -337,7 +341,11 @@ export interface CompanyInterface extends Interface {
   decodeFunctionResult(functionFragment: "investors", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "onFundraiserCompleted",
+    functionFragment: "onFundraiserSuccessfullyCompleted",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "onFundraiserUnsuccessfulEnded",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
@@ -416,21 +424,27 @@ export namespace CofounderRemovedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace FundraiserCompletedEvent {
+export namespace FundraiserCreatedEvent {
   export type InputTuple = [
-    fundraiserContract: AddressLike,
-    totalCollectedETH: BigNumberish,
-    totalCollectedUF: BigNumberish
+    company: AddressLike,
+    fundraiser: AddressLike,
+    title: string,
+    goalUSD: BigNumberish,
+    deadline: BigNumberish
   ];
   export type OutputTuple = [
-    fundraiserContract: string,
-    totalCollectedETH: bigint,
-    totalCollectedUF: bigint
+    company: string,
+    fundraiser: string,
+    title: string,
+    goalUSD: bigint,
+    deadline: bigint
   ];
   export interface OutputObject {
-    fundraiserContract: string;
-    totalCollectedETH: bigint;
-    totalCollectedUF: bigint;
+    company: string;
+    fundraiser: string;
+    title: string;
+    goalUSD: bigint;
+    deadline: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -438,11 +452,49 @@ export namespace FundraiserCompletedEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export namespace FundraiserCreatedEvent {
-  export type InputTuple = [fundraiserContract: AddressLike];
-  export type OutputTuple = [fundraiserContract: string];
+export namespace FundraiserSuccessfullyCompletedEvent {
+  export type InputTuple = [
+    company: AddressLike,
+    fundraiser: AddressLike,
+    collectedETH: BigNumberish,
+    collectedUF: BigNumberish
+  ];
+  export type OutputTuple = [
+    company: string,
+    fundraiser: string,
+    collectedETH: bigint,
+    collectedUF: bigint
+  ];
   export interface OutputObject {
-    fundraiserContract: string;
+    company: string;
+    fundraiser: string;
+    collectedETH: bigint;
+    collectedUF: bigint;
+  }
+  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
+  export type Filter = TypedDeferredTopicFilter<Event>;
+  export type Log = TypedEventLog<Event>;
+  export type LogDescription = TypedLogDescription<Event>;
+}
+
+export namespace FundraiserUnsuccessfulEndedEvent {
+  export type InputTuple = [
+    company: AddressLike,
+    fundraiser: AddressLike,
+    collectedETH: BigNumberish,
+    collectedUF: BigNumberish
+  ];
+  export type OutputTuple = [
+    company: string,
+    fundraiser: string,
+    collectedETH: bigint,
+    collectedUF: bigint
+  ];
+  export interface OutputObject {
+    company: string;
+    fundraiser: string;
+    collectedETH: bigint;
+    collectedUF: bigint;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -454,13 +506,20 @@ export namespace FundsReceivedEvent {
   export type InputTuple = [
     amount: BigNumberish,
     sender: AddressLike,
-    asset: string
+    asset: string,
+    source: string
   ];
-  export type OutputTuple = [amount: bigint, sender: string, asset: string];
+  export type OutputTuple = [
+    amount: bigint,
+    sender: string,
+    asset: string,
+    source: string
+  ];
   export interface OutputObject {
     amount: bigint;
     sender: string;
     asset: string;
+    source: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -472,49 +531,20 @@ export namespace FundsWithdrawnEvent {
   export type InputTuple = [
     amount: BigNumberish,
     receiver: AddressLike,
-    asset: string
+    asset: string,
+    source: string
   ];
-  export type OutputTuple = [amount: bigint, receiver: string, asset: string];
+  export type OutputTuple = [
+    amount: bigint,
+    receiver: string,
+    asset: string,
+    source: string
+  ];
   export interface OutputObject {
     amount: bigint;
     receiver: string;
     asset: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace InvestmentReceivedEvent {
-  export type InputTuple = [
-    investor: AddressLike,
-    amount: BigNumberish,
-    asset: string
-  ];
-  export type OutputTuple = [investor: string, amount: bigint, asset: string];
-  export interface OutputObject {
-    investor: string;
-    amount: bigint;
-    asset: string;
-  }
-  export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
-  export type Filter = TypedDeferredTopicFilter<Event>;
-  export type Log = TypedEventLog<Event>;
-  export type LogDescription = TypedLogDescription<Event>;
-}
-
-export namespace InvestmentWithdrawnEvent {
-  export type InputTuple = [
-    investor: AddressLike,
-    amount: BigNumberish,
-    asset: string
-  ];
-  export type OutputTuple = [investor: string, amount: bigint, asset: string];
-  export interface OutputObject {
-    investor: string;
-    amount: bigint;
-    asset: string;
+    source: string;
   }
   export type Event = TypedContractEvent<InputTuple, OutputTuple, OutputObject>;
   export type Filter = TypedDeferredTopicFilter<Event>;
@@ -669,7 +699,13 @@ export interface Company extends BaseContract {
 
   name: TypedContractMethod<[], [string], "view">;
 
-  onFundraiserCompleted: TypedContractMethod<
+  onFundraiserSuccessfullyCompleted: TypedContractMethod<
+    [totalCollectedETH: BigNumberish, totalCollectedUF: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+
+  onFundraiserUnsuccessfulEnded: TypedContractMethod<
     [totalCollectedETH: BigNumberish, totalCollectedUF: BigNumberish],
     [void],
     "nonpayable"
@@ -838,7 +874,14 @@ export interface Company extends BaseContract {
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "onFundraiserCompleted"
+    nameOrSignature: "onFundraiserSuccessfullyCompleted"
+  ): TypedContractMethod<
+    [totalCollectedETH: BigNumberish, totalCollectedUF: BigNumberish],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
+    nameOrSignature: "onFundraiserUnsuccessfulEnded"
   ): TypedContractMethod<
     [totalCollectedETH: BigNumberish, totalCollectedUF: BigNumberish],
     [void],
@@ -923,18 +966,25 @@ export interface Company extends BaseContract {
     CofounderRemovedEvent.OutputObject
   >;
   getEvent(
-    key: "FundraiserCompleted"
-  ): TypedContractEvent<
-    FundraiserCompletedEvent.InputTuple,
-    FundraiserCompletedEvent.OutputTuple,
-    FundraiserCompletedEvent.OutputObject
-  >;
-  getEvent(
     key: "FundraiserCreated"
   ): TypedContractEvent<
     FundraiserCreatedEvent.InputTuple,
     FundraiserCreatedEvent.OutputTuple,
     FundraiserCreatedEvent.OutputObject
+  >;
+  getEvent(
+    key: "FundraiserSuccessfullyCompleted"
+  ): TypedContractEvent<
+    FundraiserSuccessfullyCompletedEvent.InputTuple,
+    FundraiserSuccessfullyCompletedEvent.OutputTuple,
+    FundraiserSuccessfullyCompletedEvent.OutputObject
+  >;
+  getEvent(
+    key: "FundraiserUnsuccessfulEnded"
+  ): TypedContractEvent<
+    FundraiserUnsuccessfulEndedEvent.InputTuple,
+    FundraiserUnsuccessfulEndedEvent.OutputTuple,
+    FundraiserUnsuccessfulEndedEvent.OutputObject
   >;
   getEvent(
     key: "FundsReceived"
@@ -949,20 +999,6 @@ export interface Company extends BaseContract {
     FundsWithdrawnEvent.InputTuple,
     FundsWithdrawnEvent.OutputTuple,
     FundsWithdrawnEvent.OutputObject
-  >;
-  getEvent(
-    key: "InvestmentReceived"
-  ): TypedContractEvent<
-    InvestmentReceivedEvent.InputTuple,
-    InvestmentReceivedEvent.OutputTuple,
-    InvestmentReceivedEvent.OutputObject
-  >;
-  getEvent(
-    key: "InvestmentWithdrawn"
-  ): TypedContractEvent<
-    InvestmentWithdrawnEvent.InputTuple,
-    InvestmentWithdrawnEvent.OutputTuple,
-    InvestmentWithdrawnEvent.OutputObject
   >;
   getEvent(
     key: "OwnershipTransferred"
@@ -995,18 +1031,7 @@ export interface Company extends BaseContract {
       CofounderRemovedEvent.OutputObject
     >;
 
-    "FundraiserCompleted(address,uint256,uint256)": TypedContractEvent<
-      FundraiserCompletedEvent.InputTuple,
-      FundraiserCompletedEvent.OutputTuple,
-      FundraiserCompletedEvent.OutputObject
-    >;
-    FundraiserCompleted: TypedContractEvent<
-      FundraiserCompletedEvent.InputTuple,
-      FundraiserCompletedEvent.OutputTuple,
-      FundraiserCompletedEvent.OutputObject
-    >;
-
-    "FundraiserCreated(address)": TypedContractEvent<
+    "FundraiserCreated(address,address,string,uint256,uint256)": TypedContractEvent<
       FundraiserCreatedEvent.InputTuple,
       FundraiserCreatedEvent.OutputTuple,
       FundraiserCreatedEvent.OutputObject
@@ -1017,7 +1042,29 @@ export interface Company extends BaseContract {
       FundraiserCreatedEvent.OutputObject
     >;
 
-    "FundsReceived(uint256,address,string)": TypedContractEvent<
+    "FundraiserSuccessfullyCompleted(address,address,uint256,uint256)": TypedContractEvent<
+      FundraiserSuccessfullyCompletedEvent.InputTuple,
+      FundraiserSuccessfullyCompletedEvent.OutputTuple,
+      FundraiserSuccessfullyCompletedEvent.OutputObject
+    >;
+    FundraiserSuccessfullyCompleted: TypedContractEvent<
+      FundraiserSuccessfullyCompletedEvent.InputTuple,
+      FundraiserSuccessfullyCompletedEvent.OutputTuple,
+      FundraiserSuccessfullyCompletedEvent.OutputObject
+    >;
+
+    "FundraiserUnsuccessfulEnded(address,address,uint256,uint256)": TypedContractEvent<
+      FundraiserUnsuccessfulEndedEvent.InputTuple,
+      FundraiserUnsuccessfulEndedEvent.OutputTuple,
+      FundraiserUnsuccessfulEndedEvent.OutputObject
+    >;
+    FundraiserUnsuccessfulEnded: TypedContractEvent<
+      FundraiserUnsuccessfulEndedEvent.InputTuple,
+      FundraiserUnsuccessfulEndedEvent.OutputTuple,
+      FundraiserUnsuccessfulEndedEvent.OutputObject
+    >;
+
+    "FundsReceived(uint256,address,string,string)": TypedContractEvent<
       FundsReceivedEvent.InputTuple,
       FundsReceivedEvent.OutputTuple,
       FundsReceivedEvent.OutputObject
@@ -1028,7 +1075,7 @@ export interface Company extends BaseContract {
       FundsReceivedEvent.OutputObject
     >;
 
-    "FundsWithdrawn(uint256,address,string)": TypedContractEvent<
+    "FundsWithdrawn(uint256,address,string,string)": TypedContractEvent<
       FundsWithdrawnEvent.InputTuple,
       FundsWithdrawnEvent.OutputTuple,
       FundsWithdrawnEvent.OutputObject
@@ -1037,28 +1084,6 @@ export interface Company extends BaseContract {
       FundsWithdrawnEvent.InputTuple,
       FundsWithdrawnEvent.OutputTuple,
       FundsWithdrawnEvent.OutputObject
-    >;
-
-    "InvestmentReceived(address,uint256,string)": TypedContractEvent<
-      InvestmentReceivedEvent.InputTuple,
-      InvestmentReceivedEvent.OutputTuple,
-      InvestmentReceivedEvent.OutputObject
-    >;
-    InvestmentReceived: TypedContractEvent<
-      InvestmentReceivedEvent.InputTuple,
-      InvestmentReceivedEvent.OutputTuple,
-      InvestmentReceivedEvent.OutputObject
-    >;
-
-    "InvestmentWithdrawn(address,uint256,string)": TypedContractEvent<
-      InvestmentWithdrawnEvent.InputTuple,
-      InvestmentWithdrawnEvent.OutputTuple,
-      InvestmentWithdrawnEvent.OutputObject
-    >;
-    InvestmentWithdrawn: TypedContractEvent<
-      InvestmentWithdrawnEvent.InputTuple,
-      InvestmentWithdrawnEvent.OutputTuple,
-      InvestmentWithdrawnEvent.OutputObject
     >;
 
     "OwnershipTransferred(address,address)": TypedContractEvent<

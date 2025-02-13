@@ -4,8 +4,6 @@ pragma solidity ^0.8.20;
 import "./TokenUF.sol";
 // import "./Staking.sol";
 import "./Company.sol";
-// import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import "./MockAgregator.sol";
 import "./CompanyManager.sol";
 import "./FundraisingManager.sol";
 import "./ProposalManager.sol";
@@ -15,11 +13,6 @@ contract UnityFlow {
     CompanyManager public companyManager;
     FundraisingManager public fundraisingManager;
     ProposalManager public proposalManager;
-    // AggregatorV3Interface public ethPriceFeed;
-    // AggregatorV3Interface public tokenPriceFeed;
-
-    MockPriceFeed public ethPriceFeed;
-    MockPriceFeed public tokenPriceFeed;
     
     uint256 public platformFeePercent = 5;
     uint256 public minTokenBalance = 100 * 10**18;
@@ -27,7 +20,7 @@ contract UnityFlow {
     event TotalFundsUpdated(uint256 newTotalFunds, string currency, string kind);
     event PlatformFeeReceived(uint256 amount, string currency);
 
-    constructor(address tokenAddress, address fundraisingManagerAddress, address proposalManagerAddress, address _ethPriceFeed, address _tokenPriceFeed) {
+    constructor(address tokenAddress, address fundraisingManagerAddress, address proposalManagerAddress) {
         token = TokenUF(tokenAddress);
         companyManager = new CompanyManager(address(token));
         fundraisingManager = FundraisingManager(fundraisingManagerAddress);
@@ -35,9 +28,6 @@ contract UnityFlow {
 
         // ethPriceFeed = AggregatorV3Interface(_ethPriceFeed);
         // tokenPriceFeed = AggregatorV3Interface(_tokenPriceFeed);
-
-        ethPriceFeed = MockPriceFeed(_ethPriceFeed);
-        tokenPriceFeed = MockPriceFeed(_tokenPriceFeed);
     }
 
     modifier hasMinimumTokens(address user) {
@@ -177,6 +167,27 @@ contract UnityFlow {
         }
         
         return companyList;
+    }
+
+    function getAllFundraisers(bool onlyActive) external view returns (address[] memory) {
+        uint256 totalFundraisers = fundraisingManager.fundraiserCount(); 
+        address[] memory fundraiserList = new address[](totalFundraisers);
+        uint256 index = 0;
+
+        for (uint256 i = 0; i < totalFundraisers; i++) { 
+            address fundraiserAddress = fundraisingManager.fundraisers(i); 
+
+            if (!onlyActive || fundraisingManager.isActiveFundraiser(fundraiserAddress)) {
+                fundraiserList[index] = fundraiserAddress;
+                index++;
+            }
+        }
+
+        assembly {
+            mstore(fundraiserList, index) 
+        }
+        
+        return fundraiserList;
     }
 
     function updateDonations(uint256 amount, string calldata currency) external {

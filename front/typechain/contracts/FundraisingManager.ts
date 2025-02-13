@@ -27,11 +27,17 @@ export interface FundraisingManagerInterface extends Interface {
       | "createFundraising"
       | "decreaseInvestments"
       | "donationsByCurrency"
+      | "ethPriceFeed"
+      | "fundraiserCount"
+      | "fundraisers"
+      | "getFundraisers"
       | "getTotalDonations"
       | "getTotalInvestments"
       | "increaseInvestments"
       | "investmentsByCurrency"
+      | "isActiveFundraiser"
       | "token"
+      | "tokenPriceFeed"
       | "updateDonations"
   ): FunctionFragment;
 
@@ -59,6 +65,22 @@ export interface FundraisingManagerInterface extends Interface {
     values: [string]
   ): string;
   encodeFunctionData(
+    functionFragment: "ethPriceFeed",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fundraiserCount",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "fundraisers",
+    values: [BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getFundraisers",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getTotalDonations",
     values: [string]
   ): string;
@@ -74,7 +96,15 @@ export interface FundraisingManagerInterface extends Interface {
     functionFragment: "investmentsByCurrency",
     values: [string]
   ): string;
+  encodeFunctionData(
+    functionFragment: "isActiveFundraiser",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "tokenPriceFeed",
+    values?: undefined
+  ): string;
   encodeFunctionData(
     functionFragment: "updateDonations",
     values: [BigNumberish, string]
@@ -93,6 +123,22 @@ export interface FundraisingManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "ethPriceFeed",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fundraiserCount",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "fundraisers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getFundraisers",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "getTotalDonations",
     data: BytesLike
   ): Result;
@@ -108,7 +154,15 @@ export interface FundraisingManagerInterface extends Interface {
     functionFragment: "investmentsByCurrency",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "isActiveFundraiser",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "tokenPriceFeed",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "updateDonations",
     data: BytesLike
@@ -183,6 +237,14 @@ export interface FundraisingManager extends BaseContract {
 
   donationsByCurrency: TypedContractMethod<[arg0: string], [bigint], "view">;
 
+  ethPriceFeed: TypedContractMethod<[], [string], "view">;
+
+  fundraiserCount: TypedContractMethod<[], [bigint], "view">;
+
+  fundraisers: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+
+  getFundraisers: TypedContractMethod<[], [string[]], "view">;
+
   getTotalDonations: TypedContractMethod<[currency: string], [bigint], "view">;
 
   getTotalInvestments: TypedContractMethod<
@@ -199,7 +261,15 @@ export interface FundraisingManager extends BaseContract {
 
   investmentsByCurrency: TypedContractMethod<[arg0: string], [bigint], "view">;
 
+  isActiveFundraiser: TypedContractMethod<
+    [fundraiser: AddressLike],
+    [boolean],
+    "view"
+  >;
+
   token: TypedContractMethod<[], [string], "view">;
+
+  tokenPriceFeed: TypedContractMethod<[], [string], "view">;
 
   updateDonations: TypedContractMethod<
     [amount: BigNumberish, currency: string],
@@ -240,6 +310,18 @@ export interface FundraisingManager extends BaseContract {
     nameOrSignature: "donationsByCurrency"
   ): TypedContractMethod<[arg0: string], [bigint], "view">;
   getFunction(
+    nameOrSignature: "ethPriceFeed"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "fundraiserCount"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "fundraisers"
+  ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
+  getFunction(
+    nameOrSignature: "getFundraisers"
+  ): TypedContractMethod<[], [string[]], "view">;
+  getFunction(
     nameOrSignature: "getTotalDonations"
   ): TypedContractMethod<[currency: string], [bigint], "view">;
   getFunction(
@@ -256,7 +338,13 @@ export interface FundraisingManager extends BaseContract {
     nameOrSignature: "investmentsByCurrency"
   ): TypedContractMethod<[arg0: string], [bigint], "view">;
   getFunction(
+    nameOrSignature: "isActiveFundraiser"
+  ): TypedContractMethod<[fundraiser: AddressLike], [boolean], "view">;
+  getFunction(
     nameOrSignature: "token"
+  ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "tokenPriceFeed"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "updateDonations"

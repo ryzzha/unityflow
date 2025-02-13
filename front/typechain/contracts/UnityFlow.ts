@@ -32,11 +32,11 @@ export interface UnityFlowInterface extends Interface {
       | "createFundraising"
       | "createProposal"
       | "decreaseInvestments"
-      | "ethPriceFeed"
       | "executeProposal"
       | "fundraisingManager"
       | "getActiveCompanies"
       | "getAllCompanies"
+      | "getAllFundraisers"
       | "getCompanyAddress"
       | "getPlatformStats"
       | "getTotalDonations"
@@ -52,7 +52,6 @@ export interface UnityFlowInterface extends Interface {
       | "registerCompany"
       | "removeCompanyFromUser"
       | "token"
-      | "tokenPriceFeed"
       | "transferETH"
       | "transferUF"
       | "updateDonations"
@@ -97,10 +96,6 @@ export interface UnityFlowInterface extends Interface {
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
-    functionFragment: "ethPriceFeed",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "executeProposal",
     values: [BytesLike, AddressLike, string, BytesLike]
   ): string;
@@ -114,6 +109,10 @@ export interface UnityFlowInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getAllCompanies",
+    values: [boolean]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getAllFundraisers",
     values: [boolean]
   ): string;
   encodeFunctionData(
@@ -174,10 +173,6 @@ export interface UnityFlowInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "tokenPriceFeed",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "transferETH",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -223,10 +218,6 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
-    functionFragment: "ethPriceFeed",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
     functionFragment: "executeProposal",
     data: BytesLike
   ): Result;
@@ -240,6 +231,10 @@ export interface UnityFlowInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getAllCompanies",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getAllFundraisers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -299,10 +294,6 @@ export interface UnityFlowInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "tokenPriceFeed",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "transferETH",
     data: BytesLike
@@ -442,8 +433,6 @@ export interface UnityFlow extends BaseContract {
     "nonpayable"
   >;
 
-  ethPriceFeed: TypedContractMethod<[], [string], "view">;
-
   executeProposal: TypedContractMethod<
     [
       proposalHash: BytesLike,
@@ -460,6 +449,12 @@ export interface UnityFlow extends BaseContract {
   getActiveCompanies: TypedContractMethod<[], [bigint], "view">;
 
   getAllCompanies: TypedContractMethod<
+    [onlyActive: boolean],
+    [string[]],
+    "view"
+  >;
+
+  getAllFundraisers: TypedContractMethod<
     [onlyActive: boolean],
     [string[]],
     "view"
@@ -563,8 +558,6 @@ export interface UnityFlow extends BaseContract {
 
   token: TypedContractMethod<[], [string], "view">;
 
-  tokenPriceFeed: TypedContractMethod<[], [string], "view">;
-
   transferETH: TypedContractMethod<
     [to: AddressLike, _amount: BigNumberish],
     [void],
@@ -647,9 +640,6 @@ export interface UnityFlow extends BaseContract {
     "nonpayable"
   >;
   getFunction(
-    nameOrSignature: "ethPriceFeed"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "executeProposal"
   ): TypedContractMethod<
     [
@@ -669,6 +659,9 @@ export interface UnityFlow extends BaseContract {
   ): TypedContractMethod<[], [bigint], "view">;
   getFunction(
     nameOrSignature: "getAllCompanies"
+  ): TypedContractMethod<[onlyActive: boolean], [string[]], "view">;
+  getFunction(
+    nameOrSignature: "getAllFundraisers"
   ): TypedContractMethod<[onlyActive: boolean], [string[]], "view">;
   getFunction(
     nameOrSignature: "getCompanyAddress"
@@ -762,9 +755,6 @@ export interface UnityFlow extends BaseContract {
   >;
   getFunction(
     nameOrSignature: "token"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "tokenPriceFeed"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "transferETH"
