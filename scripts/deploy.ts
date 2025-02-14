@@ -12,13 +12,11 @@ async function main() {
 
   // Деплоїмо MockPriceFeed для ETH та токена
   const MockPriceFeedFactory = await ethers.getContractFactory("MockPriceFeed");
-  const ethInitialPrice = ethers.parseUnits("3000", 8); // 3000$
-  const tokenInitialPrice = ethers.parseUnits("5", 8); // 5$
-  const ethPriceFeed = await MockPriceFeedFactory.deploy(ethInitialPrice);
+  const ethPriceFeed = await MockPriceFeedFactory.deploy("3000"); // 3000$
   await ethPriceFeed.waitForDeployment();
   console.log("ETH PriceFeed контракт деплоєно за адресою:", await ethPriceFeed.getAddress());
 
-  const tokenPriceFeed = await MockPriceFeedFactory.deploy(tokenInitialPrice);
+  const tokenPriceFeed = await MockPriceFeedFactory.deploy("5"); // 5$
   await tokenPriceFeed.waitForDeployment();
   console.log("Token PriceFeed контракт деплоєно за адресою:", await tokenPriceFeed.getAddress());
 

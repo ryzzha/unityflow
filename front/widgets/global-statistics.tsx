@@ -22,17 +22,19 @@ interface GlobalStatsProps {
 
     if (!stats) return null;
 
+    console.log(stats)
+
     const totalDonationsUSD =
       (parseFloat(stats.totalDonationsETH ?? "0") * ethToUsd) +
       (parseFloat(stats.totalDonationsUF ?? "0") * ufToUsd);
   
     const totalInvestmentsUSD =
-      (parseFloat(stats.totalInvestmentsETH ?? "0") * ethToUsd) +
-      (parseFloat(stats.totalInvestmentsUF ?? "0") * ufToUsd);
+      (parseFloat(stats.totalInvestmentsETH.toString() ?? "0") * ethToUsd) +
+      (parseFloat(stats.totalInvestmentsUF.toString() ?? "0") * ufToUsd);
   
     const platformBalanceUSD =
-      (parseFloat(stats.platformBalanceETH ?? "0") * ethToUsd) +
-      (parseFloat(stats.platformBalanceUF ?? "0") * ufToUsd);
+      (parseFloat(stats.platformBalanceETH.toString() ?? "0") * ethToUsd) +
+      (parseFloat(stats.platformBalanceUF.toString() ?? "0") * ufToUsd);
   
     return (
       <div className="mt-6 p-6 z-50 bg-gradient-to-r from-gray-50/85 to-gray-100/55 shadow-md rounded-2xl w-full mx-auto">
@@ -51,7 +53,7 @@ interface GlobalStatsProps {
   
           {/* 💰 Total Donations */}
           <StatBox title="Total Donations" color="bg-blue-200/40" hover="hover:bg-blue-300/40">
-            <p className="text-lg font-semibold text-gray-800">{totalDonationsUSD.toFixed(2)} $</p>
+            <p className="text-lg font-semibold text-gray-800">{totalDonationsUSD.toFixed(1)} $</p>
             <div className="text-sm text-gray-600 mt-1">
               <p>💎 {stats.totalDonationsETH ?? "0"} ETH</p>
               <p>🪙 {stats.totalDonationsUF ?? "0"} UF</p>
@@ -60,7 +62,7 @@ interface GlobalStatsProps {
   
           {/* 📈 Total Investments */}
           <StatBox title="Total Investments" color="bg-green-200/40" hover="hover:bg-green-300/40">
-            <p className="text-lg font-semibold text-gray-800">{totalInvestmentsUSD.toFixed(2)} $</p>
+            <p className="text-lg font-semibold text-gray-800">{totalInvestmentsUSD.toFixed(1)} $</p>
             <div className="text-sm text-gray-600 mt-1">
               <p>💎 {stats.totalInvestmentsETH ?? "0"} ETH</p>
               <p>🪙 {stats.totalInvestmentsUF ?? "0"} UF</p>
@@ -69,7 +71,7 @@ interface GlobalStatsProps {
   
           {/* 🏦 Platform Balance */}
           <StatBox title="Platform Balance" color="bg-gray-200/40" hover="hover:bg-gray-300/40">
-            <p className="text-lg font-semibold text-gray-800">{platformBalanceUSD.toFixed(2)} $</p>
+            <p className="text-lg font-semibold text-gray-800">{platformBalanceUSD.toFixed(1)} $</p>
             <div className="text-sm text-gray-600 mt-1">
               <p>💎 {stats.platformBalanceETH ?? "0"} ETH</p>
               <p>🪙 {stats.platformBalanceUF ?? "0"} UF</p>

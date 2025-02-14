@@ -48,7 +48,7 @@ contract FundraisingManager {
             description: description,
             image: image,
             category: category,
-            goalUSD: goalUSD,
+            goalUSD: goalUSD * 1e18,
             deadline: deadline,
             token: token,
             platformFeePercent: platformFeePercent

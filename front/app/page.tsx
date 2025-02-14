@@ -27,15 +27,15 @@ const HomePage = () => {
         setStats({
           companyCount: Number(result[0]), // Конвертація bigint у number
           totalDonationsETH: ethers.formatEther(result[1]), // Конвертація ETH
-          totalDonationsUF: result[2].toString(), // Токени як строка
+          totalDonationsUF: ethers.formatUnits(result[2]), // Токени як строка
           totalInvestmentsETH: ethers.formatEther(result[3]),
-          totalInvestmentsUF: result[4].toString(),
+          totalInvestmentsUF: ethers.formatUnits(result[4]),
           activeCompanies: Number(result[5]), // Конвертація bigint у number
           closedCompanies: Number(result[6]),
           proposalCount: Number(result[7]),
           totalVotes: Number(result[8]),
           platformBalanceETH: ethers.formatEther(result[9]),
-          platformBalanceUF: result[10].toString(),
+          platformBalanceUF: ethers.formatUnits(result[10]),
         });
 
 

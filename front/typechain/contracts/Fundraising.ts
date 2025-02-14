@@ -77,6 +77,7 @@ export interface FundraisingInterface extends Interface {
       | "getInfo"
       | "getLatestETHPrice"
       | "getLatestTokenPrice"
+      | "getStatus"
       | "isActive"
       | "owner"
       | "platformFeePercent"
@@ -147,6 +148,7 @@ export interface FundraisingInterface extends Interface {
     functionFragment: "getLatestTokenPrice",
     values?: undefined
   ): string;
+  encodeFunctionData(functionFragment: "getStatus", values?: undefined): string;
   encodeFunctionData(functionFragment: "isActive", values?: undefined): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -215,6 +217,7 @@ export interface FundraisingInterface extends Interface {
     functionFragment: "getLatestTokenPrice",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getStatus", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "isActive", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(
@@ -464,13 +467,15 @@ export interface Fundraising extends BaseContract {
 
   getInfo: TypedContractMethod<
     [],
-    [[bigint, string, string, string, string, bigint, bigint, boolean]],
+    [[bigint, string, string, string, string, bigint, bigint, string]],
     "view"
   >;
 
   getLatestETHPrice: TypedContractMethod<[], [bigint], "view">;
 
   getLatestTokenPrice: TypedContractMethod<[], [bigint], "view">;
+
+  getStatus: TypedContractMethod<[], [string], "view">;
 
   isActive: TypedContractMethod<[], [boolean], "view">;
 
@@ -567,7 +572,7 @@ export interface Fundraising extends BaseContract {
     nameOrSignature: "getInfo"
   ): TypedContractMethod<
     [],
-    [[bigint, string, string, string, string, bigint, bigint, boolean]],
+    [[bigint, string, string, string, string, bigint, bigint, string]],
     "view"
   >;
   getFunction(
@@ -576,6 +581,9 @@ export interface Fundraising extends BaseContract {
   getFunction(
     nameOrSignature: "getLatestTokenPrice"
   ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "getStatus"
+  ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "isActive"
   ): TypedContractMethod<[], [boolean], "view">;

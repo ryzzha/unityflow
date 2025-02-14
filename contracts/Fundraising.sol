@@ -86,25 +86,35 @@ contract Fundraising is Ownable {
     event FundraisingFailed(address indexed fundraiser, address indexed company, uint collectedETH, uint collectedUF);
 
     modifier notEnds() {
-        require(block.timestamp < deadline, "Campaign ended.");
+        require(block.timestamp < deadline, "Fundraising ended.");
         _;
     }
 
     modifier Ends() {
-        require(block.timestamp > deadline, "Campaign is still active.");
+        require(block.timestamp > deadline, "Fundraising is still active.");
         _;
     }
 
     function getInfo() external view returns (
-        uint, string memory, string memory, string memory, string memory, uint, uint, bool
+        uint, string memory, string memory, string memory, string memory, uint, uint, string memory
     ) {
-        return (id, companyName, title, image, category, goalUSD, deadline, isActive);
+        return (id, companyName, title, image, category, goalUSD, deadline, getStatus());
     }
 
     function getDetails() external view returns (
         uint, address, string memory, string memory, string memory, string memory, uint, uint, uint, uint, bool
     ) {
         return (id, address(company), title, description, image, category, goalUSD, deadline, collectedETH, collectedUF, claimed);
+    }
+
+    function getStatus() public view returns (string memory) {
+        if (block.timestamp < deadline) {
+            return "active"; 
+        }
+        if (checkGoalReached()) {
+            return "success"; 
+        }
+        return "failed"; 
     }
  
     function donateETH() external payable notEnds {
@@ -167,9 +177,6 @@ contract Fundraising is Ownable {
         }
 
         company.onFundraiserSuccessfullyCompleted(collectedETH, collectedUF);
-
-        collectedETH = 0;
-        collectedUF = 0;
 
         uint[2] memory amounts;
         string[2] memory currencies;

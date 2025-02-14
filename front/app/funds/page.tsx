@@ -9,6 +9,8 @@ import FundCard from "@/entities/fund/ui/fund-card";
 import { ethers, Contract } from "ethers";
 import { Fundraising__factory } from "@/typechain";
 
+type TStatus = "active" | "success" | "failed";
+
 interface IFund {
   id: bigint;
   company: string;
@@ -17,7 +19,7 @@ interface IFund {
   category: string;
   goalUSD: bigint;
   deadline: bigint;
-  isActive: boolean;
+  status: TStatus;
 }
 
 export default function Funds() {
@@ -43,7 +45,7 @@ export default function Funds() {
       const fundData: IFund[] = await Promise.all(
         activeFunds.map(async (fundAddress: string) => {
           const fundContract = Fundraising__factory.connect(fundAddress, provider);
-          const [id, company, title, image, category, goalUSD, deadline, isActive] = await fundContract.getInfo();
+          const [id, company, title, image, category, goalUSD, deadline, status] = await fundContract.getInfo();
 
           return {
             id,
@@ -53,7 +55,7 @@ export default function Funds() {
             category,
             goalUSD,
             deadline,
-            isActive,
+            status: status as TStatus,
           };
         })
       );

@@ -5,11 +5,11 @@ contract MockPriceFeed {
     int private price;
 
     constructor(int _initialPrice) {
-        price = _initialPrice;
+        price = _initialPrice * 1e8; 
     }
 
     function setPrice(int _price) public {
-        price = _price;
+        price = _price * 1e8; 
     }
 
     function latestRoundData()
