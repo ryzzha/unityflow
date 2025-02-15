@@ -6,13 +6,13 @@ import { IconKey } from "@/shared/types";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { JSX, useEffect, useState } from "react";
-import { CompanyIcon, MoneyIcon, AccountIcon, StakingIcon, CreateIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
+import { CompanyIcon, MoneyIcon, AccountIcon, StakingIcon, CreateIcon, DaoIcon, StatisticsSquareIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon } from "./icons";
 import { unityFlowLogo } from "@/assets";
 import { useMainContext } from "@/context/main-context";
 import { useContractsContext } from "@/context/contracts-context";
 
 const iconComponents: Record<IconKey, () => JSX.Element> = {
-    statistics: StatisticsIcon,
+    statistics: StatisticsSquareIcon,
     create: CreateIcon,
     company: CompanyIcon,
     funds: MoneyIcon,

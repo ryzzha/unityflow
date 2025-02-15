@@ -2,7 +2,7 @@
 
 import CustomButton from "@/components/custom-button";
 
-export default function DAOPage() {
+export default function DAO() {
   return (
     <div className="w-full h-screen flex flex-col items-center p-6 gap-6">
       <h1 className="text-2xl font-bold">DAO Governance</h1>

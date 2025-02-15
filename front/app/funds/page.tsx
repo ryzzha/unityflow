@@ -13,6 +13,7 @@ type TStatus = "active" | "success" | "failed";
 
 interface IFund {
   id: bigint;
+  address: string;
   company: string;
   title: string;
   image: string;
@@ -45,10 +46,11 @@ export default function Funds() {
       const fundData: IFund[] = await Promise.all(
         activeFunds.map(async (fundAddress: string) => {
           const fundContract = Fundraising__factory.connect(fundAddress, provider);
-          const [id, company, title, image, category, goalUSD, deadline, status] = await fundContract.getInfo();
+          const [id, address, company, title, image, category, goalUSD, deadline, status] = await fundContract.getInfo();
 
           return {
             id,
+            address,
             company,
             title,
             image,
@@ -72,11 +74,17 @@ export default function Funds() {
   }, [provider, unityFlow]);
 
   const filteredFunds = funds.filter((fund) => {
-    const title = fund.title?.toLowerCase() || "";
+    const title = fund.title.toLowerCase() || "";
+    const companyName = fund.company.toLowerCase() || "";
+
     const categoryMatch = category === "All" || fund.category === category;
-    const searchMatch = title.includes(searchQuery.toLowerCase());
+    const searchMatch =
+        title.includes(searchQuery.toLowerCase().trim()) ||
+        companyName.includes(searchQuery.toLowerCase().trim());
+
     return categoryMatch && searchMatch;
   });
+
 
   return (
     <div className="w-full h-auto flex flex-col gap-5 mb-5 ">
@@ -115,8 +123,8 @@ export default function Funds() {
         {isLoading && <span>Loading...</span>}
 
         <div className="w-full grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredFunds.map((fund) => (
-            <FundCard key={fund.title} fund={fund} />
+          {filteredFunds.map((fund, index) => (
+            <FundCard key={index} fund={fund} />
           ))}
         </div>
       </div>

@@ -10,7 +10,7 @@ export default function BaseLayout({ children }: BaseLayoutProps) {
     <div className="w-full h-screen absolute overflow-y-scroll flex font-[family-name:var(--font-geist-sans)]">
       <Navigation />
       
-      <div className="w-full h-screen px-5 sm:px-10 lg:px-20 xl:px-28 py-3 ">
+      <div className="w-full h-screen px-5 sm:px-10 lg:px-20 xl:px-28 py-5 ">
         {children}
       </div>
     </div>

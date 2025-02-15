@@ -2,6 +2,8 @@
 
 import { IGlobalStatistics } from "@/shared/interfaces";
 import { useState, useEffect } from "react";
+import { Icon } from "@/components/icon"
+import { CloseIcon, RocketIcon, StatisticsIcon, VoteIcon } from "@/components/icons";
 
 interface GlobalStatsProps {
     stats: IGlobalStatistics | null;
@@ -38,7 +40,7 @@ interface GlobalStatsProps {
   
     return (
       <div className="mt-6 p-6 z-50 bg-gradient-to-r from-gray-50/85 to-gray-100/55 shadow-md rounded-2xl w-full mx-auto">
-        <h2 className="text-xl font-semibold text-center mb-5 text-gray-700">📊 Platform Statistics</h2>
+        <div className="w-full flex gap-2 justify-center items-center mb-5"><StatisticsIcon /> <h2 className="text-xl font-semibold text-center  text-gray-700">Platform Statistics</h2></div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
   
@@ -46,35 +48,35 @@ interface GlobalStatsProps {
           <StatBox title="Total Companies" color="bg-green-200/40" hover="hover:bg-green-300/40">
             <p className="text-lg font-semibold text-gray-800">{stats.companyCount.toString()}</p>
             <div className="text-sm text-gray-600 mt-1">
-              <p>✅ Active: {stats.activeCompanies ?? "0"}</p>
-              <p>❌ Closed: {stats.closedCompanies ?? "0"}</p>
+              <p className="flex gap-1"><RocketIcon /> <span>Active: {stats.activeCompanies ?? "0"}</span></p>
+              <p className="flex gap-1"><CloseIcon  /> <span>Closed: {stats.closedCompanies ?? "0"}</span></p>
             </div>
           </StatBox>
   
           {/* 💰 Total Donations */}
           <StatBox title="Total Donations" color="bg-blue-200/40" hover="hover:bg-blue-300/40">
             <p className="text-lg font-semibold text-gray-800">{totalDonationsUSD.toFixed(1)} $</p>
-            <div className="text-sm text-gray-600 mt-1">
-              <p>💎 {stats.totalDonationsETH ?? "0"} ETH</p>
-              <p>🪙 {stats.totalDonationsUF ?? "0"} UF</p>
+            <div className=" flex flex-col gap-1 text-sm text-gray-600 mt-1">
+              <p className="flex gap-1"><Icon name="eth" /> <span>{stats.totalDonationsETH ?? "0"} ETH</span></p>
+              <p className="flex gap-1"><Icon name="uf" /> <span>{stats.totalDonationsUF ?? "0"} UF</span></p>
             </div>
           </StatBox>
   
           {/* 📈 Total Investments */}
           <StatBox title="Total Investments" color="bg-green-200/40" hover="hover:bg-green-300/40">
             <p className="text-lg font-semibold text-gray-800">{totalInvestmentsUSD.toFixed(1)} $</p>
-            <div className="text-sm text-gray-600 mt-1">
-              <p>💎 {stats.totalInvestmentsETH ?? "0"} ETH</p>
-              <p>🪙 {stats.totalInvestmentsUF ?? "0"} UF</p>
+            <div className="flex flex-col  gap-1 text-sm text-gray-600 mt-1">
+              <p className="flex gap-1"><Icon name="eth" /> <span>{stats.totalInvestmentsETH ?? "0"} ETH</span></p>
+              <p className="flex gap-1"><Icon name="uf" /> <span>{stats.totalInvestmentsUF ?? "0"} UF</span></p>
             </div>
           </StatBox>
   
           {/* 🏦 Platform Balance */}
           <StatBox title="Platform Balance" color="bg-gray-200/40" hover="hover:bg-gray-300/40">
             <p className="text-lg font-semibold text-gray-800">{platformBalanceUSD.toFixed(1)} $</p>
-            <div className="text-sm text-gray-600 mt-1">
-              <p>💎 {stats.platformBalanceETH ?? "0"} ETH</p>
-              <p>🪙 {stats.platformBalanceUF ?? "0"} UF</p>
+            <div className="flex flex-col gap-1 text-sm text-gray-600 mt-1">
+              <p className="flex gap-1"><Icon name="eth" /> <span>{stats.platformBalanceETH ?? "0"} ETH</span></p>
+              <p className="flex gap-1"><Icon name="uf" /> <span>{stats.platformBalanceUF ?? "0"} UF</span></p>
             </div>
           </StatBox>
   
@@ -82,7 +84,7 @@ interface GlobalStatsProps {
           <StatBox title="DAO Governance" color="bg-yellow-200/40" hover="hover:bg-yellow-200/65">
             <p className="text-lg font-semibold text-gray-800">{stats.proposalCount.toString()} proposals</p>
             <div className="text-xs text-gray-600 mt-1">
-              <p>🗳️ Total Votes: {stats.totalVotes.toString()}</p>
+            <p className="flex items-center gap-1"><VoteIcon /> <span>Total Votes: {stats.totalVotes.toString()}</span></p>
             </div>
           </StatBox>
   
@@ -107,7 +109,7 @@ interface GlobalStatsProps {
       {value !== undefined ? (
         <p className={`text-lg font-semibold text-gray-800 mt-1 ${highlight}`}>{value}</p>
       ) : (
-        children
+        <div className="w-full flex flex-col justify-center items-center">{children}</div> 
       )}
     </div>
   );
@@ -115,7 +117,7 @@ interface GlobalStatsProps {
   const SkeletonLoader = () => {
     return (
       <div className="animate-pulse mt-6 p-6 bg-gray-100/85 shadow-md rounded-2xl w-full mx-auto">
-        <h2 className="text-xl font-semibold text-center mb-5 text-gray-400">📊 Loading Platform Statistics...</h2>
+        <div className="w-full flex gap-2 justify-center items-center mb-5"><StatisticsIcon /> <h2 className="text-xl font-semibold text-center text-gray-400">Loading Platform Statistics...</h2></div>
   
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {Array.from({ length: 5 }).map((_, index) => (
@@ -126,3 +128,5 @@ interface GlobalStatsProps {
     );
   };
   
+
+

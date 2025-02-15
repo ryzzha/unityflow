@@ -5,9 +5,14 @@ import MoneyIcon from "./money-icon";
 import AccountIcon from "./account-icon";
 import StakingIcon from "./staking-icon";
 import StatisticsIcon from "./statistics-icon";
+import StatisticsSquareIcon from "./statistics-icon-square";
 import ChevronRigthIcon from "./chevron-double-right";
 import ChevronLeftIcon from "./chevron-double-left";
 import ConnectIcon from "./connect-icon";
+import VoteIcon from "./vote-icon";
+import CloseIcon from "./close-icon";
+import RocketIcon from "./rocket-icon";
 
 
-export { CompanyIcon, MoneyIcon, CreateIcon, AccountIcon, StakingIcon, DaoIcon, StatisticsIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon };
+export { CompanyIcon, MoneyIcon, CreateIcon, AccountIcon, StakingIcon, DaoIcon, StatisticsIcon, StatisticsSquareIcon, VoteIcon, CloseIcon, RocketIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon };
+

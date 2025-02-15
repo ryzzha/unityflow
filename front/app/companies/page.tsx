@@ -11,6 +11,7 @@ import { Company__factory } from "@/typechain";
 
 interface ICompany {
   id: bigint;
+  address: string;
   name: string;
   image: string;
   description: string;
@@ -39,10 +40,11 @@ export default function Companies() {
       const companyData: ICompany[] = await Promise.all(
         activeCompanies.map(async (companyAddress: string) => {
           const companyContract = Company__factory.connect(companyAddress, provider);
-          const [id, name, image, description, category, founder, isActive] = await companyContract.getCompanyInfo();
+          const [id, address, name, image, description, category, founder, isActive] = await companyContract.getCompanyInfo();
 
           return {
             id,
+            address,
             name,
             image,
             description,

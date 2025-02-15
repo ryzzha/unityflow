@@ -467,7 +467,7 @@ export interface Fundraising extends BaseContract {
 
   getInfo: TypedContractMethod<
     [],
-    [[bigint, string, string, string, string, bigint, bigint, string]],
+    [[bigint, string, string, string, string, string, bigint, bigint, string]],
     "view"
   >;
 
@@ -572,7 +572,7 @@ export interface Fundraising extends BaseContract {
     nameOrSignature: "getInfo"
   ): TypedContractMethod<
     [],
-    [[bigint, string, string, string, string, bigint, bigint, string]],
+    [[bigint, string, string, string, string, string, bigint, bigint, string]],
     "view"
   >;
   getFunction(

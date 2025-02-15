@@ -75,7 +75,7 @@ contract Fundraising is Ownable {
         ethPriceFeed = MockPriceFeed(_ethPriceFeed);
         tokenPriceFeed = MockPriceFeed(_tokenPriceFeed);
 
-        (, companyName, , , , , ) = company.getCompanyInfo();
+        (, , companyName, , , , , ) = company.getCompanyInfo();
     }
 
 
@@ -96,9 +96,9 @@ contract Fundraising is Ownable {
     }
 
     function getInfo() external view returns (
-        uint, string memory, string memory, string memory, string memory, uint, uint, string memory
+        uint, address, string memory, string memory, string memory, string memory, uint, uint, string memory
     ) {
-        return (id, companyName, title, image, category, goalUSD, deadline, getStatus());
+        return (id, address(this), companyName, title, image, category, goalUSD, deadline, getStatus());
     }
 
     function getDetails() external view returns (

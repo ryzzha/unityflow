@@ -26,6 +26,7 @@ import type {
 export declare namespace Company {
   export type CompanyDetailsStruct = {
     companyId: BigNumberish;
+    companyAddress: AddressLike;
     name: string;
     image: string;
     description: string;
@@ -43,6 +44,7 @@ export declare namespace Company {
 
   export type CompanyDetailsStructOutput = [
     companyId: bigint,
+    companyAddress: string,
     name: string,
     image: string,
     description: string,
@@ -58,6 +60,7 @@ export declare namespace Company {
     isActive: boolean
   ] & {
     companyId: bigint;
+    companyAddress: string;
     name: string;
     image: string;
     description: string;
@@ -83,6 +86,7 @@ export interface CompanyInterface extends Interface {
       | "cofounders"
       | "createFundraising"
       | "description"
+      | "distributeDividends"
       | "founder"
       | "fullWithdraw"
       | "fundraisers"
@@ -92,6 +96,7 @@ export interface CompanyInterface extends Interface {
       | "getCompanyFundraisers"
       | "getCompanyInfo"
       | "getInvestorBalance"
+      | "getInvestorDividends"
       | "id"
       | "image"
       | "investETH"
@@ -99,10 +104,13 @@ export interface CompanyInterface extends Interface {
       | "investorETHBalances"
       | "investorUFBalances"
       | "investors"
+      | "lastDividendDistribution"
       | "name"
       | "onFundraiserSuccessfullyCompleted"
       | "onFundraiserUnsuccessfulEnded"
       | "owner"
+      | "pendingDividendsETH"
+      | "pendingDividendsUF"
       | "receiveETH"
       | "receiveUF"
       | "removeCofounder"
@@ -114,6 +122,8 @@ export interface CompanyInterface extends Interface {
       | "totalInvestmentsUF"
       | "transferOwnership"
       | "unityFlow"
+      | "withdrawDividendsETH"
+      | "withdrawDividendsUF"
       | "withdrawETH"
       | "withdrawFromFundraising"
       | "withdrawInvestmentETH"
@@ -154,6 +164,10 @@ export interface CompanyInterface extends Interface {
     functionFragment: "description",
     values?: undefined
   ): string;
+  encodeFunctionData(
+    functionFragment: "distributeDividends",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "founder", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "fullWithdraw",
@@ -187,6 +201,10 @@ export interface CompanyInterface extends Interface {
     functionFragment: "getInvestorBalance",
     values: [AddressLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "getInvestorDividends",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(functionFragment: "id", values?: undefined): string;
   encodeFunctionData(functionFragment: "image", values?: undefined): string;
   encodeFunctionData(functionFragment: "investETH", values?: undefined): string;
@@ -206,6 +224,10 @@ export interface CompanyInterface extends Interface {
     functionFragment: "investors",
     values: [BigNumberish]
   ): string;
+  encodeFunctionData(
+    functionFragment: "lastDividendDistribution",
+    values?: undefined
+  ): string;
   encodeFunctionData(functionFragment: "name", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "onFundraiserSuccessfullyCompleted",
@@ -216,6 +238,14 @@ export interface CompanyInterface extends Interface {
     values: [BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
+  encodeFunctionData(
+    functionFragment: "pendingDividendsETH",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "pendingDividendsUF",
+    values: [AddressLike]
+  ): string;
   encodeFunctionData(
     functionFragment: "receiveETH",
     values?: undefined
@@ -255,6 +285,14 @@ export interface CompanyInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "unityFlow", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "withdrawDividendsETH",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "withdrawDividendsUF",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "withdrawETH",
     values: [AddressLike, BigNumberish]
   ): string;
@@ -293,6 +331,10 @@ export interface CompanyInterface extends Interface {
     functionFragment: "description",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "distributeDividends",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "founder", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "fullWithdraw",
@@ -326,6 +368,10 @@ export interface CompanyInterface extends Interface {
     functionFragment: "getInvestorBalance",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getInvestorDividends",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "id", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "image", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "investETH", data: BytesLike): Result;
@@ -339,6 +385,10 @@ export interface CompanyInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "investors", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "lastDividendDistribution",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "name", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "onFundraiserSuccessfullyCompleted",
@@ -349,6 +399,14 @@ export interface CompanyInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingDividendsETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "pendingDividendsUF",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "receiveETH", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "receiveUF", data: BytesLike): Result;
   decodeFunctionResult(
@@ -381,6 +439,14 @@ export interface CompanyInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "unityFlow", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawDividendsETH",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawDividendsUF",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "withdrawETH",
     data: BytesLike
@@ -635,6 +701,8 @@ export interface Company extends BaseContract {
 
   description: TypedContractMethod<[], [string], "view">;
 
+  distributeDividends: TypedContractMethod<[], [void], "nonpayable">;
+
   founder: TypedContractMethod<[], [string], "view">;
 
   fullWithdraw: TypedContractMethod<[to: AddressLike], [void], "nonpayable">;
@@ -656,8 +724,9 @@ export interface Company extends BaseContract {
   getCompanyInfo: TypedContractMethod<
     [],
     [
-      [bigint, string, string, string, string, string, boolean] & {
+      [bigint, string, string, string, string, string, string, boolean] & {
         companyId: bigint;
+        companyAddress: string;
         companyName: string;
         companyImage: string;
         companyDescription: string;
@@ -672,6 +741,12 @@ export interface Company extends BaseContract {
   getInvestorBalance: TypedContractMethod<
     [investor: AddressLike],
     [[bigint, bigint] & { ethBalance: bigint; ufBalance: bigint }],
+    "view"
+  >;
+
+  getInvestorDividends: TypedContractMethod<
+    [investor: AddressLike],
+    [[bigint, bigint] & { ethDividends: bigint; ufDividends: bigint }],
     "view"
   >;
 
@@ -697,6 +772,8 @@ export interface Company extends BaseContract {
 
   investors: TypedContractMethod<[arg0: BigNumberish], [string], "view">;
 
+  lastDividendDistribution: TypedContractMethod<[], [bigint], "view">;
+
   name: TypedContractMethod<[], [string], "view">;
 
   onFundraiserSuccessfullyCompleted: TypedContractMethod<
@@ -712,6 +789,18 @@ export interface Company extends BaseContract {
   >;
 
   owner: TypedContractMethod<[], [string], "view">;
+
+  pendingDividendsETH: TypedContractMethod<
+    [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
+
+  pendingDividendsUF: TypedContractMethod<
+    [arg0: AddressLike],
+    [bigint],
+    "view"
+  >;
 
   receiveETH: TypedContractMethod<[], [void], "payable">;
 
@@ -742,6 +831,10 @@ export interface Company extends BaseContract {
   >;
 
   unityFlow: TypedContractMethod<[], [string], "view">;
+
+  withdrawDividendsETH: TypedContractMethod<[], [void], "nonpayable">;
+
+  withdrawDividendsUF: TypedContractMethod<[], [void], "nonpayable">;
 
   withdrawETH: TypedContractMethod<
     [to: AddressLike, amount: BigNumberish],
@@ -807,6 +900,9 @@ export interface Company extends BaseContract {
     nameOrSignature: "description"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "distributeDividends"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "founder"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -832,8 +928,9 @@ export interface Company extends BaseContract {
   ): TypedContractMethod<
     [],
     [
-      [bigint, string, string, string, string, string, boolean] & {
+      [bigint, string, string, string, string, string, string, boolean] & {
         companyId: bigint;
+        companyAddress: string;
         companyName: string;
         companyImage: string;
         companyDescription: string;
@@ -849,6 +946,13 @@ export interface Company extends BaseContract {
   ): TypedContractMethod<
     [investor: AddressLike],
     [[bigint, bigint] & { ethBalance: bigint; ufBalance: bigint }],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getInvestorDividends"
+  ): TypedContractMethod<
+    [investor: AddressLike],
+    [[bigint, bigint] & { ethDividends: bigint; ufDividends: bigint }],
     "view"
   >;
   getFunction(nameOrSignature: "id"): TypedContractMethod<[], [bigint], "view">;
@@ -871,6 +975,9 @@ export interface Company extends BaseContract {
     nameOrSignature: "investors"
   ): TypedContractMethod<[arg0: BigNumberish], [string], "view">;
   getFunction(
+    nameOrSignature: "lastDividendDistribution"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "name"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
@@ -890,6 +997,12 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "pendingDividendsETH"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
+  getFunction(
+    nameOrSignature: "pendingDividendsUF"
+  ): TypedContractMethod<[arg0: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "receiveETH"
   ): TypedContractMethod<[], [void], "payable">;
@@ -923,6 +1036,12 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "unityFlow"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "withdrawDividendsETH"
+  ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "withdrawDividendsUF"
+  ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "withdrawETH"
   ): TypedContractMethod<

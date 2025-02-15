@@ -7,7 +7,7 @@ const menuItems: { name: string; link: string; icon: IconKey }[] = [
     { name: "Funds", link: "/funds", icon: "funds" },
     { name: "Dao", link: "/dao", icon: "dao" },
     { name: "Staking", link: "/staking", icon: "staking" },
-    { name: "Account", link: "/profile", icon: "account" },
+    { name: "Account", link: "/account", icon: "account" },
 ];
 
  const COMPANY_CATEGORIES: TCompanyCategory[] = [

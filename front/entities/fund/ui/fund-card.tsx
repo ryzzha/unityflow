@@ -10,6 +10,7 @@ import { formatUnits } from "ethers";
 interface FundCardProps {
   fund: {
     id: bigint;
+    address: string;
     company: string;
     title: string;
     image: string;
@@ -22,7 +23,7 @@ interface FundCardProps {
 }
 
 export default function FundCard({ fund, onRefund }: FundCardProps) {
-  const { id, company, title, image, category, goalUSD, deadline, status } = fund;
+  const { id, address, company, title, image, category, goalUSD, deadline, status } = fund;
   const router = useRouter();
 
   return (
@@ -68,7 +69,7 @@ export default function FundCard({ fund, onRefund }: FundCardProps) {
             <CustomButton 
               variant="secondary"
               size="small" 
-              onClick={() => router.push(`/funds/${id}`)}
+              onClick={() => router.push(`/funds/${address}`)}
               className="flex gap-1"
             >
               <span>View Details</span> <ArrowRightFilled /> 

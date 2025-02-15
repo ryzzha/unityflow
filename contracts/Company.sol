@@ -35,6 +35,7 @@ contract Company is Ownable {
 
     struct CompanyDetails {
         uint companyId;
+        address companyAddress;
         string name;
         string image;
         string description;
@@ -49,6 +50,11 @@ contract Company is Ownable {
         address[] investors;
         bool isActive;
     }
+
+    uint256 public lastDividendDistribution;
+
+    mapping(address => uint256) public pendingDividendsETH;
+    mapping(address => uint256) public pendingDividendsUF;
 
     event CofounderAdded(address cofounder);
     event CofounderRemoved(address cofounder);
@@ -180,7 +186,6 @@ contract Company is Ownable {
         
         investorETHBalances[msg.sender] += msg.value;
         totalInvestmentsETH += msg.value;
-        totalFundsETH += msg.value;
 
         unityFlow.increaseInvestments(msg.value, "ETH");
         emit FundsReceived(msg.value, msg.sender, "ETH", "investment_received");
@@ -199,7 +204,6 @@ contract Company is Ownable {
 
         investorUFBalances[msg.sender] += amount;
         totalInvestmentsUF += amount;
-        totalFundsUF += amount;
 
         unityFlow.increaseInvestments(amount, "UF");
         emit FundsReceived(amount, msg.sender, "ETH", "investment_received");
@@ -216,6 +220,10 @@ contract Company is Ownable {
         (bool sent, ) = payable(msg.sender).call{value: amount}("");
         require(sent, "Failed to send ETH");
 
+        if (investorETHBalances[msg.sender] == 0 && investorUFBalances[msg.sender] == 0) {
+            removeInvestor(msg.sender);
+        }
+
         unityFlow.decreaseInvestments(amount, "ETH");
         emit FundsWithdrawn(amount, msg.sender, "ETH", "investment_withdraw");
     }
@@ -231,7 +239,77 @@ contract Company is Ownable {
         token.transfer(msg.sender, amount);
         unityFlow.decreaseInvestments(amount, "UF");
 
+        if (investorETHBalances[msg.sender] == 0 && investorUFBalances[msg.sender] == 0) {
+            removeInvestor(msg.sender);
+        }
+
         emit FundsWithdrawn(amount, msg.sender, "UF", "investment_withdraw");
+    }
+
+    function distributeDividends() external onlyOwner {
+        require(block.timestamp >= lastDividendDistribution + 30 days, "Dividends already distributed this month");
+        require(totalFundsETH > 0 || totalFundsUF > 0, "No funds available for dividends");
+
+        uint256 totalDividendsETH = (totalFundsETH * 10) / 100; 
+        uint256 totalDividendsUF = (totalFundsUF * 10) / 100;   
+
+        require(totalDividendsETH > 0 || totalDividendsUF > 0, "No dividends to distribute");
+
+        for (uint i = 0; i < investors.length; i++) {
+            address investor = investors[i];
+
+            if (totalDividendsETH > 0) {
+                uint256 shareETH = (investorETHBalances[investor] * totalDividendsETH) / totalInvestmentsETH;
+                if (shareETH > 0) {
+                    pendingDividendsETH[investor] += shareETH;
+                }
+            }
+
+            if (totalDividendsUF > 0) {
+                uint256 shareUF = (investorUFBalances[investor] * totalDividendsUF) / totalInvestmentsUF;
+                if (shareUF > 0) {
+                    pendingDividendsUF[investor] += shareUF;
+                }
+            }
+        }
+
+        lastDividendDistribution = block.timestamp;
+    }
+
+    function withdrawDividendsETH() external {
+        uint256 amount = pendingDividendsETH[msg.sender];
+        require(amount > 0, "No ETH dividends available");
+        require(address(this).balance >= amount, "Not enough ETH balance in contract");
+
+        pendingDividendsETH[msg.sender] = 0; 
+
+        (bool sent, ) = payable(msg.sender).call{value: amount}("");
+        require(sent, "Failed to send ETH");
+
+        emit FundsWithdrawn(amount, msg.sender, "ETH", "dividends_withdraw");
+    }
+
+    function withdrawDividendsUF() external {
+        uint256 amount = pendingDividendsUF[msg.sender];
+        require(amount > 0, "No UF dividends available");
+        require(token.balanceOf(address(this)) >= amount, "Not enough UF balance in contract");
+
+        pendingDividendsUF[msg.sender] = 0; 
+
+        token.transfer(msg.sender, amount);
+
+        emit FundsWithdrawn(amount, msg.sender, "UF", "dividends_withdraw");
+    }
+
+    function removeInvestor(address investor) private {
+        uint256 length = investors.length;
+        for (uint256 i = 0; i < length; i++) {
+            if (investors[i] == investor) {
+                investors[i] = investors[length - 1]; 
+                investors.pop(); 
+                break;
+            }
+        }
     }
 
     function addCofounder(address cofounder) external onlyOwner {
@@ -266,6 +344,7 @@ contract Company is Ownable {
 
     function getCompanyInfo() external view returns (
         uint companyId,
+        address companyAddress,
         string memory companyName,
         string memory companyImage,
         string memory companyDescription,
@@ -273,12 +352,13 @@ contract Company is Ownable {
         address companyFounder,
         bool isActive
     ) {
-        return (id, name, image, description, category, founder, !closed);
+        return (id, address(this), name, image, description, category, founder, !closed);
     }
 
     function getCompanyDetails() external view returns (CompanyDetails memory) {
         return CompanyDetails({
             companyId: id,
+            companyAddress: address(this),
             name: name,
             image: image,
             description: description,
@@ -297,6 +377,10 @@ contract Company is Ownable {
 
     function getInvestorBalance(address investor) external view returns (uint256 ethBalance, uint256 ufBalance) {
         return (investorETHBalances[investor], investorUFBalances[investor]);
+    }
+
+    function getInvestorDividends(address investor) external view returns (uint256 ethDividends, uint256 ufDividends) {
+        return (pendingDividendsETH[investor], pendingDividendsUF[investor]);
     }
 
     function _isCofounder(address user) private view returns (bool) {

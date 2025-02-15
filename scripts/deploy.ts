@@ -61,3 +61,13 @@ main().catch((error) => {
   console.error(error);
   process.exitCode = 1;
 });
+
+
+// comands
+
+// npx hardhat compile 
+// npx hardhat node 
+
+// npx hardhat run scripts/deploy.ts --network localhost
+// npx hardhat run scripts/addTestData.ts --network localhost
+// npx hardhat run scripts/doAction.ts --network localhost

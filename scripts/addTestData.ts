@@ -50,47 +50,56 @@ async function main() {
   const category = ["Tech","Web3","FinTech","Security","Marketing","Gaming","SaaS","E-commerce"];
 
   // 🔸 12️⃣ Реєструємо компанії
-  for (const name of companyNames) {
-    console.log(`Реєстрація компанії: ${name}...`);
-    const image = "https://picsum.photos/200";
-    const description = `A decentralized company ${name}`;
-    const cofounders: Addressable[] = [];
-    const tx = await UnityFlow.connect(founder).registerCompany(name, image, description, category[getRandomInt(0, category.length)], cofounders);
-    await tx.wait();
-
-    const companyIndex = await companyManager.companyCount();
-    const companyAddress = await companyManager.companies(companyIndex);
-    const companyContract = await ethers.getContractAt("Company", companyAddress);
-
-    companyContracts.push(companyContract);
-    console.log(`✅ ${name} зареєстровано за адресою: ${companyAddress}`);
-  }
-
+  companyContracts = await Promise.all(
+    companyNames.map(async (name) => {
+      console.log(`Реєстрація компанії: ${name}...`);
+      const image = "https://picsum.photos/200";
+      const description = `A decentralized company ${name}`;
+      const cofounders: Addressable[] = [];
+      
+      // Відправляємо транзакцію на реєстрацію компанії
+      const tx = await UnityFlow.connect(founder).registerCompany(
+        name, image, description, category[getRandomInt(0, category.length)], cofounders
+      );
+      await tx.wait();
+  
+      // Отримуємо адресу створеної компанії
+      const companyIndex = await companyManager.companyCount();
+      const companyAddress = await companyManager.companies(companyIndex);
+      const companyContract = await ethers.getContractAt("Company", companyAddress);
+  
+      console.log(`✅ ${name} зареєстровано за адресою: ${companyAddress}`);
+      return companyContract;
+    })
+  );
+  
   console.log("🔹 Починаємо створення фондів для компаній...");
 
   // 🔸 3️⃣ Створюємо по 2 фонди для кожної компанії від імені засновника
-  for (const company of companyContracts) {
-    console.log(`📌 Створюємо фонди для компанії: ${await company.name()}...`);
-
-    for (let i = 1; i <= 2; i++) {
-      const goalUSD = (1000 * i).toString(); // Цільова сума (1000$ і 2000$)
-      const deadline = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60; // Дедлайн через 30 днів
-
-      const tx = await company.connect(founder).createFundraising(
-        `Фонд #${i} для ${await company.name()}`,
-        "Опис фонду",
-        "Категорія",
-        goalUSD,
-        deadline,
-        "image_url"
+  await Promise.all(
+    companyContracts.map(async (company) => {
+      console.log(`📌 Створюємо фонди для компанії: ${await company.name()}...`);
+  
+      await Promise.all(
+        [1, 2].map(async (i) => {
+          const goalUSD = (1000 * i).toString();
+          const deadline = Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60;
+  
+          const tx = await company.connect(founder).createFundraising(
+            `Фонд #${i} для ${await company.name()}`,
+            "Опис фонду",
+            "Категорія",
+            goalUSD,
+            deadline,
+            "image_url"
+          );
+          await tx.wait();
+  
+          console.log(`✅ Фонд #${i} створено для компанії ${await company.name()}!`);
+        })
       );
-      await tx.wait();
-
-      console.log(`✅ Фонд #${i} створено для компанії ${await company.name()}!`);
-    }
-  }
-
-  console.log("🎉 Тестові дані успішно створені!");
+    })
+  );
 }
 
 main().catch((error) => {

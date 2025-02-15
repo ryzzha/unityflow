@@ -3,11 +3,13 @@
 import ArrowRightFilled from "@/components/icons/arrow-right-filled";
 import CategoryIcon from "@/components/icons/category-icon";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import CustomButton from "@/components/custom-button";
 
 interface CompanyCardProps {
   company: {
     id: bigint;
+    address: string;
     name: string;
     image: string;
     description: string;
@@ -18,7 +20,9 @@ interface CompanyCardProps {
 }
 
 export default function CompanyCard({ company }: CompanyCardProps) {
-  const { name, image, description, category, founder, isActive } = company;
+  const { address, name, image, description, category, founder, isActive } = company;
+
+  const router = useRouter();
 
   const truncateText = (text: string, maxLength: number) => {
     return text.length > maxLength ? text.slice(0, maxLength) + "..." : text;
@@ -69,6 +73,7 @@ export default function CompanyCard({ company }: CompanyCardProps) {
             size="small" 
             disabled={!isActive} 
             className="flex gap-1 mt-2"
+            onClick={() => router.push(`companies/${address}`)}
             >
               <span>View Details</span> <ArrowRightFilled /> 
           </CustomButton>
