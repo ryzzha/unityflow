@@ -93,7 +93,6 @@ export interface CompanyInterface extends Interface {
       | "fundraisingCount"
       | "getCofounders"
       | "getCompanyDetails"
-      | "getCompanyFundraisers"
       | "getCompanyInfo"
       | "getInvestorBalance"
       | "getInvestorDividends"
@@ -187,10 +186,6 @@ export interface CompanyInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getCompanyDetails",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getCompanyFundraisers",
     values?: undefined
   ): string;
   encodeFunctionData(
@@ -354,10 +349,6 @@ export interface CompanyInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "getCompanyDetails",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getCompanyFundraisers",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -719,8 +710,6 @@ export interface Company extends BaseContract {
     "view"
   >;
 
-  getCompanyFundraisers: TypedContractMethod<[], [string[]], "view">;
-
   getCompanyInfo: TypedContractMethod<
     [],
     [
@@ -920,9 +909,6 @@ export interface Company extends BaseContract {
   getFunction(
     nameOrSignature: "getCompanyDetails"
   ): TypedContractMethod<[], [Company.CompanyDetailsStructOutput], "view">;
-  getFunction(
-    nameOrSignature: "getCompanyFundraisers"
-  ): TypedContractMethod<[], [string[]], "view">;
   getFunction(
     nameOrSignature: "getCompanyInfo"
   ): TypedContractMethod<

@@ -9,6 +9,8 @@ async function main() {
   const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; 
 
   const UnityFlow = await ethers.getContractAt("UnityFlow", unityFlowAddress);
+  const companyManagerAddrs = await UnityFlow.companyManager(); 
+  const CompanyManager = await ethers.getContractAt("CompanyManager", companyManagerAddrs);
   const TokenUF = await ethers.getContractAt("TokenUF", tokenAddress);
 
   console.log("🔹 Роздача токенів користувачам...");
@@ -51,27 +53,46 @@ async function main() {
 
   // 🔸 12️⃣ Реєструємо компанії
   companyContracts = await Promise.all(
-    companyNames.map(async (name) => {
+    companyNames.map(async (name, index) => {
       console.log(`Реєстрація компанії: ${name}...`);
       const image = "https://picsum.photos/200";
       const description = `A decentralized company ${name}`;
       const cofounders: Addressable[] = [];
-      
-      // Відправляємо транзакцію на реєстрацію компанії
+  
+      // Викликаємо транзакцію для реєстрації компанії
       const tx = await UnityFlow.connect(founder).registerCompany(
         name, image, description, category[getRandomInt(0, category.length)], cofounders
       );
-      await tx.wait();
+      console.log("Транзакція надіслана:", tx.hash);
+      
+      const receipt = await tx.wait();
+      if (!receipt) {
+        throw new Error(`❌ Не вдалося знайти транзакцію для ${name}`);
+      }
+      console.log("Транзакція підтверджена у блоці:", receipt.blockNumber);
+    
+
+      // Отримуємо події
+      const filter = CompanyManager.filters.CompanyRegistered();
+      const events = await CompanyManager.queryFilter(filter, receipt.blockNumber, receipt.blockNumber);
+
+      // console.log(events)
+
+      const event = events.find((e) => e.blockNumber === receipt.blockNumber);
+      if (!event) {
+        throw new Error(`❌ Подію CompanyRegistered не знайдено для ${name}`);
+      }
   
-      // Отримуємо адресу створеної компанії
-      const companyIndex = await companyManager.companyCount();
-      const companyAddress = await companyManager.companies(companyIndex);
+      // console.log("Аргументи події:", events[0].args);
+        
+      const companyAddress = events[0].args[1];
       const companyContract = await ethers.getContractAt("Company", companyAddress);
   
       console.log(`✅ ${name} зареєстровано за адресою: ${companyAddress}`);
       return companyContract;
     })
   );
+
   
   console.log("🔹 Починаємо створення фондів для компаній...");
 

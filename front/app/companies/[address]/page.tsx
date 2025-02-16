@@ -9,14 +9,15 @@ import { ethers, Contract } from "ethers";
 import { Company__factory, Fundraising__factory } from "@/typechain";
 import CategoryIcon from "@/components/icons/category-icon";
 import { motion } from "framer-motion";
+import { format } from "date-fns";
 
 const PAGE_SIZE = 5;
 
 const TABS = [
-    { id: "overview", label: "Огляд" },
-    { id: "funds", label: "Збори" },
-    { id: "investment", label: "Інвестиції" },
-    { id: "actions", label: "Дії" },
+    { id: "overview", label: "Overview" },
+    { id: "funds", label: "Funds" },
+    { id: "investment", label: "Investment" },
+    { id: "actions", label: "Actions" },
   ];
 
 interface ICompany {
@@ -40,6 +41,7 @@ interface ICompany {
 interface IFund {
     id: bigint;
     address: string;
+    company: string;
     title: string;
     image: string;
     category: string;
@@ -108,9 +110,10 @@ export default function CompanyPage() {
         const fundsData: IFund[] = await Promise.all(
             fundraisers.map(async (fundraiserAddrs) => {
                 const fundraiser = Fundraising__factory.connect(fundraiserAddrs, provider);
-                const [id, address, title, image, category, goalUSD, deadline, status] = await fundraiser.getInfo();
+                const [id, address, company, title, image, category, goalUSD, deadline, status] = await fundraiser.getInfo();
                 return {
                     id,
+                    company,
                     address,
                     title,
                     image,
@@ -235,40 +238,67 @@ export default function CompanyPage() {
         </div>
 
         <div className="mt-4">
-    {activeTab === "funds" && (
-        <div>
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-semibold">📢 Збори компанії</h2>
-            {signer && signer.getAddress().toString() === company.founder && (
-            <CustomButton variant="primary" onClick={() => router.push(`/fundraisers/create?company=${company.address}`)}>
-                ➕ Створити збір
-            </CustomButton>
-            )}
-        </div>
-
-        {/* 🔹 Лістинг зборів з пагінацією */}
-        {funds.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {funds.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((fundraiser, index) => (
-                <div key={index} className="p-4 bg-gray-50 rounded-lg shadow-sm">
-                <h3 className="text-md font-semibold mb-1">🏆 {fundraiser.title}</h3>
-                <p className="text-sm text-gray-600">Ціль: <span className="font-semibold">{fundraiser.goalUSD} USD</span></p>
-                <p className="text-sm text-gray-600">
-                    Дедлайн: <span className="font-semibold">{format(new Date(fundraiser.deadline * 1000), "dd.MM.yyyy")}</span>
-                </p>
-                <p className={`text-sm font-semibold ${fundraiser.isActive ? "text-green-600" : "text-red-600"}`}>
-                    {fundraiser.isActive ? "Активний" : "Завершено"}
-                </p>
-                <CustomButton variant="secondary" onClick={() => router.push(`/fundraisers/${fundraiser.address}`)}>
-                    🔍 Переглянути
-                </CustomButton>
-                </div>
-            ))}
-            </div>
-        ) : (
-            <p className="text-gray-500 text-sm">Зборів ще немає.</p>
+  {activeTab === "funds" && (
+    <>
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">📢 Збори компанії</h2>
+        {signer && signer.getAddress().toString() === company.founder && (
+          <CustomButton
+            variant="primary"
+            onClick={() => router.push(`/fundraisers/create?company=${company.address}`)}
+          >
+            ➕ Створити збір
+          </CustomButton>
         )}
+      </div>
 
+      {/* 🔹 Лістинг зборів з пагінацією */}
+      {funds ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {funds.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE).map((fund, index) => (
+            <div key={index} className="p-4 bg-gray-50 rounded-lg shadow-sm">
+              <h3 className="text-md font-semibold mb-1">🏆 {fund.title}</h3>
+              <p className="text-sm text-gray-600">
+                Ціль: <span className="font-semibold">{fund.goalUSD} USD</span>
+              </p>
+              <p className="text-sm text-gray-600">
+                Дедлайн:{" "}
+                <span className="font-semibold">
+                  {format(new Date(Number(fund.deadline) * 1000), "dd.MM.yyyy")}
+                </span>
+              </p>
+              <p
+                className={`text-sm font-semibold ${
+                  fund.status === "active"
+                    ? "text-green-600"
+                    : fund.status === "success"
+                    ? "text-blue-600"
+                    : "text-red-600"
+                }`}
+              >
+                {fund.status === "active"
+                  ? "Active"
+                  : fund.status === "success"
+                  ? "Success"
+                  : "Failed"}
+              </p>
+              <CustomButton
+                variant="secondary"
+                onClick={() => router.push(`/fundraisers/${fund.address}`)}
+              >
+                🔍 Переглянути
+              </CustomButton>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-gray-500 text-sm">Зборів ще немає.</p>
+      )}
+    </>
+  )}
+</div>
+
+        <div>
         {/* 🔹 Пагінація */}
         {company.fundraisers.length > PAGE_SIZE && (
             <div className="flex justify-center mt-4 space-x-2">
@@ -284,8 +314,7 @@ export default function CompanyPage() {
             </div>
         )}
         </div>
-    )}
-    </div>
+    
 
         {activeTab === "investment" && (
           <div>

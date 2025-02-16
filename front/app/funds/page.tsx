@@ -40,9 +40,6 @@ export default function Funds() {
       
       const activeFunds = await unityFlow.getAllFundraisers(onlyActive);
 
-      console.log("activeFunds");
-      console.log(activeFunds);
-
       const fundData: IFund[] = await Promise.all(
         activeFunds.map(async (fundAddress: string) => {
           const fundContract = Fundraising__factory.connect(fundAddress, provider);

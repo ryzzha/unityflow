@@ -157,10 +157,6 @@ contract Company is Ownable {
         emit FundraiserCreated(address(this), address(newFundraiser), title, goalUSD, deadline);
     }
 
-    function getCompanyFundraisers() external view returns (address[] memory) {
-        return fundraisers;
-    }
-
     function onFundraiserSuccessfullyCompleted(uint totalCollectedETH, uint totalCollectedUF) external {
         require(_isFundraiser(msg.sender), "Caller is not a fundraiser");
         totalFundsETH += totalCollectedETH;
@@ -215,7 +211,6 @@ contract Company is Ownable {
 
         investorETHBalances[msg.sender] -= amount;
         totalInvestmentsETH -= amount;
-        totalFundsETH -= amount;
 
         (bool sent, ) = payable(msg.sender).call{value: amount}("");
         require(sent, "Failed to send ETH");
@@ -234,7 +229,6 @@ contract Company is Ownable {
 
         investorUFBalances[msg.sender] -= amount;
         totalInvestmentsUF -= amount;
-        totalFundsUF -= amount;
 
         token.transfer(msg.sender, amount);
         unityFlow.decreaseInvestments(amount, "UF");

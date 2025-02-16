@@ -286,7 +286,7 @@ describe("UnityFlow", function () {
       );
       await tx_fundraising.wait();
 
-      const fundraisingAddress = (await company.getCompanyFundraisers())[0];
+      const fundraisingAddress = await company.fundraisers(0);
       const fundraisingContract = await ethers.getContractAt("Fundraising", fundraisingAddress);
 
       const tx_fundraisingDonateETH = await fundraisingContract.connect(user).donateETH({ value: donationETH });
