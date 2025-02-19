@@ -361,7 +361,7 @@ export default function CompanyPage() {
             {company.fundraisers.length > PAGE_SIZE && (
             <div className="flex justify-center mt-6">
               <button
-                className={`px-4 py-2 mx-1 rounded-md text-sm font-semibold ${
+                className={`p-2 mx-1 rounded-md text-sm font-semibold ${
                   currentPage === 1 ? "bg-gray-300 text-gray-500 cursor-not-allowed" : "bg-gray-200 hover:bg-gray-300"
                 }`}
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -373,7 +373,7 @@ export default function CompanyPage() {
               {Array.from({ length: Math.ceil(company.fundraisers.length / PAGE_SIZE) }).map((_, i) => (
                 <button
                   key={i}
-                  className={`px-3 py-2 mx-1 rounded-md text-sm font-semibold ${
+                  className={`px-4 py-2 mx-1 rounded-md text-sm font-semibold ${
                     currentPage === i + 1 ? "bg-green-500/85 text-white" : "bg-gray-200 hover:bg-gray-300"
                   }`}
                   onClick={() => setCurrentPage(i + 1)}
@@ -383,7 +383,7 @@ export default function CompanyPage() {
               ))}
 
               <button
-                className={`px-4 py-2 mx-1 rounded-md text-sm font-semibold ${
+                className={`p-2 mx-1 rounded-md text-sm font-semibold ${
                   currentPage === Math.ceil(company.fundraisers.length / PAGE_SIZE)
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-gray-200 hover:bg-gray-300"
