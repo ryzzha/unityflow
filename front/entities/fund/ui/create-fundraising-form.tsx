@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 export default function CreateFundraisingForm() {
   const { signer, unityFlow, provider } = useContractsContext();
   const [title, setTitle] = useState("");
+  const [image, setImage] = useState("");
   const [description, setDescription] = useState("");
   const [goal, setGoal] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -80,7 +81,7 @@ export default function CreateFundraisingForm() {
     try {
       setIsLoading(true);
       const companyContract = Company__factory.connect(company, signer);
-      const tx = await companyContract.createFundraising(title, description, category, BigInt(goal), BigInt(timestamp), "");
+      const tx = await companyContract.createFundraising(title, description, category, BigInt(goal), BigInt(timestamp), image);
       await tx.wait();
       alert("Fundraising successfully created!");
       setIsLoading(false);
@@ -91,10 +92,18 @@ export default function CreateFundraisingForm() {
   };
 
   return (
-    <div className="w-full z-50 flex flex-col gap-4 bg-white px-8 py-11 rounded-3xl shadow-md max-w-lg mx-auto">
+    <div className="w-full z-50 flex flex-col items-center gap-4 bg-white px-8 py-5 rounded-3xl shadow-md max-w-lg mx-auto">
       <h3 className="text-lg font-semibold text-center">Start a Fundraising</h3>
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+
+      <div className="w-20 h-20 rounded-full flex items-center justify-center bg-gray-200">
+        {image ? (
+          <img src={image} alt="Company logo" className="w-25 h-25 rounded-full object-cover" />
+        ) : (
+          <div className="w-11 h-11 animate-pulse bg-gray-400 rounded-full"></div>
+        )}
+      </div>
 
       {companies.length > 0 && (
         <select
@@ -113,15 +122,23 @@ export default function CreateFundraisingForm() {
       <input
         type="text"
         placeholder="Title"
-        className="border p-3 rounded-full w-full"
+        className="border px-5 py-2 rounded-full w-full"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       />
 
       <input
         type="text"
+        placeholder="Image URL"
+        className="border px-5 py-2 rounded-full w-full"
+        value={image}
+        onChange={(e) => setImage(e.target.value)}
+      />  
+
+      <input
+        type="text"
         placeholder="Description"
-        className="border p-3 rounded-full w-full"
+        className="border px-5 py-2 rounded-full w-full"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />
@@ -129,7 +146,7 @@ export default function CreateFundraisingForm() {
       <input
         type="number"
         placeholder="Goal (USD)"
-        className="border p-3 rounded-full w-full"
+        className="border px-5 py-2 rounded-full w-full"
         value={goal}
         onChange={(e) => setGoal(e.target.value)}
         min="1"
@@ -137,7 +154,7 @@ export default function CreateFundraisingForm() {
 
       <input
         type="date"
-        className="border p-3 rounded-full w-full"
+        className="border px-5 py-2 rounded-full w-full"
         value={deadline}
         onChange={(e) => setDeadline(e.target.value)}
         min={new Date().toISOString().split("T")[0]}

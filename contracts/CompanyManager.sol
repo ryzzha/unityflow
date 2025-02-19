@@ -2,11 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "./Company.sol";
-import "./UnityFlow.sol";
 import "./TokenUF.sol";
 
 contract CompanyManager {
-    UnityFlow public unityFlow;
     TokenUF public token;
     uint256 public companyCount;
     
@@ -20,7 +18,6 @@ contract CompanyManager {
     event CompanyClosed(uint256 id, address contractAddress, address founder);
 
     constructor(address tokenAddress) {
-        unityFlow = UnityFlow(msg.sender);
         token = TokenUF(tokenAddress);
     }
 
@@ -30,6 +27,7 @@ contract CompanyManager {
     }
 
     function registerCompany(
+        address unityFlowAddress,
         string memory name, 
         string memory image, 
         string memory description, 
@@ -42,7 +40,7 @@ contract CompanyManager {
         require(bytes(description).length > 0, "Company description cannot be empty");
 
         companyCount++;
-        Company newCompany = new Company(companyCount, name, image, description, category, sender, cofounders, address(unityFlow), address(token));
+        Company newCompany = new Company(companyCount, name, image, description, category, sender, cofounders, unityFlowAddress, address(token));
 
         address companyAddress = address(newCompany);
         companies[companyCount] = companyAddress;

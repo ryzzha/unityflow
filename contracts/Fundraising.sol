@@ -176,7 +176,7 @@ contract Fundraising is Ownable {
             company.receiveUF(amountUFToWithdraw);
         }
 
-        company.onFundraiserSuccessfullyCompleted(collectedETH, collectedUF);
+        company.onFundraiserSuccessfullyCompleted(amountETHToWithdraw, amountUFToWithdraw);
 
         uint[2] memory amounts;
         string[2] memory currencies;

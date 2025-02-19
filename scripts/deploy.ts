@@ -15,10 +15,15 @@ async function main() {
   const ethPriceFeed = await MockPriceFeedFactory.deploy("3000"); // 3000$
   await ethPriceFeed.waitForDeployment();
   console.log("ETH PriceFeed контракт деплоєно за адресою:", await ethPriceFeed.getAddress());
-
   const tokenPriceFeed = await MockPriceFeedFactory.deploy("5"); // 5$
   await tokenPriceFeed.waitForDeployment();
   console.log("Token PriceFeed контракт деплоєно за адресою:", await tokenPriceFeed.getAddress());
+
+  // Деплоїмо CompanyManager
+  const CompanyManagerFactory = await ethers.getContractFactory("CompanyManager");
+  const companyManager = await CompanyManagerFactory.deploy(token.target);
+  await companyManager.waitForDeployment();
+  console.log("CompanyManager контракт деплоєно за адресою:", await companyManager.getAddress());
 
   // Деплоїмо FundraisingManager
   const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
@@ -36,6 +41,7 @@ async function main() {
   const UnityFlowFactory = await ethers.getContractFactory("UnityFlow");
   const unityFlow = await UnityFlowFactory.deploy(
     token.target,
+    companyManager.target,
     fundraisingManager.target,
     proposalManager.target,
   );

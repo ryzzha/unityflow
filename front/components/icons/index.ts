@@ -11,8 +11,11 @@ import ChevronLeftIcon from "./chevron-double-left";
 import ConnectIcon from "./connect-icon";
 import VoteIcon from "./vote-icon";
 import CloseIcon from "./close-icon";
+import UsersIcon from "./users-icon";
+import UserMinus from "./user-minus";
+import UserPlus from "./user-plus";
 import RocketIcon from "./rocket-icon";
 
 
-export { CompanyIcon, MoneyIcon, CreateIcon, AccountIcon, StakingIcon, DaoIcon, StatisticsIcon, StatisticsSquareIcon, VoteIcon, CloseIcon, RocketIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon };
+export { CompanyIcon, MoneyIcon, CreateIcon, AccountIcon, StakingIcon, DaoIcon, StatisticsIcon, StatisticsSquareIcon, UsersIcon, UserMinus, UserPlus, VoteIcon, CloseIcon, RocketIcon, ChevronRigthIcon, ChevronLeftIcon, ConnectIcon };
 

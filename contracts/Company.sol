@@ -159,16 +159,12 @@ contract Company is Ownable {
 
     function onFundraiserSuccessfullyCompleted(uint totalCollectedETH, uint totalCollectedUF) external {
         require(_isFundraiser(msg.sender), "Caller is not a fundraiser");
-        totalFundsETH += totalCollectedETH;
-        totalFundsUF += totalCollectedUF;
         fundraisingCount--;
         emit FundraiserSuccessfullyCompleted(address(this), msg.sender, totalCollectedETH, totalCollectedUF);
     }
 
     function onFundraiserUnsuccessfulEnded(uint totalCollectedETH, uint totalCollectedUF) external {
         require(_isFundraiser(msg.sender), "Caller is not a fundraiser");
-        totalFundsETH += totalCollectedETH;
-        totalFundsUF += totalCollectedUF;
         fundraisingCount--;
         emit FundraiserUnsuccessfulEnded(address(this), msg.sender, totalCollectedETH, totalCollectedUF);
     }

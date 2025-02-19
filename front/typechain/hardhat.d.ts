@@ -14,10 +14,6 @@ import * as Contracts from ".";
 declare module "hardhat/types/runtime" {
   interface HardhatEthersHelpers extends HardhatEthersHelpersBase {
     getContractFactory(
-      name: "AggregatorV3Interface",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.AggregatorV3Interface__factory>;
-    getContractFactory(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Ownable__factory>;
@@ -119,11 +115,6 @@ declare module "hardhat/types/runtime" {
     ): Promise<Contracts.UnityFlow__factory>;
 
     getContractAt(
-      name: "AggregatorV3Interface",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.AggregatorV3Interface>;
-    getContractAt(
       name: "Ownable",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -250,10 +241,6 @@ declare module "hardhat/types/runtime" {
     ): Promise<Contracts.UnityFlow>;
 
     deployContract(
-      name: "AggregatorV3Interface",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.AggregatorV3Interface>;
-    deployContract(
       name: "Ownable",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.Ownable>;
@@ -354,11 +341,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.UnityFlow>;
 
-    deployContract(
-      name: "AggregatorV3Interface",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.AggregatorV3Interface>;
     deployContract(
       name: "Ownable",
       args: any[],

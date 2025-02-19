@@ -5,11 +5,11 @@ async function main() {
   const [deployer, founder, cofounder, investor, richUser, user, poorUser] = await ethers.getSigners();
   console.log("Виконуємо тестовий деплой від імені:", deployer.address);
 
-  const unityFlowAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"; 
+  const unityFlowAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"; 
   const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; 
+  const companyManagerAddrs = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"; 
 
   const UnityFlow = await ethers.getContractAt("UnityFlow", unityFlowAddress);
-  const companyManagerAddrs = await UnityFlow.companyManager(); 
   const CompanyManager = await ethers.getContractAt("CompanyManager", companyManagerAddrs);
   const TokenUF = await ethers.getContractAt("TokenUF", tokenAddress);
 
@@ -42,11 +42,6 @@ async function main() {
   let companyContracts: any[] = [];
 
   console.log("🔹 Починаємо створення компаній...");
-
-  const companyManagerAddress = await UnityFlow.companyManager(); 
-  console.log("CompanyManager Address:", companyManagerAddress); 
-
-  const companyManager = await ethers.getContractAt("CompanyManager", companyManagerAddress);
 
 
   const category = ["Tech","Web3","FinTech","Security","Marketing","Gaming","SaaS","E-commerce"];

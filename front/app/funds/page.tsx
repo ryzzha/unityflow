@@ -80,7 +80,7 @@ export default function Funds() {
         companyName.includes(searchQuery.toLowerCase().trim());
 
     return categoryMatch && searchMatch;
-  });
+  }).slice().reverse();
 
 
   return (

@@ -17,6 +17,7 @@
     "@chainlink/contracts": "^1.3.0",
     "@headlessui/react": "^2.2.0",
     "@openzeppelin/contracts": "^5.2.0",
+    "@tanstack/react-query": "^5.66.7",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.4.3"
   }

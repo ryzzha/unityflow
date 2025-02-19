@@ -5,28 +5,28 @@ async function main() {
   const [deployer, founder, cofounder, investor, richUser, user, poorUser] = await ethers.getSigners();
   console.log("Виконуємо дії деплой від імені:", deployer.address);
 
-  const unityFlowAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707"; 
+  const unityFlowAddress = "0x0165878A594ca255338adfa4d48449f69242Eb8F"; 
   const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; 
 
   const UnityFlow = await ethers.getContractAt("UnityFlow", unityFlowAddress);
   const TokenUF = await ethers.getContractAt("TokenUF", tokenAddress);
 
-  const greenFutureCompany = await ethers.getContractAt("Company", "0x309e59bAba6449b96B2164425adde63577C98506");
+  const AIStartupCompany = await ethers.getContractAt("Company", "0xA6D6d7c556ce6Ada136ba32Dbe530993f128CA44");
 
   // const ethers_to_invest = parseEther("5");
-  // const tx_invest_eth = await greenFutureCompany.connect(investor).investETH({ value: ethers_to_invest });
+  // const tx_invest_eth = await AIStartupCompany.connect(investor).investETH({ value: ethers_to_invest });
   // await tx_invest_eth.wait()
 
   // const tokens_to_invest = parseUnits("500");
-  // const tx_approve_for_contract = await TokenUF.connect(investor).approve(greenFutureCompany.target, tokens_to_invest);
+  // const tx_approve_for_contract = await TokenUF.connect(investor).approve(AIStartupCompany.target, tokens_to_invest);
   // await tx_approve_for_contract.wait();
 
-  // const tx_invest_uf = await greenFutureCompany.connect(investor).investUF(tokens_to_invest);
+  // const tx_invest_uf = await AIStartupCompany.connect(investor).investUF(tokens_to_invest);
   // await tx_invest_uf.wait()
 
   // const deadline = Math.floor(Date.now() / 1000) + 65;
 
-  // const tx = await greenFutureCompany.connect(founder).createFundraising(
+  // const tx = await AIStartupCompany.connect(founder).createFundraising(
   //   `Фонд #4 для GreenFuture`,
   //   "Опис фонду",
   //   "Категорія",
@@ -34,13 +34,13 @@ async function main() {
   //   deadline,
   //   "https://picsum.photos/200"
   // );
-  // await tx.wait();
+  // // await tx.wait();
 
-  const fundraising_4_address = await greenFutureCompany.fundraisers((await greenFutureCompany.fundraisingCount() - 1n));
+  const fundraising_4_address = await AIStartupCompany.fundraisers((await AIStartupCompany.fundraisingCount() - 1n));
 
   const fundraising_4 = await ethers.getContractAt("Fundraising", fundraising_4_address);
 
-  const tx_withdraw_eth = await greenFutureCompany.connect(founder).withdrawFromFundraising(fundraising_4.target);
+  const tx_withdraw_eth = await AIStartupCompany.connect(founder).withdrawFromFundraising(fundraising_4.target);
   await tx_withdraw_eth.wait()
 
   // const tx_refund_eth = await fundraising_4.connect(user).refundETH();

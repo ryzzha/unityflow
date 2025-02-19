@@ -38,7 +38,6 @@ export interface CompanyManagerInterface extends Interface {
       | "registerCompany"
       | "removeCompanyFromUser"
       | "token"
-      | "unityFlow"
       | "userToCompanies"
   ): FunctionFragment;
 
@@ -84,14 +83,21 @@ export interface CompanyManagerInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "registerCompany",
-    values: [string, string, string, string, AddressLike[], AddressLike]
+    values: [
+      AddressLike,
+      string,
+      string,
+      string,
+      string,
+      AddressLike[],
+      AddressLike
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "removeCompanyFromUser",
     values: [AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "token", values?: undefined): string;
-  encodeFunctionData(functionFragment: "unityFlow", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "userToCompanies",
     values: [AddressLike, BigNumberish]
@@ -139,7 +145,6 @@ export interface CompanyManagerInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "token", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "unityFlow", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "userToCompanies",
     data: BytesLike
@@ -273,6 +278,7 @@ export interface CompanyManager extends BaseContract {
 
   registerCompany: TypedContractMethod<
     [
+      unityFlowAddress: AddressLike,
       name: string,
       image: string,
       description: string,
@@ -291,8 +297,6 @@ export interface CompanyManager extends BaseContract {
   >;
 
   token: TypedContractMethod<[], [string], "view">;
-
-  unityFlow: TypedContractMethod<[], [string], "view">;
 
   userToCompanies: TypedContractMethod<
     [arg0: AddressLike, arg1: BigNumberish],
@@ -343,6 +347,7 @@ export interface CompanyManager extends BaseContract {
     nameOrSignature: "registerCompany"
   ): TypedContractMethod<
     [
+      unityFlowAddress: AddressLike,
       name: string,
       image: string,
       description: string,
@@ -362,9 +367,6 @@ export interface CompanyManager extends BaseContract {
   >;
   getFunction(
     nameOrSignature: "token"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
-    nameOrSignature: "unityFlow"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "userToCompanies"

@@ -4,6 +4,7 @@ import "./globals.css";
 import { MainContextProvider } from "@/context/main-context";
 import BaseLayout from "@/shared/base-layout";
 import { ContractsProvider } from "@/context/contracts-context";
+import Providers from "@/providers/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "UnityFlow",
-  description: ":)",
+  title: "UnityFlow – Web3 Platform",
+  description: "A decentralized platform built on blockchain.",
 };
 
 export default function RootLayout({
@@ -27,15 +28,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <MainContextProvider>
-        <ContractsProvider>
-          <body
-            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-          >
-            <BaseLayout>{children}</BaseLayout>
-          </body>
-        </ContractsProvider>
-      </MainContextProvider>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>
+          <MainContextProvider>
+            <ContractsProvider>
+              <BaseLayout>{children}</BaseLayout>
+            </ContractsProvider>
+          </MainContextProvider>
+        </Providers>
+      </body>
     </html>
   );
 }
+

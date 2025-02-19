@@ -3,7 +3,6 @@ pragma solidity ^0.8.20;
 
 import "./TokenUF.sol";
 // import "./Staking.sol";
-import "./Company.sol";
 import "./CompanyManager.sol";
 import "./FundraisingManager.sol";
 import "./ProposalManager.sol";
@@ -20,9 +19,9 @@ contract UnityFlow {
     event TotalFundsUpdated(uint256 newTotalFunds, string currency, string kind);
     event PlatformFeeReceived(uint256 amount, string currency);
 
-    constructor(address tokenAddress, address fundraisingManagerAddress, address proposalManagerAddress) {
+    constructor(address tokenAddress, address companyManagerAddress, address fundraisingManagerAddress, address proposalManagerAddress) {
         token = TokenUF(tokenAddress);
-        companyManager = new CompanyManager(address(token));
+        companyManager = CompanyManager(companyManagerAddress);
         fundraisingManager = FundraisingManager(fundraisingManagerAddress);
         proposalManager = ProposalManager(proposalManagerAddress);
 
@@ -60,7 +59,7 @@ contract UnityFlow {
     }
 
     function registerCompany(string memory name, string memory image, string memory description, string memory category, address[] memory cofounders) external hasMinimumTokens(msg.sender) {
-        companyManager.registerCompany(name, image, description, category, cofounders, msg.sender);
+        companyManager.registerCompany(address(this), name, image, description, category, cofounders, msg.sender);
     }
 
     function closeCompany(uint256 companyId) external {
