@@ -15,6 +15,8 @@ import { unityFlowUser } from "@/assets";
 import { MoneyIcon, UsersIcon, UserMinus, UserPlus } from "@/components/icons";
 import FundCard from "@/entities/fund/ui/fund-card";
 import { useCompany } from "@/entities/company/api/get-company";
+import { useAddCofounder, useRemoveCofounder } from "@/entities/company/api/add-cofounder";
+import { useFundraisers } from "@/entities/company/api/get-company-funds";
 
 const PAGE_SIZE = 4;
 
@@ -24,24 +26,6 @@ const TABS = [
   { id: "funds", label: "Funds", description: "Here, you can donate to the company's fundraising campaigns. The company pays a commission from each fundraiser at the end." },
   { id: "investment", label: "Investment", description: "Investors contribute funds that the founder cannot freely spend. Depending on their stake, they receive a percentage of commissions from fundraisers." },
 ];
-
-interface ICompany {
-  id: bigint;
-  address: string;
-  name: string;
-  image: string;
-  description: string;
-  category: string;
-  founder: string;
-  cofounders: string[];
-  totalFundsETH: string;
-  totalFundsUF: string;
-  totalInvestmentsETH: string;
-  totalInvestmentsUF: string;
-  fundraisers: string[];
-  investors: string[];
-  isActive: boolean;
-}
 
 interface IFund {
     id: bigint;
@@ -57,156 +41,55 @@ interface IFund {
 
 export default function CompanyPage() {
   const { provider, signer } = useContractsContext();
-  // const [company, setCompany] = useState<ICompany | null>(null);
-  const [funds, setFunds] = useState<IFund[] | null>(null);
+  // const [funds, setFunds] = useState<IFund[] | null>(null);
   const [signerAddress, setSignerAddress] = useState<string>("");
-  // const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [currentPage, setCurrentPage] = useState(1);
   const [dividends, setDividends] = useState({ eth: "0", uf: "0" });
   const [showInvestors, setShowInvestors] = useState(false);
   const [exchangeRates, setExchangeRates] = useState({ ethToUsd: 0, ufToUsd: 0 });
   const [newCofounder, setNewCofounder] = useState("");
-  const [isAdding, setIsAdding] = useState(false);
 
   const { address } = useParams();
-  const { data: company, isLoading, error } = useCompany(address as string);
+  const { data: company, isLoading: isCompanyLoading } = useCompany(address as string);
+  const { data: funds, isLoading: isFundLoading } = useFundraisers(company?.fundraisers || []);
+  const { mutate: addCofounder, isPending: isAdding } = useAddCofounder(address as string);
+  const { mutate: removeCofounder } = useRemoveCofounder(address as string);
+
   
   const router = useRouter();
 
-  useEffect(() => {
-    if (!provider || !address) return;
+  const fetchDividends = async () => {
+    if (!provider || !signerAddress || !address) return;
 
-    const fetchCompany = async () => {
-      try {
-        // setIsLoading(true);
-        const companyContract = Company__factory.connect(address.toString(), provider);
-        
-        const {
-          companyId,
-          companyAddress,
-          name,
-          image,
-          description,
-          category,
-          founder,
-          cofounders,
-          totalFundsETH,
-          totalFundsUF,
-          totalInvestmentsETH,
-          totalInvestmentsUF,
-          fundraisers,
-          investors,
-          isActive
-        } = await companyContract.getCompanyDetails();
+    try {
+      const companyContract = Company__factory.connect(address as string, provider);
+      const [ethDividends, ufDividends] = await companyContract.getInvestorDividends(signerAddress);
 
-        // setCompany({
-        //   id: companyId,
-        //   address: companyAddress,
-        //   name,
-        //   image,
-        //   description,
-        //   category,
-        //   founder,
-        //   cofounders,
-        //   totalFundsETH: ethers.formatEther(totalFundsETH),
-        //   totalFundsUF: ethers.formatEther(totalFundsUF),
-        //   totalInvestmentsETH: ethers.formatEther(totalInvestmentsETH),
-        //   totalInvestmentsUF: ethers.formatEther(totalInvestmentsUF),
-        //   fundraisers,
-        //   investors,
-        //   isActive,
-        // });
+      setDividends({
+        eth: ethers.formatEther(ethDividends ?? 0),
+        uf: ethers.formatEther(ufDividends ?? 0),
+      });
+    } catch (error) {
+      console.error("Error fetching dividends:", error);
+    } finally {
+    }
+  };
 
-        const fundsData: IFund[] = await Promise.all(
-            fundraisers.map(async (fundraiserAddrs) => {
-                const fundraiser = Fundraising__factory.connect(fundraiserAddrs, provider);
-                const [id, address, company, title, image, category, goalUSD, deadline, status] = await fundraiser.getInfo();
-                return {
-                    id,
-                    company,
-                    address,
-                    title,
-                    image,
-                    category,
-                    goalUSD,
-                    deadline,
-                    status: status as "active" | "success" | "failed",
-                  };
-            })
-        )
-
-        if (signerAddress) {
-          const [ethDividends, ufDividends] = await companyContract.getInvestorDividends(signerAddress);
-          setDividends({
-            eth: ethers.formatEther(ethDividends ?? 0),
-            uf: ethers.formatEther(ufDividends?? 0),
-          });
-        };
-
-        setFunds(fundsData);
-
-      } catch (error) {
-        console.error("❌ Помилка отримання даних компанії:", error);
-      }
-      // setIsLoading(false);
-    };
-
-    fetchCompany();
-    fetchExchangeRates().then(setExchangeRates);
-  }, [provider, signerAddress, address]);
-
-  useEffect(() => {
-    if (!signer) return;
-  
-    const fetchSignerAddress = async () => {
-      try {
-        const address = await signer.getAddress();
-        setSignerAddress(address);
-      } catch (error) {
-        console.error("Error fetching signer address:", error);
-      }
-    };
-  
-    fetchSignerAddress();
-  }, [signer]);
 
   const handleAddCofounder = async () => {
     if (!signer || !company) return;
-    setIsAdding(true);
-    try {
-      const companyContract = Company__factory.connect(company.address, signer);
-      const tx = await companyContract.addCofounder(newCofounder);
-      await tx.wait();
-      // setCompany({ ...company, cofounders: [...company.cofounders, newCofounder] });
-      setNewCofounder("");
-    } catch (error) {
-      console.error("Error adding cofounder:", error);
-    }
-    setIsAdding(false);
+    addCofounder(newCofounder, {
+      onSuccess: () => setNewCofounder(""), 
+    });
   };
 
   const handleRemoveCofounder = async (cofounderAddress: string) => {
     if (!signer || !company) return;
-  
-    try {
-      setIsAdding(true);
-      const companyContract = Company__factory.connect(company.address, signer);
-      
-      const tx = await companyContract.removeCofounder(cofounderAddress);
-      await tx.wait();
-  
-      // setCompany({
-      //   ...company,
-      //   cofounders: company.cofounders.filter((addr) => addr !== cofounderAddress),
-      // });
-    } catch (error) {
-      console.error("Error removing cofounder:", error);
-    }
-    setIsAdding(false);
+    removeCofounder(cofounderAddress);
   };
 
-  if (isLoading) return <div className="text-center text-lg">Завантаження...</div>;
+  if (isCompanyLoading) return <div className="text-center text-lg">Завантаження...</div>;
   if (!company) return <div className="text-center text-lg">Компанія не знайдена</div>;
 
   const treasuryUSD = convertToUSD(company.totalFundsETH, company.totalFundsUF, exchangeRates.ethToUsd, exchangeRates.ufToUsd);
@@ -419,10 +302,11 @@ export default function CompanyPage() {
 
 async function fetchExchangeRates() {
   try {
-    const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum,uf-token&vs_currencies=usd");
-    const data = await response.json();
+    // const response = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum,uf-token&vs_currencies=usd");
+    // const data = await response.json();
     return {
-      ethToUsd: data.ethereum?.usd || 0,
+      // ethToUsd: data.ethereum?.usd || 0,
+      ethToUsd: 2750,
       // ufToUsd: data["uf-token"]?.usd || 0,
       ufToUsd: 3,
     };
