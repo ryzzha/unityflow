@@ -10,7 +10,7 @@ contract UnityNFTFactory {
     event NFTCollectionCreated(address indexed owner, address nftContract);
 
     function createNFTCollection(string memory name, string memory symbol) external {
-        UnityNFT nft = new UnityNFT(name, symbol);
+        UnityNFT nft = new UnityNFT(name, symbol, "");
         nft.transferOwnership(msg.sender);
         userNFTs[msg.sender].push(address(nft));
         allNFTContracts.push(address(nft));

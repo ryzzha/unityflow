@@ -25,6 +25,10 @@ describe("UnityFlow", function () {
     const tokenPriceFeed = await MockPriceFeedFactory.deploy(tokenInitialPrice);
     await tokenPriceFeed.waitForDeployment();
 
+    const CompanyManagerFactory = await ethers.getContractFactory("CompanyManager");
+    const companyManager = await CompanyManagerFactory.deploy(token.target);
+    await companyManager.waitForDeployment();
+
     const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
     const fundraisingManager = await FundraisingManagerFactory.deploy(token.target,  ethPriceFeed.target, tokenPriceFeed.target);
     await fundraisingManager.waitForDeployment();
@@ -37,6 +41,7 @@ describe("UnityFlow", function () {
     const UnityFlowFactory = await ethers.getContractFactory("UnityFlow");
     unityFlow = await UnityFlowFactory.deploy(
         token.target, 
+        companyManager.target,
         fundraisingManager.target, 
         proposalManager.target,
     );

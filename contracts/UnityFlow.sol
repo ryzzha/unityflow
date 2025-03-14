@@ -203,10 +203,10 @@ contract UnityFlow {
     }
 
     function getActiveCompanies() public view returns (uint256 activeCount) {
-        uint256 totalCompanies = companyManager.companyCount(); // Отримуємо загальну кількість компаній
+        uint256 totalCompanies = companyManager.companyCount(); 
 
-        for (uint256 i = 0; i < totalCompanies; i++) { // Починаємо з 0
-            address companyAddress = companyManager.companies(i); // Отримуємо адресу компанії
+        for (uint256 i = 0; i < totalCompanies; i++) { 
+            address companyAddress = companyManager.companies(i); 
 
             if (companyAddress != address(0) && companyManager.isCompanyActive(companyAddress)) { 
                 activeCount++;

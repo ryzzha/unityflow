@@ -34,7 +34,7 @@ async function main() {
   //   deadline,
   //   "https://picsum.photos/200"
   // );
-  // // await tx.wait();
+  // await tx.wait();
 
   const fundraising_4_address = await AIStartupCompany.fundraisers((await AIStartupCompany.fundraisingCount() - 1n));
 

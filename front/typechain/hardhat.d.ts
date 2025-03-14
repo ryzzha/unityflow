@@ -54,6 +54,22 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
+      name: "ERC721",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC721__factory>;
+    getContractFactory(
+      name: "IERC721Metadata",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC721Metadata__factory>;
+    getContractFactory(
+      name: "IERC721",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC721__factory>;
+    getContractFactory(
+      name: "IERC721Receiver",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC721Receiver__factory>;
+    getContractFactory(
       name: "ECDSA",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ECDSA__factory>;
@@ -61,6 +77,14 @@ declare module "hardhat/types/runtime" {
       name: "EIP712",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.EIP712__factory>;
+    getContractFactory(
+      name: "ERC165",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC165__factory>;
+    getContractFactory(
+      name: "IERC165",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IERC165__factory>;
     getContractFactory(
       name: "SafeCast",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -98,6 +122,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.MockPriceFeed__factory>;
     getContractFactory(
+      name: "UnityNFTFactory",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnityNFTFactory__factory>;
+    getContractFactory(
       name: "ProposalManager",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ProposalManager__factory>;
@@ -109,6 +137,10 @@ declare module "hardhat/types/runtime" {
       name: "TokenUF",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.TokenUF__factory>;
+    getContractFactory(
+      name: "UnityNFT",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.UnityNFT__factory>;
     getContractFactory(
       name: "UnityFlow",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -165,6 +197,26 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
+      name: "ERC721",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC721>;
+    getContractAt(
+      name: "IERC721Metadata",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721Metadata>;
+    getContractAt(
+      name: "IERC721",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721>;
+    getContractAt(
+      name: "IERC721Receiver",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC721Receiver>;
+    getContractAt(
       name: "ECDSA",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -174,6 +226,16 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.EIP712>;
+    getContractAt(
+      name: "ERC165",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC165>;
+    getContractAt(
+      name: "IERC165",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IERC165>;
     getContractAt(
       name: "SafeCast",
       address: string | ethers.Addressable,
@@ -220,6 +282,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.MockPriceFeed>;
     getContractAt(
+      name: "UnityNFTFactory",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnityNFTFactory>;
+    getContractAt(
       name: "ProposalManager",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -234,6 +301,11 @@ declare module "hardhat/types/runtime" {
       address: string | ethers.Addressable,
       signer?: ethers.Signer
     ): Promise<Contracts.TokenUF>;
+    getContractAt(
+      name: "UnityNFT",
+      address: string | ethers.Addressable,
+      signer?: ethers.Signer
+    ): Promise<Contracts.UnityNFT>;
     getContractAt(
       name: "UnityFlow",
       address: string | ethers.Addressable,
@@ -281,6 +353,22 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
+      name: "ERC721",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC721>;
+    deployContract(
+      name: "IERC721Metadata",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721Metadata>;
+    deployContract(
+      name: "IERC721",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721>;
+    deployContract(
+      name: "IERC721Receiver",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721Receiver>;
+    deployContract(
       name: "ECDSA",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ECDSA>;
@@ -288,6 +376,14 @@ declare module "hardhat/types/runtime" {
       name: "EIP712",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.EIP712>;
+    deployContract(
+      name: "ERC165",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC165>;
+    deployContract(
+      name: "IERC165",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC165>;
     deployContract(
       name: "SafeCast",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -325,6 +421,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockPriceFeed>;
     deployContract(
+      name: "UnityNFTFactory",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.UnityNFTFactory>;
+    deployContract(
       name: "ProposalManager",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.ProposalManager>;
@@ -336,6 +436,10 @@ declare module "hardhat/types/runtime" {
       name: "TokenUF",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TokenUF>;
+    deployContract(
+      name: "UnityNFT",
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.UnityNFT>;
     deployContract(
       name: "UnityFlow",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -392,6 +496,26 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
     deployContract(
+      name: "ERC721",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC721>;
+    deployContract(
+      name: "IERC721Metadata",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721Metadata>;
+    deployContract(
+      name: "IERC721",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721>;
+    deployContract(
+      name: "IERC721Receiver",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC721Receiver>;
+    deployContract(
       name: "ECDSA",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -401,6 +525,16 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.EIP712>;
+    deployContract(
+      name: "ERC165",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.ERC165>;
+    deployContract(
+      name: "IERC165",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.IERC165>;
     deployContract(
       name: "SafeCast",
       args: any[],
@@ -447,6 +581,11 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.MockPriceFeed>;
     deployContract(
+      name: "UnityNFTFactory",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.UnityNFTFactory>;
+    deployContract(
       name: "ProposalManager",
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -461,6 +600,11 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.TokenUF>;
+    deployContract(
+      name: "UnityNFT",
+      args: any[],
+      signerOrOptions?: ethers.Signer | DeployContractOptions
+    ): Promise<Contracts.UnityNFT>;
     deployContract(
       name: "UnityFlow",
       args: any[],

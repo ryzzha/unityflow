@@ -2,6 +2,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as mockAgregatorSol from "./MockAgregator.sol";
+export * as nftFactorySol from "./NFTFactory.sol";
+export * as ufNftSol from "./ufNFT.sol";
 export { Company__factory } from "./Company__factory";
 export { CompanyManager__factory } from "./CompanyManager__factory";
 export { Fundraising__factory } from "./Fundraising__factory";

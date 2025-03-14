@@ -15,6 +15,7 @@ interface ContractsContextProps {
     loadingWallet: boolean;
     connectWallet: () => Promise<void>; 
     signer: ethers.Signer | null;
+    account: string | null;
   }
 
 const ContractsContext = createContext<ContractsContextProps>({
@@ -26,7 +27,8 @@ const ContractsContext = createContext<ContractsContextProps>({
     // crowdfunding: null,
     loadingWallet: false,
     connectWallet: async () => {},
-    signer: null
+    signer: null,
+    account: null
 });
 
 export const ContractsProvider = ({ children }: { children: React.ReactNode  }) => {
@@ -39,6 +41,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     // dao: null as GovernanceUF | null,
     loadingWallet: false,
     signer: null as ethers.Signer | null,
+    account: null as string | null,
   });
   
   useEffect(() => {
@@ -69,6 +72,7 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
           tokenUF: token,
           loadingWallet: false,
           signer: null,
+          account: null,
         });
   
         console.log("Контракти ініціалізовано:", { unityFlow, token });
@@ -104,12 +108,15 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
       
       const signer = await browserProvider.getSigner();
 
-      console.log("Гаманець підключено:", await signer.getAddress());
+      const account = await signer.getAddress(); 
+
+      console.log("Гаманець підключено:", account);
   
       setState(prev => ({
         ...prev,
         browserProvider,
         signer,
+        account,
         loadingWallet: false,
       }));
 

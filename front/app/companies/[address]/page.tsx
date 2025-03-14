@@ -40,9 +40,8 @@ interface IFund {
   }
 
 export default function CompanyPage() {
-  const { provider, signer } = useContractsContext();
+  const { provider, signer, account } = useContractsContext();
   // const [funds, setFunds] = useState<IFund[] | null>(null);
-  const [signerAddress, setSignerAddress] = useState<string>("");
   const [activeTab, setActiveTab] = useState("overview");
   const [currentPage, setCurrentPage] = useState(1);
   const [dividends, setDividends] = useState({ eth: "0", uf: "0" });
@@ -55,16 +54,15 @@ export default function CompanyPage() {
   const { data: funds, isLoading: isFundLoading } = useFundraisers(company?.fundraisers || []);
   const { mutate: addCofounder, isPending: isAdding } = useAddCofounder(address as string);
   const { mutate: removeCofounder } = useRemoveCofounder(address as string);
-
   
   const router = useRouter();
 
   const fetchDividends = async () => {
-    if (!provider || !signerAddress || !address) return;
+    if (!provider || !account || !address) return;
 
     try {
       const companyContract = Company__factory.connect(address as string, provider);
-      const [ethDividends, ufDividends] = await companyContract.getInvestorDividends(signerAddress);
+      const [ethDividends, ufDividends] = await companyContract.getInvestorDividends(account);
 
       setDividends({
         eth: ethers.formatEther(ethDividends ?? 0),
@@ -178,7 +176,7 @@ export default function CompanyPage() {
                         className="rounded-full border border-gray-300"
                       />
                       <span className="text-base font-semibold text-gray-500/95">{cofounder}</span>
-                      {signerAddress === company.founder && (
+                      {account === company.founder && (
                         <button
                           onClick={() => handleRemoveCofounder(cofounder)}
                           className="bg-red-400/85 text-white px-2 py-1 rounded-md hover:bg-red-500/85 text-xs ml-auto"
@@ -194,7 +192,7 @@ export default function CompanyPage() {
                 )}
               </div>
               <div>
-                {signerAddress === company.founder && (
+                {account === company.founder && (
                   <div className="flex gap-2 mt-2">
                     <input
                       type="text"
@@ -221,7 +219,7 @@ export default function CompanyPage() {
           <>
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">📢 Company fundraisings</h2>
-              {signerAddress === company.founder && (
+              {account === company.founder && (
                 <CustomButton
                   variant="primary"
                   onClick={() => router.push(`/fundraisers/create?company=${company.address}`)}

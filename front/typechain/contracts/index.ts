@@ -3,6 +3,10 @@
 /* eslint-disable */
 import type * as mockAgregatorSol from "./MockAgregator.sol";
 export type { mockAgregatorSol };
+import type * as nftFactorySol from "./NFTFactory.sol";
+export type { nftFactorySol };
+import type * as ufNftSol from "./ufNFT.sol";
+export type { ufNftSol };
 export type { Company } from "./Company";
 export type { CompanyManager } from "./CompanyManager";
 export type { Fundraising } from "./Fundraising";
