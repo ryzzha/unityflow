@@ -8,63 +8,21 @@ import { useRouter } from "next/navigation";
 import CompanyCard from "@/entities/company/ui/company-card";
 import { ethers, Contract } from "ethers";
 import { Company__factory } from "@/typechain";
+import { useCompaniesQuery } from "@/entities/company/model/use-companies-query";
+import { RootState } from "@/shared/store";
+import { useSelector } from "react-redux";
 
-interface ICompany {
-  id: bigint;
-  address: string;
-  name: string;
-  image: string;
-  description: string;
-  category: string;
-  founder: string;
-  isActive: boolean;
-}
 
 export default function Companies() {
-  const { provider, unityFlow } = useContractsContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [category, setCategory] = useState("All");
-  const [isLoading, setIsLoading] = useState(false);
-  const [companies, setCompanies] = useState<ICompany[]>([]);
   const [onlyActive, setOnlyActive] = useState<boolean>(false);
 
   const router = useRouter();
 
-  const fetchCompanies = async (onlyActive: boolean) => {
-    setIsLoading(true);
-    try {
-      if (!provider || !unityFlow) return;
-      
-      const activeCompanies = await unityFlow.getAllCompanies(onlyActive);
+  const { isLoading } = useCompaniesQuery(onlyActive);
 
-      const companyData: ICompany[] = await Promise.all(
-        activeCompanies.map(async (companyAddress: string) => {
-          const companyContract = Company__factory.connect(companyAddress, provider);
-          const [id, address, name, image, description, category, founder, isActive] = await companyContract.getCompanyInfo();
-
-          return {
-            id,
-            address,
-            name,
-            image,
-            description,
-            category,
-            founder,
-            isActive,
-          };
-        })
-      );
-
-      setCompanies(companyData);
-    } catch (error) {
-      console.error("❌ Помилка отримання компаній:", error);
-    }
-    setIsLoading(false);
-  };
-
-  useEffect(() => {
-    fetchCompanies(onlyActive);
-  }, [provider, unityFlow]);
+  const companies = useSelector((state: RootState) => state.companies.companies);
 
   const filteredCompanies = companies.filter((company) => {
     const name = company.name?.toLowerCase() || "";
@@ -100,8 +58,7 @@ export default function Companies() {
             type="checkbox"
             checked={onlyActive}
             onChange={() => {
-              setOnlyActive(!onlyActive);
-              fetchCompanies(!onlyActive);
+              setOnlyActive(prevOnlyActive => !prevOnlyActive);
             }}
           />
           Show only active companies
