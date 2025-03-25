@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { setCompanies } from "./company-slice";
 import { useContractsContext } from "@/context/contracts-context";
 import { Company__factory } from "@/typechain";
-import { ethers } from "ethers";
 import { ICompany } from "./types";
 
 

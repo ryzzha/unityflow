@@ -34,7 +34,6 @@ export default function CompanyCard({ company }: CompanyCardProps) {
         isActive ? "bg-white" : "bg-gray-200"
       }`}
     >
-      {/* Бейдж "Closed", якщо компанія неактивна */}
       {!isActive && (
         <div className="absolute top-2 right-2 bg-red-500 text-white text-xs font-semibold px-2 py-1 rounded-full">
           Closed

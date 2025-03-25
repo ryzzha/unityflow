@@ -17,9 +17,9 @@ interface FundCardProps {
     category: string;
     goalUSD: bigint;
     deadline: bigint;
-    status: "active" | "success" | "failed"; // Додаємо статус кампанії
+    status: "active" | "success" | "failed"; 
   };
-  onRefund?: (fundId: bigint) => void; // Функція для рефанду
+  onRefund?: (fundId: bigint) => void; 
 }
 
 export default function FundCard({ fund, onRefund }: FundCardProps) {
@@ -29,8 +29,8 @@ export default function FundCard({ fund, onRefund }: FundCardProps) {
   return (
     <div
       className={`sm:max-w-[320px] z-30 px-5 py-3 w-full rounded-xl bg-white shadow-lg hover:shadow-xl transition duration-300 cursor-pointer border border-gray-200 
-        ${status === "failed" ? "opacity-65" : ""}`} // Тьмяні збори, якщо вони неуспішні
-      onClick={() => router.push(`/funds/${id}`)}
+        ${status === "failed" ? "opacity-65" : ""}`} 
+      onClick={() => router.push(`/funds/${address}`)}
     >
       <Image 
         src={"https://picsum.photos/200"} 
@@ -78,7 +78,7 @@ export default function FundCard({ fund, onRefund }: FundCardProps) {
             <CustomButton 
               variant="danger"
               size="small"
-              onClick={() => onRefund?.(id)} // Виклик функції рефанду
+              onClick={() => onRefund?.(id)} 
               className="flex gap-1"
             >
               <span>Refund</span>

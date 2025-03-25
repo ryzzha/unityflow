@@ -17,6 +17,7 @@ import FundCard from "@/entities/fund/ui/fund-card";
 import { useCompany } from "@/entities/company/api/get-company";
 import { useAddCofounder, useRemoveCofounder } from "@/entities/company/api/add-cofounder";
 import { useFundraisers } from "@/entities/company/api/get-company-funds";
+import { InvestmentTab } from "@/widgets/investment-tab";
 
 const PAGE_SIZE = 4;
 
@@ -281,12 +282,7 @@ export default function CompanyPage() {
 
     
 
-        {activeTab === "investment" && (
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Інвестиції</h2>
-            {/* TODO: Додати інформацію про дивіденди та інвесторів */}
-          </div>
-        )}
+        {activeTab === "investment" && <InvestmentTab companyAddress={address?.toString() ?? ""} />}
 
         {activeTab === "actions" && (
           <div>
