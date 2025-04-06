@@ -35,3 +35,15 @@
 
 // Account #5: 0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc 
 // Private Key: 0x8b3a350cf5c34c9194ca85829a2df0ec3153be0318b5e2d3348e872092edffba
+
+// deploy to sepolia
+
+// 🚀 Деплоїмо контракти від імені: 0x23B067aB65C16Eb9e0917F475E7883Fbd4f18f7f
+// ✅ TokenUF деплоєно за адресою: 0x1559E6BC25c86498106D96FF371ECd90469B3a25
+// ✅ CompanyManager: 0x1fF318Ad310fB8a18D481495E0cC92939C72b72E
+// ✅ FundraisingManager: 0xDeE08069380C6CE591903773174D1BBCA2dE16Cd
+// ✅ ProposalManager: 0x034E4F67B3B6bccEFE674bD22Cf5eA7Fa14E7875
+// ✅ UnityFlow: 0x893808D1E7bce4C9f1C365AcF181fD7571A670d8
+// 🔐 Власність токена передана UnityFlow: 0x893808D1E7bce4C9f1C365AcF181fD7571A670d8
+// 🏢 Компанія зареєстрована
+// 🎉 Деплой завершено успішно!

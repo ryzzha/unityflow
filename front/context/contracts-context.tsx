@@ -4,6 +4,9 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { UNITYFLOW_ADDRESS, TOKEN_ADDRESS } from "@/config";
 import { TokenUF, TokenUF__factory, UnityFlow, UnityFlow__factory,  } from "@/typechain";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 interface ContractsContextProps {
     provider: ethers.Provider | null;
@@ -11,7 +14,6 @@ interface ContractsContextProps {
     wsProvider: ethers.WebSocketProvider | null;
     tokenUF: TokenUF | null;
     unityFlow: UnityFlow | null;
-    // crowdfunding: Crowdfunding | null;
     loadingWallet: boolean;
     connectWallet: () => Promise<void>; 
     signer: ethers.Signer | null;
@@ -24,7 +26,6 @@ const ContractsContext = createContext<ContractsContextProps>({
     wsProvider: null,
     tokenUF: null,
     unityFlow: null,
-    // crowdfunding: null,
     loadingWallet: false,
     connectWallet: async () => {},
     signer: null,
@@ -38,7 +39,6 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
     wsProvider: null as ethers.WebSocketProvider | null,
     unityFlow: null as UnityFlow | null,
     tokenUF: null as TokenUF | null,
-    // dao: null as GovernanceUF | null,
     loadingWallet: false,
     signer: null as ethers.Signer | null,
     account: null as string | null,
@@ -47,8 +47,9 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
   useEffect(() => {
     const initContracts = async () => {
       try {
-        const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
-        const ws = new ethers.WebSocketProvider("ws://127.0.0.1:8545");
+        const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+        console.log(provider)
+        const ws = new ethers.WebSocketProvider(`wss://sepolia.infura.io/ws/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`);
 
         console.log("ws create")
 

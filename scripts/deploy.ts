@@ -2,78 +2,71 @@ import { ethers } from "hardhat";
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  console.log("Деплоїмо контракти від імені:", deployer.address);
+  console.log("🚀 Деплоїмо контракти від імені:", deployer.address);
 
-  // Деплоїмо токен
+  // --- 1. Деплой токена ---
   const TokenUFFactory = await ethers.getContractFactory("TokenUF");
   const token = await TokenUFFactory.deploy(100000);
   await token.waitForDeployment();
-  console.log("TokenUF контракт деплоєно за адресою:", await token.getAddress());
+  console.log("✅ TokenUF деплоєно за адресою:", await token.getAddress());
 
-  // Деплоїмо MockPriceFeed для ETH та токена
-  const MockPriceFeedFactory = await ethers.getContractFactory("MockPriceFeed");
-  const ethPriceFeed = await MockPriceFeedFactory.deploy("3000"); // 3000$
-  await ethPriceFeed.waitForDeployment();
-  console.log("ETH PriceFeed контракт деплоєно за адресою:", await ethPriceFeed.getAddress());
-  const tokenPriceFeed = await MockPriceFeedFactory.deploy("5"); // 5$
-  await tokenPriceFeed.waitForDeployment();
-  console.log("Token PriceFeed контракт деплоєно за адресою:", await tokenPriceFeed.getAddress());
+  // --- 2. Chainlink Aggregators (реальні в Sepolia) ---
+  const ETH_USD_FEED = "0x694AA1769357215DE4FAC081bf1f309aDC325306"; // ETH/USD
+  const UF_USD_FAKE_FEED = ETH_USD_FEED; // Для тесту — однаково з ETH/USD (або заміни на інший)
 
-  // Деплоїмо CompanyManager
+  // --- 3. Деплой CompanyManager ---
   const CompanyManagerFactory = await ethers.getContractFactory("CompanyManager");
   const companyManager = await CompanyManagerFactory.deploy(token.target);
   await companyManager.waitForDeployment();
-  console.log("CompanyManager контракт деплоєно за адресою:", await companyManager.getAddress());
+  console.log("✅ CompanyManager:", await companyManager.getAddress());
 
-  // Деплоїмо FundraisingManager
+  // --- 4. Деплой FundraisingManager ---
   const FundraisingManagerFactory = await ethers.getContractFactory("FundraisingManager");
-  const fundraisingManager = await FundraisingManagerFactory.deploy(token.target, ethPriceFeed.target, tokenPriceFeed.target);
+  const fundraisingManager = await FundraisingManagerFactory.deploy(
+    token.target,
+    ETH_USD_FEED,
+    UF_USD_FAKE_FEED
+  );
   await fundraisingManager.waitForDeployment();
-  console.log("FundraisingManager контракт деплоєно за адресою:", await fundraisingManager.getAddress());
+  console.log("✅ FundraisingManager:", await fundraisingManager.getAddress());
 
-  // Деплоїмо ProposalManager
+  // --- 5. Деплой ProposalManager ---
   const ProposalManagerFactory = await ethers.getContractFactory("ProposalManager");
   const proposalManager = await ProposalManagerFactory.deploy(token.target);
   await proposalManager.waitForDeployment();
-  console.log("ProposalManager контракт деплоєно за адресою:", await proposalManager.getAddress());
+  console.log("✅ ProposalManager:", await proposalManager.getAddress());
 
-  // Деплоїмо UnityFlow
+  // --- 6. Деплой UnityFlow ---
   const UnityFlowFactory = await ethers.getContractFactory("UnityFlow");
   const unityFlow = await UnityFlowFactory.deploy(
     token.target,
     companyManager.target,
     fundraisingManager.target,
-    proposalManager.target,
+    proposalManager.target
   );
   await unityFlow.waitForDeployment();
-  console.log("UnityFlow контракт деплоєно за адресою:", await unityFlow.getAddress());
+  console.log("✅ UnityFlow:", await unityFlow.getAddress());
 
-  // Передаємо власність токена UnityFlow
-  console.log("Передаємо власність токена UnityFlow...");
+  // --- 7. Передаємо власність токена ---
   const tx = await token.transferOwnership(unityFlow.target);
   await tx.wait();
-  console.log("Власність токена передана UnityFlow:", unityFlow.target);
+  console.log("🔐 Власність токена передана UnityFlow:", unityFlow.target);
 
-  // Реєструємо компанію
-  console.log("Реєструємо компанію...");
-  const tx_create = await unityFlow.registerCompany("UnityFlow", "https://picsum.photos/200", ":)", "Web3", []);
-  await tx_create.wait();
-  console.log("Компанія зареєстрована!");
+  // --- 8. Реєструємо першу компанію ---
+  const registerTx = await unityFlow.registerCompany(
+    "UnityFlow",
+    "https://picsum.photos/200",
+    ":)",
+    "Web3",
+    []
+  );
+  await registerTx.wait();
+  console.log("🏢 Компанія зареєстрована");
 
-  console.log("Деплой завершено успішно!");
+  console.log("🎉 Деплой завершено успішно!");
 }
 
 main().catch((error) => {
-  console.error(error);
+  console.error("❌ Помилка при деплої:", error);
   process.exitCode = 1;
 });
-
-
-// comands
-
-// npx hardhat compile 
-// npx hardhat node 
-
-// npx hardhat run scripts/deploy.ts --network localhost
-// npx hardhat run scripts/addTestData.ts --network localhost
-// npx hardhat run scripts/doAction.ts --network localhost
