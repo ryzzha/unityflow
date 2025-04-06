@@ -154,7 +154,7 @@ export default function CompanyPage() {
               <div className="w-full flex gap-1 items-center mb-3"><UsersIcon /> <h3 className="text-lg font-semibold">Cofounders</h3></div>
                 {company.cofounders.length > 0 ? (
                   <ul className="space-y-3">
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                   {company.cofounders.map((cofounder, index) => (
                     <li key={index} className="flex items-center gap-2 text-sm text-gray-700">
                       <Image
