@@ -1,15 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Image from "next/image";
 import CustomButton from "@/components/custom-button";
 import { useContractsContext } from "@/context/contracts-context";
-import { ethers, Contract } from "ethers";
-import { Company__factory, Fundraising__factory } from "@/typechain";
+
 import CategoryIcon from "@/components/icons/category-icon";
 import { motion } from "framer-motion";
-import { format } from "date-fns";
 import { Icon } from "@/components/icon"
 import { unityFlowUser } from "@/assets";
 import { MoneyIcon, UsersIcon, UserMinus, UserPlus } from "@/components/icons";
@@ -28,52 +26,41 @@ const TABS = [
   { id: "investment", label: "Investment", description: "Investors contribute funds that the founder cannot freely spend. Depending on their stake, they receive a percentage of commissions from fundraisers." },
 ];
 
-interface IFund {
-    id: bigint;
-    address: string;
-    company: string;
-    title: string;
-    image: string;
-    category: string;
-    goalUSD: bigint;
-    deadline: bigint;
-    status: "active" | "success" | "failed";
-  }
 
 export default function CompanyPage() {
-  const { provider, signer, account } = useContractsContext();
+  const {  signer, account } = useContractsContext();
   // const [funds, setFunds] = useState<IFund[] | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [currentPage, setCurrentPage] = useState(1);
-  const [dividends, setDividends] = useState({ eth: "0", uf: "0" });
-  const [showInvestors, setShowInvestors] = useState(false);
-  const [exchangeRates, setExchangeRates] = useState({ ethToUsd: 0, ufToUsd: 0 });
+  // const [dividends, setDividends] = useState({ eth: "0", uf: "0" });
+  // const [showInvestors, setShowInvestors] = useState(false);
+  const [exchangeRates] = useState({ ethToUsd: 0, ufToUsd: 0 });
   const [newCofounder, setNewCofounder] = useState("");
 
   const { address } = useParams();
   const { data: company, isLoading: isCompanyLoading } = useCompany(address as string);
-  const { data: funds, isLoading: isFundLoading } = useFundraisers(company?.fundraisers || []);
+  const { data: funds } = useFundraisers(company?.fundraisers || []);
   const { mutate: addCofounder, isPending: isAdding } = useAddCofounder(address as string);
   const { mutate: removeCofounder } = useRemoveCofounder(address as string);
   
   const router = useRouter();
 
-  const fetchDividends = async () => {
-    if (!provider || !account || !address) return;
+  // const fetchDividends = async () => {
+  //   if (!provider || !account || !address) return;
 
-    try {
-      const companyContract = Company__factory.connect(address as string, provider);
-      const [ethDividends, ufDividends] = await companyContract.getInvestorDividends(account);
+  //   try {
+  //     const companyContract = Company__factory.connect(address as string, provider);
+  //     const [ethDividends, ufDividends] = await companyContract.getInvestorDividends(account);
 
-      setDividends({
-        eth: ethers.formatEther(ethDividends ?? 0),
-        uf: ethers.formatEther(ufDividends ?? 0),
-      });
-    } catch (error) {
-      console.error("Error fetching dividends:", error);
-    } finally {
-    }
-  };
+  //     setDividends({
+  //       eth: ethers.formatEther(ethDividends ?? 0),
+  //       uf: ethers.formatEther(ufDividends ?? 0),
+  //     });
+  //   } catch (error) {
+  //     console.error("Error fetching dividends:", error);
+  //   } finally {
+  //   }
+  // };
 
 
   const handleAddCofounder = async () => {

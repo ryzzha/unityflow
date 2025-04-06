@@ -3,9 +3,9 @@
 import CustomButton from "@/components/custom-button";
 import { useContractsContext } from "@/context/contracts-context";
 import { Fundraising__factory } from "@/typechain";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useState, useEffect } from "react";
-import { ethers, parseUnits } from "ethers";
+import { ethers, } from "ethers";
 
 export default function Fund() {
   const { address } = useParams();

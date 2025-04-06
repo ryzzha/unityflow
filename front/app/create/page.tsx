@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useContractsContext } from "@/context/contracts-context";
+// import { useContractsContext } from "@/context/contracts-context";
 import { CreateCompanyForm } from "@/entities/company";
 import { CreateFundraisingForm } from "@/entities/fund";
 import { CreateProposalForm } from "@/entities/proposal";
@@ -13,7 +13,6 @@ const tabs = [
 ];
 
 export default function CreateCampaign() {
-  const { provider, signer, unityFlow } = useContractsContext();
   const [activeTab, setActiveTab] = useState("company");
 
   return (

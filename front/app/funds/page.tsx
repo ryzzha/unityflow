@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import { useContractsContext } from "@/context/contracts-context";
 import { useRouter } from "next/navigation";
 import FundCard from "@/entities/fund/ui/fund-card";
-import { ethers, Contract } from "ethers";
 import { Fundraising__factory } from "@/typechain";
 
 type TStatus = "active" | "success" | "failed";
@@ -68,7 +67,7 @@ export default function Funds() {
 
   useEffect(() => {
     fetchFunds(onlyActive);
-  }, [provider, unityFlow]);
+  }, [provider, unityFlow, fetchFunds, onlyActive]);
 
   const filteredFunds = funds.filter((fund) => {
     const title = fund.title.toLowerCase() || "";

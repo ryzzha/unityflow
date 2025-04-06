@@ -1,4 +1,4 @@
-import React,  { Fragment, useState } from 'react';
+import React,  { Fragment } from 'react';
 import SearchIcon from './icons/search-icon';
 import {
   Listbox,

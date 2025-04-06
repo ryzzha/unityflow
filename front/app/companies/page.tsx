@@ -2,12 +2,9 @@
 
 import CustomButton from "@/components/custom-button";
 import Search from "@/components/search-input";
-import { useEffect, useState } from "react";
-import { useContractsContext } from "@/context/contracts-context";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import CompanyCard from "@/entities/company/ui/company-card";
-import { ethers, Contract } from "ethers";
-import { Company__factory } from "@/typechain";
 import { useCompaniesQuery } from "@/entities/company/model/use-companies-query";
 import { RootState } from "@/shared/store";
 import { useSelector } from "react-redux";
