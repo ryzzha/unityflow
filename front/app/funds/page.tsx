@@ -67,7 +67,7 @@ export default function Funds() {
 
   useEffect(() => {
     fetchFunds(onlyActive);
-  }, [provider, unityFlow, fetchFunds, onlyActive]);
+  }, [provider, unityFlow, onlyActive]);
 
   const filteredFunds = funds.filter((fund) => {
     const title = fund.title.toLowerCase() || "";

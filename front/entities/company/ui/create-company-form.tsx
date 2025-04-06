@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ethers, {formatUnits} from "ethers"
+import  {formatUnits} from "ethers"
 import CustomButton from "@/components/custom-button";
 import { useContractsContext } from "@/context/contracts-context";
 import { useRouter } from "next/navigation";

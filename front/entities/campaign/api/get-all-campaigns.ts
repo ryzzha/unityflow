@@ -1,15 +1,15 @@
 "use client"
 import { ethers } from "ethers";
-import { Crowdfunding, Campaign, Campaign__factory } from "@/typechain";
+import { UnityFlow, Company, Company__factory } from "@/typechain";
 import { IFundraisingCampaign, FundCategory } from "../model/types";
 
-export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provider: ethers.Provider): Promise<IFundraisingCampaign[]> => {
+export const getAllCampaigns = async (unityFlowContract: UnityFlow, provider: ethers.Provider): Promise<IFundraisingCampaign[]> => {
     try {
-        const campaignsAdrrs =  await crowdfundingContract.getAllCampaigns();
+        const campaignsAdrrs =  await unityFlowContract.getAllCompanies(true);
 
-        const campaigns: IFundraisingCampaign[] = await Promise.all(
+        const campaigns: any[] = await Promise.all(
             campaignsAdrrs.map(async (campaignAdrr) => {
-              const campaignContract = Campaign__factory.connect(campaignAdrr, provider);
+              const campaignContract = Company__factory.connect(campaignAdrr, provider);
               const [
                 id,
                 organizer,
@@ -22,7 +22,7 @@ export const getAllCampaigns = async (crowdfundingContract: Crowdfunding, provid
                 collectedETH,
                 collectedUF,
                 claimed,
-              ] = await campaignContract.getDetails();
+              ] = await campaignContract.getCompanyDetails();
       
               return {
                 campaignId: Number(id),
