@@ -12,8 +12,6 @@ export default function Fund() {
   const { provider, signer, account } = useContractsContext();
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const [fundInfo, setFundInfo] = useState<any>(null);
-
   const [fundInfo, setFundInfo] = useState<any>(null);
   const [donateAmount, setDonateAmount] = useState("0.01");
   const [owner, setOwner] = useState<string>("");
