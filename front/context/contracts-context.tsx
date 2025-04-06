@@ -4,9 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { UNITYFLOW_ADDRESS, TOKEN_ADDRESS } from "@/config";
 import { TokenUF, TokenUF__factory, UnityFlow, UnityFlow__factory,  } from "@/typechain";
-import dotenv from "dotenv";
-
-dotenv.config();
+import "dotenv/config";
 
 interface ContractsContextProps {
     provider: ethers.Provider | null;
@@ -47,7 +45,9 @@ export const ContractsProvider = ({ children }: { children: React.ReactNode  }) 
   useEffect(() => {
     const initContracts = async () => {
       try {
-        const provider = new ethers.JsonRpcProvider(process.env.SEPOLIA_RPC_URL);
+        console.log('RPC from env:', process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
+
+        const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL);
         console.log(provider)
         const ws = new ethers.WebSocketProvider(`wss://sepolia.infura.io/ws/v3/${process.env.NEXT_PUBLIC_INFURA_KEY}`);
 
